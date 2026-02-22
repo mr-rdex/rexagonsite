@@ -57,6 +57,7 @@ const Navigation = () => {
 
   return (
     <>
+<<<<<<< HEAD
     <nav className="fixed top-0 left-0 right-0 z-50 bg-[#222222]/70 border-b border-white/5">
       <div className="container mx-auto md:px-6 max-w-8xl">
         <div className="flex items-center justify-between h-20">
@@ -66,6 +67,17 @@ const Navigation = () => {
               src="/images/logo.png" 
               alt="Rexagon" 
               className="h-20 md:h-40 w-auto object-contain"
+=======
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#222222]/95 backdrop-blur-md border-b border-white/5">
+      <div className="container mx-auto px-4 md:px-6 max-w-7xl">
+        <div className="flex items-center justify-between h-20">
+          {/* Logo */}
+          <Link to="/" className="flex items-center" data-testid="logo-link">
+            <img 
+              src="/images/logo.png" 
+              alt="Rexagon" 
+              className="h-12 md:h-14 w-auto object-contain"
+>>>>>>> e9fcf05bcc106c9f450c5fb30a72e984fbf67af1
             />
           </Link>
 
@@ -75,7 +87,11 @@ const Navigation = () => {
               <Link
                 key={link.to}
                 to={link.to}
+<<<<<<< HEAD
                 className="text-zinc-400 hover:text-[#FDD500] font-medium transition-colors uppercase px-3 tracking-wider text-sm whitespace-nowrap"
+=======
+                className="text-zinc-400 hover:text-[#FDD500] font-medium transition-colors uppercase tracking-wider text-sm whitespace-nowrap"
+>>>>>>> e9fcf05bcc106c9f450c5fb30a72e984fbf67af1
                 data-testid={`nav-${link.label.toLowerCase().replace(' ', '-')}`}
               >
                 {link.label}
@@ -93,7 +109,11 @@ const Navigation = () => {
                   data-testid="profile-menu-button"
                 >
                   <img
+<<<<<<< HEAD
                     src={`https://mc-heads.net/avatar/${user.kullanici_adi}/32`}
+=======
+                    src={`https://cravatar.eu/helmavatar/${user.kullanici_adi}/32`}
+>>>>>>> e9fcf05bcc106c9f450c5fb30a72e984fbf67af1
                     alt={user.kullanici_adi}
                     className="w-8 h-8 rounded"
                   />
@@ -166,7 +186,11 @@ const Navigation = () => {
               <>
                 <Link
                   to="/giris"
+<<<<<<< HEAD
                   className="text-zinc-400 hover:text-white font-medium transition-colors px-6 uppercase tracking-wider text-sm"
+=======
+                  className="text-zinc-400 hover:text-white font-medium transition-colors uppercase tracking-wider text-sm"
+>>>>>>> e9fcf05bcc106c9f450c5fb30a72e984fbf67af1
                   data-testid="login-link"
                 >
                   Giriş Yap
@@ -184,7 +208,11 @@ const Navigation = () => {
 
           {/* Mobile Menu Button */}
           <button
+<<<<<<< HEAD
             className="md:hidden pr-4 p-2 text-white"
+=======
+            className="md:hidden p-2 text-white"
+>>>>>>> e9fcf05bcc106c9f450c5fb30a72e984fbf67af1
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             data-testid="mobile-menu-button"
           >
@@ -194,7 +222,11 @@ const Navigation = () => {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
+<<<<<<< HEAD
           <div className="md:hidden py-4 px-4 border-t bg-[#222222]/80 border-white/5">
+=======
+          <div className="md:hidden py-4 border-t border-white/5">
+>>>>>>> e9fcf05bcc106c9f450c5fb30a72e984fbf67af1
             {navLinks.map(link => (
               <Link
                 key={link.to}
@@ -210,9 +242,15 @@ const Navigation = () => {
                 <>
                   <div className="flex items-center space-x-3 mb-4">
                     <img
+<<<<<<< HEAD
                       src={`https://mc-heads.net/avatar/${user.kullanici_adi}`}
                       alt={user.kullanici_adi}
                       className="w-12 h-12 rounded"
+=======
+                      src={`https://cravatar.eu/helmavatar/${user.kullanici_adi}/32`}
+                      alt={user.kullanici_adi}
+                      className="w-8 h-8 rounded"
+>>>>>>> e9fcf05bcc106c9f450c5fb30a72e984fbf67af1
                     />
                     <div className="flex flex-col">
                       <span className="text-sm font-medium text-white">{user.kullanici_adi}</span>

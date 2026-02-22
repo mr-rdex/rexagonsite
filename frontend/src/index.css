@@ -33,7 +33,11 @@ code {
 @layer utilities {
   .btn-3d {
     box-shadow: 0px 4px 0px 0px #b89a00;
+<<<<<<< HEAD
     transition: all 0.5s;
+=======
+    transition: all 0.1s;
+>>>>>>> e9fcf05bcc106c9f450c5fb30a72e984fbf67af1
   }
   
   .btn-3d:active {
@@ -42,6 +46,10 @@ code {
   }
   
   .hover-shadow {
+<<<<<<< HEAD
     transition: box-shadow 1s ease, border-color 1s ease;
+=======
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+>>>>>>> e9fcf05bcc106c9f450c5fb30a72e984fbf67af1
   }
 }

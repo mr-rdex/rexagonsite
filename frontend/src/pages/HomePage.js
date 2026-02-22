@@ -65,15 +65,26 @@ const HomePage = () => {
   }
 
   return (
+<<<<<<< HEAD
     <div className="min-h-screen " data-testid="home-page">
       {/* Hero Section */}
       <div className="relative mb-16 overflow-hidden rounded-xl" style={{
         backgroundImage: 'url(/images/manzara.jpg)',
+=======
+    <div className="min-h-screen pt-24 pb-16 px-4" data-testid="home-page">
+      {/* Hero Section */}
+      <div className="relative mb-16 overflow-hidden rounded-xl" style={{
+        backgroundImage: 'url(/images/hero-bg.jpg)',
+>>>>>>> e9fcf05bcc106c9f450c5fb30a72e984fbf67af1
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         minHeight: '500px'
       }}>
+<<<<<<< HEAD
         <div className="absolute inset-0 bg-gradient-to-b via-black/30 to-[#222222]"></div>
+=======
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-[#222222]"></div>
+>>>>>>> e9fcf05bcc106c9f450c5fb30a72e984fbf67af1
         <div className="relative container mx-auto max-w-7xl px-6 py-20 text-center z-10">
           <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase text-white mb-6" data-testid="hero-title">
             Rexagon'a <span className="text-[#FDD500]">Hoş Geldin</span>
@@ -85,13 +96,21 @@ const HomePage = () => {
           {/* Server Stats */}
           <div className="flex flex-col items-center gap-6">
             <div className="flex flex-wrap justify-center gap-6">
+<<<<<<< HEAD
               <div className="bg-[#1E1E1E]/50 backdrop-blur-md border border-white/10 rounded-xl px-8 py-6 hover:shadow-[0_0_30px_rgba(255,213,0,0.3)] transition-all duration-300">
+=======
+              <div className="bg-[#1E1E1E]/90 backdrop-blur-md border border-white/10 rounded-xl px-8 py-6 hover:shadow-[0_0_30px_rgba(255,213,0,0.3)] transition-all duration-300">
+>>>>>>> e9fcf05bcc106c9f450c5fb30a72e984fbf67af1
                 <div className="text-center">
                   <p className="text-4xl font-black text-[#FDD500] mb-2">{stats.aktif_oyuncu}</p>
                   <p className="text-sm text-zinc-400 uppercase tracking-wider">Aktif Oyuncu</p>
                 </div>
               </div>
+<<<<<<< HEAD
               <div className="bg-[#1E1E1E]/50 backdrop-blur-md border border-white/10 rounded-xl px-8 py-6 hover:shadow-[0_0_30px_rgba(255,213,0,0.3)] transition-all duration-300">
+=======
+              <div className="bg-[#1E1E1E]/90 backdrop-blur-md border border-white/10 rounded-xl px-8 py-6 hover:shadow-[0_0_30px_rgba(255,213,0,0.3)] transition-all duration-300">
+>>>>>>> e9fcf05bcc106c9f450c5fb30a72e984fbf67af1
                 <div className="text-center">
                   <p className="text-4xl font-black text-[#FDD500] mb-2">{stats.kayitli_oyuncu}</p>
                   <p className="text-sm text-zinc-400 uppercase tracking-wider">Kayıtlı Oyuncu</p>
@@ -102,7 +121,11 @@ const HomePage = () => {
             <div className="w-full max-w-md">
               <button
                 onClick={handleCopyIP}
+<<<<<<< HEAD
                 className="w-full bg-[#1E1E1E]/50 backdrop-blur-md border-2 border-[#FDD500] rounded-xl px-8 py-4 hover:bg-[#FDD500]/10 hover:shadow-[0_0_30px_rgba(255,213,0,0.3)] transition-all duration-300 flex items-center justify-center space-x-3"
+=======
+                className="w-full bg-[#1E1E1E]/90 backdrop-blur-md border-2 border-[#FDD500] rounded-xl px-8 py-4 hover:bg-[#FDD500]/10 hover:shadow-[0_0_30px_rgba(255,213,0,0.3)] transition-all duration-300 flex items-center justify-center space-x-3"
+>>>>>>> e9fcf05bcc106c9f450c5fb30a72e984fbf67af1
                 data-testid="copy-ip-button"
               >
                 <span className="text-[#FDD500] font-bold text-xl">play.rexagon.com.tr</span>
@@ -120,7 +143,11 @@ const HomePage = () => {
         {/* Haberler */}
         {haberler.length > 0 && (
           <div className="mb-16" data-testid="news-section">
+<<<<<<< HEAD
             <h2 className="text-4xl md:text-5xl pl-4 font-bold tracking-tight uppercase text-white mb-8">Son Haberler</h2>
+=======
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight uppercase text-white mb-8">Son Haberler</h2>
+>>>>>>> e9fcf05bcc106c9f450c5fb30a72e984fbf67af1
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {haberler.map((haber) => (
                 <div
@@ -160,7 +187,11 @@ const HomePage = () => {
                   <div className="flex items-center space-x-3">
                     <span className="text-[#FDD500] font-bold w-6">#{index + 1}</span>
                     <img
+<<<<<<< HEAD
                       src={`https://mc-heads.net/avatar/${user.kullanici_adi}/32`}
+=======
+                      src={`https://cravatar.eu/helmavatar/${user.kullanici_adi}/32`}
+>>>>>>> e9fcf05bcc106c9f450c5fb30a72e984fbf67af1
                       alt={user.kullanici_adi}
                       className="w-8 h-8 rounded"
                     />
@@ -187,7 +218,11 @@ const HomePage = () => {
                 >
                   <div className="flex items-center space-x-3">
                     <img
+<<<<<<< HEAD
                       src={`https://mc-heads.net/avatar/${user.kullanici_adi}/32`}
+=======
+                      src={`https://cravatar.eu/helmavatar/${user.kullanici_adi}/32`}
+>>>>>>> e9fcf05bcc106c9f450c5fb30a72e984fbf67af1
                       alt={user.kullanici_adi}
                       className="w-8 h-8 rounded"
                     />

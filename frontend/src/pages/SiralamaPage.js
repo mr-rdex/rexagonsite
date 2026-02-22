@@ -55,7 +55,11 @@ const SiralamaPage = () => {
     >
       <div className="flex items-center space-x-4">
         <span className={`text-2xl font-black w-12 text-center ${getRankColor(index)}`}>#{index + 1}</span>
+<<<<<<< HEAD
         <img src={`https://mc-heads.net/avatar/${user.kullanici_adi}`} alt={user.kullanici_adi} className="w-12 h-12 rounded" />
+=======
+        <img src={`https://cravatar.eu/helmavatar/${user.kullanici_adi}/48`} alt={user.kullanici_adi} className="w-12 h-12 rounded" />
+>>>>>>> e9fcf05bcc106c9f450c5fb30a72e984fbf67af1
         <div>
           <p className="text-white font-bold">{user.kullanici_adi}</p>
           <p className="text-xs text-zinc-500">Kayıt: {formatDate(user.kayit_tarihi)}</p>
@@ -129,7 +133,11 @@ const SiralamaPage = () => {
                 {data.map((user) => (
                   <Link key={user.id} to={`/profil/${user.kullanici_adi}`} className="flex items-center justify-between p-6 hover:bg-[#2A2A2A] transition-colors">
                     <div className="flex items-center space-x-4">
+<<<<<<< HEAD
                       <img src={`https://mc-heads.net/avatar/${user.kullanici_adi}/48`} alt={user.kullanici_adi} className="w-12 h-12 rounded" />
+=======
+                      <img src={`https://cravatar.eu/helmavatar/${user.kullanici_adi}/48`} alt={user.kullanici_adi} className="w-12 h-12 rounded" />
+>>>>>>> e9fcf05bcc106c9f450c5fb30a72e984fbf67af1
                       <div>
                         <p className="text-white font-bold">{user.kullanici_adi}</p>
                         <p className="text-xs text-zinc-500">{user.email}</p>
