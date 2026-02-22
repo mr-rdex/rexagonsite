@@ -1,0 +1,47 @@
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #222222;
+  color: #FFFFFF;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Russo One', 'Inter', sans-serif;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+@layer utilities {
+  .btn-3d {
+    box-shadow: 0px 4px 0px 0px #b89a00;
+    transition: all 0.5s;
+  }
+  
+  .btn-3d:active {
+    box-shadow: none;
+    transform: translateY(4px);
+  }
+  
+  .hover-shadow {
+    transition: box-shadow 1s ease, border-color 1s ease;
+  }
+}
