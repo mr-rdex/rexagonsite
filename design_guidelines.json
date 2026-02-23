@@ -1,0 +1,143 @@
+{
+  "identity": {
+    "name": "Rexagon",
+    "mission": "To create the most immersive and engaging Minecraft server community platform in Turkey.",
+    "aesthetic": "Modern Gaming x Minecraft",
+    "keywords": ["Immersive", "Competitive", "Community", "Blocky", "Gold", "Dark"]
+  },
+  "typography": {
+    "font_family": {
+      "headings": "Barlow Condensed, sans-serif",
+      "body": "Inter, sans-serif",
+      "mono": "JetBrains Mono, monospace"
+    },
+    "weights": {
+      "light": 300,
+      "regular": 400,
+      "medium": 500,
+      "bold": 700,
+      "black": 900
+    },
+    "scale": {
+      "h1": "text-5xl md:text-7xl font-black tracking-tighter uppercase",
+      "h2": "text-4xl md:text-5xl font-bold tracking-tight uppercase",
+      "h3": "text-2xl md:text-3xl font-bold tracking-tight",
+      "body": "text-base md:text-lg leading-relaxed text-zinc-300",
+      "small": "text-sm text-zinc-400"
+    },
+    "imports": [
+      "@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;700;900&family=Inter:wght@300;400;500;600;700&display=swap');"
+    ]
+  },
+  "colors": {
+    "palette": {
+      "background": "#222222",
+      "surface": "#1E1E1E",
+      "surface_highlight": "#2A2A2A",
+      "primary": "#FDD500",
+      "primary_hover": "#E6C200",
+      "secondary": "#FFFFFF",
+      "text_primary": "#FFFFFF",
+      "text_secondary": "#A1A1AA",
+      "border": "#333333",
+      "success": "#55FF55",
+      "error": "#FF5555",
+      "warning": "#FFAA00"
+    },
+    "gradients": {
+      "gold": "linear-gradient(135deg, #FDD500 0%, #FFAA00 100%)",
+      "dark_overlay": "linear-gradient(to bottom, rgba(34,34,34,0) 0%, #222222 100%)"
+    },
+    "usage": {
+      "body_bg": "bg-[#222222]",
+      "card_bg": "bg-[#1E1E1E]",
+      "text_main": "text-white",
+      "text_muted": "text-zinc-400",
+      "accent": "text-[#FDD500]",
+      "border_default": "border-zinc-800"
+    }
+  },
+  "visual_enhancers": {
+    "shadows": {
+      "card": "0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.16)",
+      "glow": "0 0 20px rgba(253, 213, 0, 0.15)",
+      "hard": "0px 4px 0px 0px rgba(0,0,0,0.5)"
+    },
+    "borders": {
+      "default": "1px solid #333333",
+      "highlight": "1px solid rgba(253, 213, 0, 0.3)",
+      "radius": {
+        "sm": "rounded-sm",
+        "md": "rounded-md",
+        "lg": "rounded-lg",
+        "full": "rounded-full"
+      }
+    },
+    "textures": {
+      "noise": "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E\")"
+    }
+  },
+  "layout_strategies": {
+    "container": "container mx-auto px-4 md:px-6 max-w-7xl",
+    "section_spacing": "py-16 md:py-24",
+    "grid_gap": "gap-6 md:gap-8",
+    "bento_grid": "grid grid-cols-1 md:grid-cols-3 gap-6",
+    "glass_panel": "bg-[#1E1E1E]/80 backdrop-blur-md border border-white/5"
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-[#FDD500] text-black font-bold uppercase tracking-wide px-8 py-3 rounded-sm hover:bg-[#E6C200] transition-all shadow-[0px_4px_0px_0px_#b89a00] active:shadow-none active:translate-y-[4px]",
+      "secondary": "bg-transparent border-2 border-[#FDD500] text-[#FDD500] font-bold uppercase tracking-wide px-8 py-3 rounded-sm hover:bg-[#FDD500]/10 transition-all",
+      "ghost": "text-zinc-400 hover:text-white transition-colors"
+    },
+    "cards": {
+      "default": "bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6 hover:border-[#FDD500]/50 transition-colors group relative overflow-hidden",
+      "interactive": "cursor-pointer hover:-translate-y-1 transition-transform duration-300"
+    },
+    "inputs": {
+      "default": "bg-[#2A2A2A] border border-zinc-700 text-white rounded-md px-4 py-3 focus:outline-none focus:border-[#FDD500] focus:ring-1 focus:ring-[#FDD500] transition-all placeholder:text-zinc-600"
+    },
+    "navigation": {
+      "wrapper": "fixed top-0 left-0 right-0 z-50 bg-[#222222]/90 backdrop-blur-md border-b border-white/5 h-20",
+      "link": "text-zinc-400 hover:text-[#FDD500] font-medium transition-colors uppercase tracking-wider text-sm"
+    }
+  },
+  "motion": {
+    "default_transition": "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+    "hover_lift": "hover:-translate-y-1 hover:shadow-lg",
+    "fade_in": "animate-in fade-in zoom-in-95 duration-500",
+    "stagger_children": "stagger-100"
+  },
+  "assets": {
+    "images": {
+      "hero_bg": "https://images.unsplash.com/photo-1684159607944-030be9444b66?q=80&w=2070&auto=format&fit=crop",
+      "feature_pvp": "https://images.unsplash.com/photo-1662608582554-eac8328869ca?q=80&w=2070&auto=format&fit=crop",
+      "feature_community": "https://images.unsplash.com/photo-1759663176932-04c90aeec2b3?q=80&w=2070&auto=format&fit=crop",
+      "placeholder_avatar": "https://minotar.net/helm/Steve/100.png"
+    },
+    "icons": {
+      "library": "lucide-react",
+      "style": "stroke-[1.5px]"
+    }
+  },
+  "accessibility": {
+    "contrast_check": "Ensure #FDD500 is used with BLACK text, not white. Use White text on #222222 backgrounds.",
+    "focus_states": "ring-2 ring-[#FDD500] ring-offset-2 ring-offset-[#222222]"
+  },
+  "instructions_to_main_agent": [
+    "Install 'lucide-react' for icons.",
+    "Install 'clsx' and 'tailwind-merge' for class handling.",
+    "Use 'Barlow Condensed' for all headings to give that gaming feel.",
+    "Ensure all backgrounds are strictly #222222 or #1E1E1E. Do not use standard slate/gray colors.",
+    "For the 'Minotar' integration, use the URL format: https://minotar.net/avatar/{username}/100",
+    "Implement the 'Button' component with the 3D click effect (shadow-bottom) defined in components.buttons.primary.",
+    "For Leaderboards, use a table layout but make it look like a high-tech dashboard.",
+    "The Market section should use a grid of cards with the item image prominent.",
+    "Admin panel should be cleaner, less 'gaming' heavy, more functional, but still dark mode."
+  ],
+  "universal_guidelines": {
+    "dark_mode_only": true,
+    "border_radius": "rounded-lg",
+    "spacing_scale": "generous"
+  }
+}
