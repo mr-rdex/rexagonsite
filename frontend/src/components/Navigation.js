@@ -52,13 +52,13 @@ const Navigation = () => {
     { to: '/market', label: 'Market' },
     { to: '/forum', label: 'Forum' },
     { to: '/siralama', label: 'Sıralama' },
-    { to: '/hakkimizda', label: 'Hakkımızda' }
+    { to: '/hakkimizda', label: 'Hakkımızda' },
+    { to: '/cuzdan', label: 'Kredi Yükle' }
   ];
 
   return (
     <>
-<<<<<<< HEAD
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#222222]/95 backdrop-blur-md border-b border-white/5">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#222222]/90 backdrop-blur-md border-b border-white/5">
       <div className="container mx-auto px-4 md:px-6 max-w-7xl">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
@@ -67,17 +67,6 @@ const Navigation = () => {
               src="/images/logo.png" 
               alt="Rexagon" 
               className="h-12 md:h-14 w-auto object-contain"
-=======
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#222222]/70 border-b border-white/5">
-      <div className="container mx-auto md:px-6 max-w-8xl">
-        <div className="flex items-center justify-between h-20">
-          {/* Logo */}
-          <Link to="/" className="flex pl-4 items-center" data-testid="logo-link">
-            <img 
-              src="/images/logo.png" 
-              alt="Rexagon" 
-              className="h-20 md:h-40 w-auto object-contain"
->>>>>>> 6612e1a (Veritabanı ve API ayarları düzeltildi)
             />
           </Link>
 
@@ -87,11 +76,7 @@ const Navigation = () => {
               <Link
                 key={link.to}
                 to={link.to}
-<<<<<<< HEAD
-                className="text-zinc-400 hover:text-[#FDD500] font-medium transition-colors uppercase tracking-wider text-sm whitespace-nowrap"
-=======
-                className="text-zinc-400 hover:text-[#FDD500] font-medium transition-colors uppercase px-3 tracking-wider text-sm whitespace-nowrap"
->>>>>>> 6612e1a (Veritabanı ve API ayarları düzeltildi)
+                className={`text-zinc-400 hover:text-[#FDD500] font-medium transition-colors uppercase tracking-wider text-sm whitespace-nowrap ${link.label === 'Kredi Yükle' ? 'bg-[#FDD500]/10 px-4 py-2 rounded-lg border border-[#FDD500]/20 hover:bg-[#FDD500] hover:text-black shadow-md' : 'px-3'}`}
                 data-testid={`nav-${link.label.toLowerCase().replace(' ', '-')}`}
               >
                 {link.label}
@@ -105,15 +90,11 @@ const Navigation = () => {
               <div className="relative" ref={profileMenuRef}>
                 <button
                   onClick={() => setShowProfileMenu(!showProfileMenu)}
-                  className="flex items-center space-x-3 px-4 py-2 bg-[#1E1E1E] border border-zinc-800 rounded-xl hover:border-[#FDD500]/50 transition-all"
+                  className="flex items-center space-x-3 px-4 py-2 bg-[#1E1E1E] border border-zinc-800 rounded-xl hover:border-[#FDD500]/50 transition-all shadow-md"
                   data-testid="profile-menu-button"
                 >
                   <img
-<<<<<<< HEAD
                     src={`https://cravatar.eu/helmavatar/${user.kullanici_adi}/32`}
-=======
-                    src={`https://mc-heads.net/avatar/${user.kullanici_adi}/32`}
->>>>>>> 6612e1a (Veritabanı ve API ayarları düzeltildi)
                     alt={user.kullanici_adi}
                     className="w-8 h-8 rounded"
                   />
@@ -123,74 +104,68 @@ const Navigation = () => {
                   </div>
                 </button>
 
-                {showProfileMenu && (
-                  <div
-                    className="absolute right-0 top-full mt-2 w-56 bg-[#1E1E1E] border border-zinc-800 rounded-xl shadow-lg overflow-hidden transition-all duration-200"
-                    data-testid="profile-dropdown"
+                <div
+                  className={`absolute right-0 top-full mt-2 w-56 bg-[#1E1E1E] border border-zinc-800 rounded-xl shadow-lg overflow-hidden transition-all duration-300 origin-top transform ${showProfileMenu ? 'opacity-100 scale-y-100 visible' : 'opacity-0 scale-y-95 invisible'}`}
+                  data-testid="profile-dropdown"
+                >
+                  <Link
+                    to="/profil"
+                    className="flex items-center space-x-3 px-4 py-3 hover:bg-[#2A2A2A] transition-colors text-white"
+                    onClick={() => setShowProfileMenu(false)}
                   >
-                    <Link
-                      to="/profil"
-                      className="flex items-center space-x-3 px-4 py-3 hover:bg-[#2A2A2A] transition-colors text-white"
-                      onClick={() => setShowProfileMenu(false)}
-                    >
-                      <User size={18} />
-                      <span>Profil</span>
-                    </Link>
-                    <button
-                      className="w-full flex items-center space-x-3 px-4 py-3 hover:bg-[#2A2A2A] transition-colors text-white"
-                      onClick={() => { setShowProfileMenu(false); setBio(user?.biyografi || ''); setShowSettings(true); setSettingsTab('bio'); }}
-                      data-testid="profile-settings-button"
-                    >
-                      <Settings size={18} />
-                      <span>Profil Ayarları</span>
-                    </button>
-                    <Link
-                      to="/cuzdan"
-                      className="flex items-center space-x-3 px-4 py-3 hover:bg-[#2A2A2A] transition-colors text-white"
-                      onClick={() => setShowProfileMenu(false)}
-                      data-testid="wallet-link"
-                    >
-                      <Wallet size={18} />
-                      <div className="flex flex-col">
-                        <span>Cüzdan</span>
-                        <span className="text-xs text-[#FDD500]">{user.kredi.toFixed(0)} ₺</span>
-                      </div>
-                    </Link>
-                    {user.rol === 'admin' && (
-                      <>
-                        <div className="border-t border-zinc-800"></div>
-                        <Link
-                          to="/admin"
-                          className="flex items-center space-x-3 px-4 py-3 hover:bg-[#2A2A2A] transition-colors text-[#FDD500]"
-                          onClick={() => setShowProfileMenu(false)}
-                          data-testid="admin-link"
-                        >
-                          <Shield size={18} />
-                          <span>Yönetim</span>
-                        </Link>
-                      </>
-                    )}
-                    <div className="border-t border-zinc-800"></div>
-                    <button
-                      onClick={handleLogout}
-                      className="w-full flex items-center space-x-3 px-4 py-3 hover:bg-[#2A2A2A] transition-colors text-red-400"
-                      data-testid="logout-button"
-                    >
-                      <LogOut size={18} />
-                      <span>Çıkış Yap</span>
-                    </button>
-                  </div>
-                )}
+                    <User size={18} />
+                    <span>Profil</span>
+                  </Link>
+                  <button
+                    className="w-full flex items-center space-x-3 px-4 py-3 hover:bg-[#2A2A2A] transition-colors text-white"
+                    onClick={() => { setShowProfileMenu(false); setBio(user?.biyografi || ''); setShowSettings(true); setSettingsTab('bio'); }}
+                    data-testid="profile-settings-button"
+                  >
+                    <Settings size={18} />
+                    <span>Profil Ayarları</span>
+                  </button>
+                  <Link
+                    to="/cuzdan"
+                    className="flex items-center space-x-3 px-4 py-3 hover:bg-[#2A2A2A] transition-colors text-white"
+                    onClick={() => setShowProfileMenu(false)}
+                    data-testid="wallet-link"
+                  >
+                    <Wallet size={18} />
+                    <div className="flex flex-col">
+                      <span>Cüzdan</span>
+                      <span className="text-xs text-[#FDD500]">{user.kredi.toFixed(0)} ₺</span>
+                    </div>
+                  </Link>
+                  {user.rol === 'admin' && (
+                    <>
+                      <div className="border-t border-zinc-800"></div>
+                      <Link
+                        to="/admin"
+                        className="flex items-center space-x-3 px-4 py-3 hover:bg-[#2A2A2A] transition-colors text-[#FDD500]"
+                        onClick={() => setShowProfileMenu(false)}
+                        data-testid="admin-link"
+                      >
+                        <Shield size={18} />
+                        <span>Yönetim</span>
+                      </Link>
+                    </>
+                  )}
+                  <div className="border-t border-zinc-800"></div>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center space-x-3 px-4 py-3 hover:bg-[#2A2A2A] transition-colors text-red-400"
+                    data-testid="logout-button"
+                  >
+                    <LogOut size={18} />
+                    <span>Çıkış Yap</span>
+                  </button>
+                </div>
               </div>
             ) : (
               <>
                 <Link
                   to="/giris"
-<<<<<<< HEAD
-                  className="text-zinc-400 hover:text-white font-medium transition-colors uppercase tracking-wider text-sm"
-=======
                   className="text-zinc-400 hover:text-white font-medium transition-colors px-6 uppercase tracking-wider text-sm"
->>>>>>> 6612e1a (Veritabanı ve API ayarları düzeltildi)
                   data-testid="login-link"
                 >
                   Giriş Yap
@@ -208,11 +183,7 @@ const Navigation = () => {
 
           {/* Mobile Menu Button */}
           <button
-<<<<<<< HEAD
             className="md:hidden p-2 text-white"
-=======
-            className="md:hidden pr-4 p-2 text-white"
->>>>>>> 6612e1a (Veritabanı ve API ayarları düzeltildi)
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             data-testid="mobile-menu-button"
           >
@@ -222,11 +193,7 @@ const Navigation = () => {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-<<<<<<< HEAD
-          <div className="md:hidden py-4 border-t border-white/5">
-=======
           <div className="md:hidden py-4 px-4 border-t bg-[#222222]/80 border-white/5">
->>>>>>> 6612e1a (Veritabanı ve API ayarları düzeltildi)
             {navLinks.map(link => (
               <Link
                 key={link.to}
@@ -242,15 +209,9 @@ const Navigation = () => {
                 <>
                   <div className="flex items-center space-x-3 mb-4">
                     <img
-<<<<<<< HEAD
                       src={`https://cravatar.eu/helmavatar/${user.kullanici_adi}/32`}
                       alt={user.kullanici_adi}
                       className="w-8 h-8 rounded"
-=======
-                      src={`https://mc-heads.net/avatar/${user.kullanici_adi}`}
-                      alt={user.kullanici_adi}
-                      className="w-12 h-12 rounded"
->>>>>>> 6612e1a (Veritabanı ve API ayarları düzeltildi)
                     />
                     <div className="flex flex-col">
                       <span className="text-sm font-medium text-white">{user.kullanici_adi}</span>

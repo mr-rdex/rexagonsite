@@ -165,15 +165,18 @@ const MarketPage = () => {
                     %{item.indirim} İNDİRİM
                   </div>
                 )}
-                {item.gorsel && (
-                  <div className="bg-[#2A2A2A] overflow-hidden flex items-center justify-center p-4" style={{ height: '200px' }}>
+                {/* Always render image container to fix grid height */}
+                <div className="bg-[#2A2A2A] overflow-hidden flex items-center justify-center p-4" style={{ height: '200px' }}>
+                  {item.gorsel ? (
                     <img
                       src={item.gorsel}
                       alt={item.isim}
                       className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300"
                     />
-                  </div>
-                )}
+                  ) : (
+                    <Package className="text-zinc-700" size={64} />
+                  )}
+                </div>
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-2">
                     <h3 className="text-xl font-bold text-white group-hover:text-[#FDD500] transition-colors">
@@ -222,8 +225,10 @@ const MarketPage = () => {
             <h3 className="text-2xl font-bold text-white mb-6">Satın Alma Onayı</h3>
             <div className="bg-[#2A2A2A] rounded-lg p-4 mb-6">
               <div className="flex items-center space-x-4 mb-4">
-                {selectedItem.gorsel && (
+                {selectedItem.gorsel ? (
                   <img src={selectedItem.gorsel} alt={selectedItem.isim} className="w-16 h-16 rounded object-cover" />
+                ) : (
+                   <div className="w-16 h-16 rounded bg-zinc-800 flex items-center justify-center"><Package className="text-zinc-600" /></div>
                 )}
                 <div className="flex-1">
                   <h4 className="text-white font-bold">{selectedItem.isim}</h4>

@@ -65,27 +65,16 @@ const HomePage = () => {
   }
 
   return (
-<<<<<<< HEAD
     <div className="min-h-screen pt-24 pb-16 px-4" data-testid="home-page">
       {/* Hero Section */}
       <div className="relative mb-16 overflow-hidden rounded-xl" style={{
-        backgroundImage: 'url(/images/hero-bg.jpg)',
-=======
-    <div className="min-h-screen " data-testid="home-page">
-      {/* Hero Section */}
-      <div className="relative mb-16 overflow-hidden rounded-xl" style={{
         backgroundImage: 'url(/images/manzara.jpg)',
->>>>>>> 6612e1a (Veritabanı ve API ayarları düzeltildi)
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        minHeight: '500px'
+        minHeight: '800px'
       }}>
-<<<<<<< HEAD
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-[#222222]"></div>
-=======
         <div className="absolute inset-0 bg-gradient-to-b via-black/30 to-[#222222]"></div>
->>>>>>> 6612e1a (Veritabanı ve API ayarları düzeltildi)
-        <div className="relative container mx-auto max-w-7xl px-6 py-20 text-center z-10">
+        <div className="relative container mx-auto max-w-7xl px-6 py-20 text-center z-10 flex flex-col items-center">
           <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase text-white mb-6" data-testid="hero-title">
             Rexagon'a <span className="text-[#FDD500]">Hoş Geldin</span>
           </h1>
@@ -93,48 +82,36 @@ const HomePage = () => {
             Türkiye'nin en büyük Minecraft sunucu topluluğuna katıl ve maceraya atıl!
           </p>
 
-          {/* Server Stats */}
-          <div className="flex flex-col items-center gap-6">
-            <div className="flex flex-wrap justify-center gap-6">
-<<<<<<< HEAD
-              <div className="bg-[#1E1E1E]/90 backdrop-blur-md border border-white/10 rounded-xl px-8 py-6 hover:shadow-[0_0_30px_rgba(255,213,0,0.3)] transition-all duration-300">
-=======
+          {/* Server Stats & IP Address Container */}
+          <div className="flex flex-col gap-6 w-full max-w-2xl">
+            {/* Stats Row */}
+            <div className="grid grid-cols-2 gap-6">
               <div className="bg-[#1E1E1E]/50 backdrop-blur-md border border-white/10 rounded-xl px-8 py-6 hover:shadow-[0_0_30px_rgba(255,213,0,0.3)] transition-all duration-300">
->>>>>>> 6612e1a (Veritabanı ve API ayarları düzeltildi)
                 <div className="text-center">
                   <p className="text-4xl font-black text-[#FDD500] mb-2">{stats.aktif_oyuncu}</p>
                   <p className="text-sm text-zinc-400 uppercase tracking-wider">Aktif Oyuncu</p>
                 </div>
               </div>
-<<<<<<< HEAD
-              <div className="bg-[#1E1E1E]/90 backdrop-blur-md border border-white/10 rounded-xl px-8 py-6 hover:shadow-[0_0_30px_rgba(255,213,0,0.3)] transition-all duration-300">
-=======
               <div className="bg-[#1E1E1E]/50 backdrop-blur-md border border-white/10 rounded-xl px-8 py-6 hover:shadow-[0_0_30px_rgba(255,213,0,0.3)] transition-all duration-300">
->>>>>>> 6612e1a (Veritabanı ve API ayarları düzeltildi)
                 <div className="text-center">
                   <p className="text-4xl font-black text-[#FDD500] mb-2">{stats.kayitli_oyuncu}</p>
                   <p className="text-sm text-zinc-400 uppercase tracking-wider">Kayıtlı Oyuncu</p>
                 </div>
               </div>
             </div>
-            {/* IP Address */}
-            <div className="w-full max-w-md">
-              <button
-                onClick={handleCopyIP}
-<<<<<<< HEAD
-                className="w-full bg-[#1E1E1E]/90 backdrop-blur-md border-2 border-[#FDD500] rounded-xl px-8 py-4 hover:bg-[#FDD500]/10 hover:shadow-[0_0_30px_rgba(255,213,0,0.3)] transition-all duration-300 flex items-center justify-center space-x-3"
-=======
-                className="w-full bg-[#1E1E1E]/50 backdrop-blur-md border-2 border-[#FDD500] rounded-xl px-8 py-4 hover:bg-[#FDD500]/10 hover:shadow-[0_0_30px_rgba(255,213,0,0.3)] transition-all duration-300 flex items-center justify-center space-x-3"
->>>>>>> 6612e1a (Veritabanı ve API ayarları düzeltildi)
-                data-testid="copy-ip-button"
-              >
-                <span className="text-[#FDD500] font-bold text-xl">play.rexagon.com.tr</span>
-                {copied ? <Check className="text-[#FDD500]" size={24} /> : <Copy className="text-[#FDD500]" size={24} />}
-              </button>
-              {copied && (
-                <p className="text-center text-green-500 text-sm mt-2">IP adresi kopyalandı!</p>
-              )}
-            </div>
+
+            {/* IP Address Button */}
+            <button
+              onClick={handleCopyIP}
+              className="w-full bg-[#1E1E1E]/50 backdrop-blur-md border-2 border-[#FDD500] rounded-xl px-8 py-4 hover:bg-[#FDD500]/10 hover:shadow-[0_0_30px_rgba(255,213,0,0.3)] transition-all duration-300 flex items-center justify-center space-x-3"
+              data-testid="copy-ip-button"
+            >
+              <span className="text-[#FDD500] font-bold text-xl">play.rexagon.com.tr</span>
+              {copied ? <Check className="text-[#FDD500]" size={24} /> : <Copy className="text-[#FDD500]" size={24} />}
+            </button>
+            {copied && (
+              <p className="text-center text-green-500 text-sm mt-2">IP adresi kopyalandı!</p>
+            )}
           </div>
         </div>
       </div>
@@ -143,11 +120,7 @@ const HomePage = () => {
         {/* Haberler */}
         {haberler.length > 0 && (
           <div className="mb-16" data-testid="news-section">
-<<<<<<< HEAD
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tight uppercase text-white mb-8">Son Haberler</h2>
-=======
             <h2 className="text-4xl md:text-5xl pl-4 font-bold tracking-tight uppercase text-white mb-8">Son Haberler</h2>
->>>>>>> 6612e1a (Veritabanı ve API ayarları düzeltildi)
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {haberler.map((haber) => (
                 <div
@@ -187,11 +160,7 @@ const HomePage = () => {
                   <div className="flex items-center space-x-3">
                     <span className="text-[#FDD500] font-bold w-6">#{index + 1}</span>
                     <img
-<<<<<<< HEAD
                       src={`https://cravatar.eu/helmavatar/${user.kullanici_adi}/32`}
-=======
-                      src={`https://mc-heads.net/avatar/${user.kullanici_adi}/32`}
->>>>>>> 6612e1a (Veritabanı ve API ayarları düzeltildi)
                       alt={user.kullanici_adi}
                       className="w-8 h-8 rounded"
                     />
@@ -218,11 +187,7 @@ const HomePage = () => {
                 >
                   <div className="flex items-center space-x-3">
                     <img
-<<<<<<< HEAD
                       src={`https://cravatar.eu/helmavatar/${user.kullanici_adi}/32`}
-=======
-                      src={`https://mc-heads.net/avatar/${user.kullanici_adi}/32`}
->>>>>>> 6612e1a (Veritabanı ve API ayarları düzeltildi)
                       alt={user.kullanici_adi}
                       className="w-8 h-8 rounded"
                     />
@@ -244,9 +209,16 @@ const HomePage = () => {
               {sonAlisverisler.length > 0 ? (
                 sonAlisverisler.map((purchase, index) => (
                   <div key={index} className="flex items-center justify-between p-3 bg-[#2A2A2A] rounded">
-                    <div className="flex flex-col">
-                      <span className="text-white font-medium">{purchase.kullanici_adi}</span>
-                      <span className="text-xs text-zinc-500">{purchase.urun_adi}</span>
+                    <div className="flex items-center space-x-3">
+                      <img
+                        src={`https://cravatar.eu/helmavatar/${purchase.kullanici_adi}/32`}
+                        alt={purchase.kullanici_adi}
+                        className="w-8 h-8 rounded"
+                      />
+                      <div className="flex flex-col">
+                        <span className="text-white font-medium">{purchase.kullanici_adi}</span>
+                        <span className="text-xs text-zinc-500">{purchase.urun_adi}</span>
+                      </div>
                     </div>
                     <span className="text-[#FDD500] font-bold">{purchase.toplam_fiyat} Kredi</span>
                   </div>
@@ -267,7 +239,14 @@ const HomePage = () => {
               {sonKrediYuklemeler.length > 0 ? (
                 sonKrediYuklemeler.map((transaction, index) => (
                   <div key={index} className="flex items-center justify-between p-3 bg-[#2A2A2A] rounded">
-                    <span className="text-white font-medium">{transaction.kullanici_adi}</span>
+                    <div className="flex items-center space-x-3">
+                      <img
+                        src={`https://cravatar.eu/helmavatar/${transaction.kullanici_adi}/32`}
+                        alt={transaction.kullanici_adi}
+                        className="w-8 h-8 rounded"
+                      />
+                      <span className="text-white font-medium">{transaction.kullanici_adi}</span>
+                    </div>
                     <span className="text-[#FDD500] font-bold">+{transaction.tutar} Kredi</span>
                   </div>
                 ))
