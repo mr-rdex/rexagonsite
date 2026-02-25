@@ -164,11 +164,7 @@ const AdminPage = () => {
                     <tbody>
                       {users.map((u) => (
                         <tr key={u.id} className="border-b border-zinc-800 hover:bg-[#2A2A2A] transition-colors">
-<<<<<<< HEAD
                           <td className="p-4"><div className="flex items-center space-x-3"><img src={`https://cravatar.eu/helmavatar/${u.kullanici_adi}/32`} alt={u.kullanici_adi} className="w-8 h-8 rounded" /><span className="text-white font-medium">{u.kullanici_adi}</span></div></td>
-=======
-                          <td className="p-4"><div className="flex items-center space-x-3"><img src={`https://mc-heads.net/avatar/${u.kullanici_adi}/32`} alt={u.kullanici_adi} className="w-8 h-8 rounded" /><span className="text-white font-medium">{u.kullanici_adi}</span></div></td>
->>>>>>> 6612e1a (Veritabanı ve API ayarları düzeltildi)
                           <td className="p-4 text-zinc-400">{u.email}</td>
                           <td className="p-4"><span className="text-[#FDD500] font-bold">{u.kredi.toFixed(0)} Kredi</span></td>
                           <td className="p-4"><span className="px-3 py-1 rounded-full text-xs font-bold uppercase bg-zinc-800 text-zinc-300">{u.yetki || 'Oyuncu'}</span></td>
