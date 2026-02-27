@@ -160,11 +160,7 @@ const ForumKategoriPage = () => {
                     <div className="flex items-center space-x-4 text-xs text-zinc-500">
                       <span className="flex items-center space-x-1">
                         <img
-<<<<<<< HEAD
-                          src={`https://mc-heads.net/avatar/${topic.yazar_adi}/24`}
-=======
                           src={`https://cravatar.eu/helmavatar/${topic.yazar_adi}/24`}
->>>>>>> e9fcf05bcc106c9f450c5fb30a72e984fbf67af1
                           alt={topic.yazar_adi}
                           className="w-4 h-4 rounded"
                         />

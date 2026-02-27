@@ -101,11 +101,7 @@ const ForumKonuPage = () => {
           <div className="flex items-center space-x-4 mb-6">
             <Link to={`/profil/${konu.yazar_adi}`} className="flex items-center space-x-2">
               <img
-<<<<<<< HEAD
-                src={`https://mc-heads.net/avatar/${konu.yazar_adi}/48`}
-=======
                 src={`https://cravatar.eu/helmavatar/${konu.yazar_adi}/48`}
->>>>>>> e9fcf05bcc106c9f450c5fb30a72e984fbf67af1
                 alt={konu.yazar_adi}
                 className="w-12 h-12 rounded"
               />
@@ -132,11 +128,7 @@ const ForumKonuPage = () => {
               <div className="flex items-start space-x-4">
                 <Link to={`/profil/${cevap.yazar_adi}`}>
                   <img
-<<<<<<< HEAD
-                    src={`https://mc-heads.net/avatar/${cevap.yazar_adi}/40`}
-=======
                     src={`https://cravatar.eu/helmavatar/${cevap.yazar_adi}/40`}
->>>>>>> e9fcf05bcc106c9f450c5fb30a72e984fbf67af1
                     alt={cevap.yazar_adi}
                     className="w-10 h-10 rounded"
                   />

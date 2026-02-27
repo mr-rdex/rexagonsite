@@ -150,7 +150,7 @@ const MarketPage = () => {
         </div>
 
         {/* Items Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
           {items.length > 0 ? (
             items.map((item) => {
               const finalPrice = item.indirim > 0 ? item.fiyat * (1 - item.indirim / 100) : item.fiyat;

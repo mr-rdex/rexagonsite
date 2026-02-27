@@ -85,11 +85,7 @@ const ProfilPage = () => {
   const displayName = profileUser.kullanici_adi;
 
   return (
-<<<<<<< HEAD
-    <div className="min-h-screen" data-testid="profile-page">
-=======
     <div className="min-h-screen pt-20" data-testid="profile-page">
->>>>>>> e9fcf05bcc106c9f450c5fb30a72e984fbf67af1
       {/* Full-width Hero Banner - Taller */}
       <div
         className="relative w-full"
@@ -99,22 +95,14 @@ const ProfilPage = () => {
             : 'url(/images/hero-bg.jpg)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          minHeight: '280px'
+          minHeight: '800px'
         }}
       >
-<<<<<<< HEAD
-        <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-[#222222]"></div>
-        <div className="relative container mx-auto max-w-7xl px-4 flex items-end pb-8" style={{ minHeight: '280px' }}>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-[#222222]"></div>
+        <div className="relative container mx-auto max-w-7xl px-4 flex items-end pb-8" style={{ minHeight: '800px' }}>
           <div className="flex items-center space-x-5">
             <img
               src={profileUser.yetki_gorseli || `https://mc-heads.net/avatar/${displayName}/80`}
-=======
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-[#222222]"></div>
-        <div className="relative container mx-auto max-w-7xl px-4 flex items-end pb-8" style={{ minHeight: '280px' }}>
-          <div className="flex items-center space-x-5">
-            <img
-              src={profileUser.yetki_gorseli || `https://cravatar.eu/helmavatar/${displayName}/80`}
->>>>>>> e9fcf05bcc106c9f450c5fb30a72e984fbf67af1
               alt={displayName}
               className="w-20 h-20 rounded-lg border-2 border-[#FDD500] shadow-lg"
               data-testid="profile-avatar"
@@ -176,24 +164,6 @@ const ProfilPage = () => {
             </div>
           </div>
 
-<<<<<<< HEAD
-          
-          {/* Right Column - Full Body Skin */}
-          <div className="lg:col-span-3">
-            <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6 flex flex-col items-center" data-testid="skin-section">
-              <h3 className="text-zinc-500 text-sm uppercase tracking-wider mb-4">Oyuncu Görünümü</h3>
-              <img
-                src={`https://mc-heads.net/body/${displayName}`}
-                alt={`${displayName} skin`}
-                className="max-w-[140px] w-full h-auto"
-                data-testid="profile-skin"
-              />
-              <p className="text-zinc-400 text-xs mt-4 text-center">{displayName}</p>
-            </div>
-          </div>
-
-=======
->>>>>>> e9fcf05bcc106c9f450c5fb30a72e984fbf67af1
           {/* Middle Column - Themes */}
           <div className="lg:col-span-4">
             <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6" data-testid="themes-section">
@@ -213,11 +183,7 @@ const ProfilPage = () => {
                     return (
                       <div
                         key={theme.id}
-<<<<<<< HEAD
                         className={`relative mb-4 rounded-xl overflow-hidden border-2 transition-all ${isActive ? 'border-[#FDD500]' : 'border-zinc-700'}`}
-=======
-                        className={`relative rounded-xl overflow-hidden border-2 transition-all ${isActive ? 'border-[#FDD500]' : 'border-zinc-700'}`}
->>>>>>> e9fcf05bcc106c9f450c5fb30a72e984fbf67af1
                         data-testid={`theme-card-${theme.id}`}
                       >
                         <div className="aspect-video bg-cover bg-center bg-[#2A2A2A] rounded-t-xl" style={{ backgroundImage: `url(${theme.gorsel_url})` }} />
@@ -252,12 +218,6 @@ const ProfilPage = () => {
             </div>
           </div>
 
-<<<<<<< HEAD
-        </div>
-      </div>
-    </div>
-    
-=======
           {/* Right Column - Full Body Skin */}
           <div className="lg:col-span-3">
             <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6 flex flex-col items-center" data-testid="skin-section">
@@ -274,7 +234,6 @@ const ProfilPage = () => {
         </div>
       </div>
     </div>
->>>>>>> e9fcf05bcc106c9f450c5fb30a72e984fbf67af1
   );
 };
 

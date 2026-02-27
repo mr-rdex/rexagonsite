@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -12,7 +12,7 @@
 
 body {
   margin: 0;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Poppins', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #222222;
@@ -20,7 +20,7 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Russo One', 'Inter', sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: -0.02em;
@@ -33,11 +33,7 @@ code {
 @layer utilities {
   .btn-3d {
     box-shadow: 0px 4px 0px 0px #b89a00;
-<<<<<<< HEAD
-    transition: all 0.5s;
-=======
-    transition: all 0.1s;
->>>>>>> e9fcf05bcc106c9f450c5fb30a72e984fbf67af1
+    transition: all 0.3s ease;
   }
   
   .btn-3d:active {
@@ -46,10 +42,6 @@ code {
   }
   
   .hover-shadow {
-<<<<<<< HEAD
-    transition: box-shadow 1s ease, border-color 1s ease;
-=======
     transition: box-shadow 0.3s ease, border-color 0.3s ease;
->>>>>>> e9fcf05bcc106c9f450c5fb30a72e984fbf67af1
   }
 }

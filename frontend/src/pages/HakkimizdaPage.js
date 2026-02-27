@@ -130,11 +130,7 @@ const HakkimizdaPage = () => {
               >
                 <div className="relative inline-block mb-4">
                   <img
-<<<<<<< HEAD
-                    src={`https://mc-heads.net/avatar/${yetkili.avatar}/128`}
-=======
                     src={`https://cravatar.eu/helmavatar/${yetkili.avatar}/128`}
->>>>>>> e9fcf05bcc106c9f450c5fb30a72e984fbf67af1
                     alt={yetkili.isim}
                     className="w-24 h-24 rounded-xl mx-auto group-hover:scale-110 transition-transform duration-300"
                   />
