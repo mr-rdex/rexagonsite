@@ -156,7 +156,7 @@ const ForumKonuPage = () => {
         {/* Reply Form */}
         {user ? (
           <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6" data-testid="reply-form">
-            <h3 className="minecraft-font text-xl font-bold text-white mb-4">Cevap Yaz</h3>
+            <h3 className="text-xl font-bold text-white mb-4">Cevap Yaz</h3>
             <form onSubmit={handleReply} className="space-y-4">
               <textarea
                 required

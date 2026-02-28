@@ -58,7 +58,7 @@ const ForumPage = () => {
                   <MessageSquare className="text-[#FDD500]" size={24} />
                 </div>
                 <div>
-                  <h3 className="minecraft-font text-xl font-bold text-white group-hover:text-[#FDD500] transition-colors mb-1">
+                  <h3 className="text-xl font-bold text-white group-hover:text-[#FDD500] transition-colors mb-1">
                     Tümü
                   </h3>
                   <p className="text-sm text-zinc-400">Tüm kategorilerdeki konuları gör</p>
@@ -79,7 +79,7 @@ const ForumPage = () => {
                     <MessageSquare className="text-[#FDD500]" size={24} />
                   </div>
                   <div>
-                    <h3 className="minecraft-font text-xl font-bold text-white group-hover:text-[#FDD500] transition-colors mb-1">
+                    <h3 className="text-xl font-bold text-white group-hover:text-[#FDD500] transition-colors mb-1">
                       {category.isim}
                     </h3>
                     <p className="text-sm text-zinc-400">{category.aciklama}</p>

@@ -176,7 +176,7 @@ const MarketPage = () => {
                 )}
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-2">
-                    <h3 className="minecraft-font text-xl font-bold text-white group-hover:text-[#FDD500] transition-colors">
+                    <h3 className="text-xl font-bold text-white group-hover:text-[#FDD500] transition-colors">
                       {item.isim}
                     </h3>
                     <span className="text-xs bg-[#2A2A2A] px-2 py-1 rounded text-zinc-400">
@@ -219,14 +219,14 @@ const MarketPage = () => {
       {showConfirmModal && selectedItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" data-testid="purchase-modal">
           <div className="bg-[#1E1E1E] border border-zinc-800 rounded-xl p-8 max-w-md w-full">
-            <h3 className="minecraft-font text-2xl font-bold text-white mb-6">Satın Alma Onayı</h3>
+            <h3 className="text-2xl font-bold text-white mb-6">Satın Alma Onayı</h3>
             <div className="bg-[#2A2A2A] rounded-lg p-4 mb-6">
               <div className="flex items-center space-x-4 mb-4">
                 {selectedItem.gorsel && (
                   <img src={selectedItem.gorsel} alt={selectedItem.isim} className="w-16 h-16 rounded object-cover" />
                 )}
                 <div className="flex-1">
-                  <h4 className="minecraft-font text-white font-bold">{selectedItem.isim}</h4>
+                  <h4 className="text-white font-bold">{selectedItem.isim}</h4>
                   <p className="text-xs text-zinc-400">{selectedItem.kategori}</p>
                 </div>
               </div>

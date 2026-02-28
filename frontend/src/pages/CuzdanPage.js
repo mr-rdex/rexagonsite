@@ -171,7 +171,7 @@ const CuzdanPage = () => {
       {showLoadModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80" data-testid="load-modal">
           <div className="bg-[#1E1E1E] border border-zinc-800 rounded-xl p-8 max-w-md w-full mx-4">
-            <h3 className="minecraft-font text-2xl font-bold text-white mb-6">Bakiye Yükle</h3>
+            <h3 className="text-2xl font-bold text-white mb-6">Bakiye Yükle</h3>
             <form onSubmit={handleLoadCredit} className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-zinc-400 mb-2">

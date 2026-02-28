@@ -126,7 +126,7 @@ const ProfilPage = () => {
           <div className="lg:col-span-5 space-y-6">
             {/* Biyografi */}
             <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6" data-testid="bio-section">
-              <h3 className="minecraft-font text-zinc-500 text-sm uppercase tracking-wider mb-3">Biyografi</h3>
+              <h3 className="text-zinc-500 text-sm uppercase tracking-wider mb-3">Biyografi</h3>
               <p className="text-zinc-300 text-sm">{profileUser.biyografi || 'Henüz bir biyografi eklenmemiş.'}</p>
             </div>
 
@@ -165,7 +165,7 @@ const ProfilPage = () => {
 
             {/* Hesap Oluşturma Tarihi */}
             <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6" data-testid="account-date-section">
-              <h3 className="minecraft-font text-zinc-500 text-sm uppercase tracking-wider mb-3">Hesap Oluşturma Tarihi</h3>
+              <h3 className="text-zinc-500 text-sm uppercase tracking-wider mb-3">Hesap Oluşturma Tarihi</h3>
               <p className="text-zinc-300 text-sm">{formatDate(profileUser.kayit_tarihi)}</p>
             </div>
           </div>
@@ -173,7 +173,7 @@ const ProfilPage = () => {
           {/* Middle Column - Themes */}
           <div className="lg:col-span-4">
             <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6" data-testid="themes-section">
-              <h3 className="minecraft-font text-white font-bold uppercase tracking-wider text-center mb-6">Temalar</h3>
+              <h3 className="text-white font-bold uppercase tracking-wider text-center mb-6">Temalar</h3>
               {profileUser.aktif_tema_id && isOwnProfile && (
                 <button onClick={handleRemoveTheme} className="w-full mb-4 text-sm text-zinc-400 hover:text-red-400 transition-colors text-center underline" data-testid="remove-theme-button">
                   Mevcut temayı kaldır
@@ -227,7 +227,7 @@ const ProfilPage = () => {
           {/* Right Column - Full Body Skin */}
           <div className="lg:col-span-3">
             <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6 flex flex-col items-center" data-testid="skin-section">
-              <h3 className="minecraft-font text-zinc-500 text-sm uppercase tracking-wider mb-4">Oyuncu Görünümü</h3>
+              <h3 className="text-zinc-500 text-sm uppercase tracking-wider mb-4">Oyuncu Görünümü</h3>
               <img
                 src={`https://mc-heads.net/body/${displayName}`}
                 alt={`${displayName} skin`}

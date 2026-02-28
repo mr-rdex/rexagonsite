@@ -179,7 +179,7 @@ const KayitPage = () => {
       {showPrivacyModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" data-testid="privacy-modal">
           <div className="bg-[#1E1E1E] border border-zinc-800 rounded-xl p-8 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
-            <h3 className="minecraft-font text-2xl font-bold text-white mb-6">Gizlilik Sözleşmesi</h3>
+            <h3 className="text-2xl font-bold text-white mb-6">Gizlilik Sözleşmesi</h3>
             <div className="text-zinc-300 space-y-4 text-sm">
               <p>
                 <strong className="text-white">1. Veri Toplama</strong><br />

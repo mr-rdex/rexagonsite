@@ -138,7 +138,7 @@ const HakkimizdaPage = () => {
                     <span className="text-white font-bold text-xs uppercase">{yetkili.yetki}</span>
                   </div>
                 </div>
-                <h3 className="minecraft-font text-xl font-bold text-white mb-2 mt-4">{yetkili.isim}</h3>
+                <h3 className="text-xl font-bold text-white mb-2 mt-4">{yetkili.isim}</h3>
                 <p className="text-sm text-zinc-400">{yetkili.gorev}</p>
               </div>
             ))}
@@ -162,7 +162,7 @@ const HakkimizdaPage = () => {
                   <div className={`w-14 h-14 rounded-xl bg-[#2A2A2A] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
                     <Icon className={sistem.renk} size={28} />
                   </div>
-                  <h3 className="minecraft-font text-lg font-bold text-white mb-2">{sistem.baslik}</h3>
+                  <h3 className="text-lg font-bold text-white mb-2">{sistem.baslik}</h3>
                   <p className="text-sm text-zinc-400">{sistem.aciklama}</p>
                 </div>
               );
