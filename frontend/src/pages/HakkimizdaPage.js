@@ -89,7 +89,7 @@ const HakkimizdaPage = () => {
       <div className="container mx-auto max-w-7xl">
         {/* Header */}
         <div className="text-center mb-16">
-          <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase text-white mb-6">
+          <h1 className="minecraft-font text-5xl md:text-7xl font-black tracking-tighter uppercase text-white mb-6">
             Hakkımızda
           </h1>
           <p className="text-lg md:text-xl text-zinc-400 max-w-3xl mx-auto">
@@ -101,14 +101,14 @@ const HakkimizdaPage = () => {
         {/* Mission & Vision */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20">
           <div className="bg-[#1E1E1E] border border-zinc-800 rounded-xl p-8 hover:border-[#FDD500]/50 hover:shadow-[0_0_30px_rgba(255,213,0,0.2)] transition-all duration-300">
-            <h2 className="text-3xl font-bold uppercase text-[#FDD500] mb-4">Misyonumuz</h2>
+            <h2 className="minecraft-font text-3xl font-bold uppercase text-[#FDD500] mb-4">Misyonumuz</h2>
             <p className="text-zinc-300 leading-relaxed">
               Türk Minecraft topluluğuna en iyi oyun deneyimini sunmak, adil ve eğlenceli bir ortam oluşturmak.
               Her oyuncunun kendini özel hissettiği, güvenli ve aktif bir topluluk yaratmak temel hedefimizdir.
             </p>
           </div>
           <div className="bg-[#1E1E1E] border border-zinc-800 rounded-xl p-8 hover:border-[#FDD500]/50 hover:shadow-[0_0_30px_rgba(255,213,0,0.2)] transition-all duration-300">
-            <h2 className="text-3xl font-bold uppercase text-[#FDD500] mb-4">Vizyonumuz</h2>
+            <h2 className="minecraft-font text-3xl font-bold uppercase text-[#FDD500] mb-4">Vizyonumuz</h2>
             <p className="text-zinc-300 leading-relaxed">
               Türkiye'nin en büyük ve en kaliteli Minecraft sunucusu olmak. Sürekli yenilikler ve güncellemeler ile
               oyuncularımıza her zaman en iyi içeriği sunmak ve lider konumumuzu korumak.
@@ -118,7 +118,7 @@ const HakkimizdaPage = () => {
 
         {/* Yetkili Kadro */}
         <div className="mb-20">
-          <h2 className="text-4xl md:text-5xl font-black uppercase text-white mb-12 text-center">
+          <h2 className="minecraft-font text-4xl md:text-5xl font-black uppercase text-white mb-12 text-center">
             Yetkili Kadromuz
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -138,7 +138,7 @@ const HakkimizdaPage = () => {
                     <span className="text-white font-bold text-xs uppercase">{yetkili.yetki}</span>
                   </div>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2 mt-4">{yetkili.isim}</h3>
+                <h3 className="minecraft-font text-xl font-bold text-white mb-2 mt-4">{yetkili.isim}</h3>
                 <p className="text-sm text-zinc-400">{yetkili.gorev}</p>
               </div>
             ))}
@@ -147,7 +147,7 @@ const HakkimizdaPage = () => {
 
         {/* Sunucu Sistemleri */}
         <div className="mb-12">
-          <h2 className="text-4xl md:text-5xl font-black uppercase text-white mb-12 text-center">
+          <h2 className="minecraft-font text-4xl md:text-5xl font-black uppercase text-white mb-12 text-center">
             Sunucu Sistemlerimiz
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -162,7 +162,7 @@ const HakkimizdaPage = () => {
                   <div className={`w-14 h-14 rounded-xl bg-[#2A2A2A] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
                     <Icon className={sistem.renk} size={28} />
                   </div>
-                  <h3 className="text-lg font-bold text-white mb-2">{sistem.baslik}</h3>
+                  <h3 className="minecraft-font text-lg font-bold text-white mb-2">{sistem.baslik}</h3>
                   <p className="text-sm text-zinc-400">{sistem.aciklama}</p>
                 </div>
               );

@@ -95,11 +95,11 @@ const ProfilPage = () => {
             : 'url(/images/hero-bg.jpg)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          minHeight: '800px'
+          minHeight: '1000px'
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-[#222222]"></div>
-        <div className="relative container mx-auto max-w-7xl px-4 flex items-end pb-8" style={{ minHeight: '800px' }}>
+        <div className="relative container mx-auto max-w-7xl px-4 flex items-end pb-8" style={{ minHeight: '1000px' }}>
           <div className="flex items-center space-x-5">
             <img
               src={profileUser.yetki_gorseli || `https://mc-heads.net/avatar/${displayName}/80`}
@@ -108,7 +108,7 @@ const ProfilPage = () => {
               data-testid="profile-avatar"
             />
             <div>
-              <h1 className="text-3xl font-black uppercase text-white leading-tight" data-testid="profile-username">
+              <h1 className="minecraft-font text-3xl font-black uppercase text-white leading-tight" data-testid="profile-username">
                 {displayName}
               </h1>
               <span className="inline-block mt-1 bg-[#FDD500] text-black text-xs font-bold uppercase px-3 py-1 rounded" data-testid="profile-rank">
@@ -126,7 +126,7 @@ const ProfilPage = () => {
           <div className="lg:col-span-5 space-y-6">
             {/* Biyografi */}
             <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6" data-testid="bio-section">
-              <h3 className="text-zinc-500 text-sm uppercase tracking-wider mb-3">Biyografi</h3>
+              <h3 className="minecraft-font text-zinc-500 text-sm uppercase tracking-wider mb-3">Biyografi</h3>
               <p className="text-zinc-300 text-sm">{profileUser.biyografi || 'Henüz bir biyografi eklenmemiş.'}</p>
             </div>
 
@@ -139,27 +139,33 @@ const ProfilPage = () => {
                 </div>
                 <p className="text-2xl font-black text-white">{(profileUser.kredi || 0).toFixed(0)}</p>
               </div>
-              <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-5" data-testid="stat-role">
+              <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-5" data-testid="stat-topics">
                 <div className="flex items-center space-x-3 mb-2">
-                  <Shield className="text-[#FDD500]" size={20} />
-                  <span className="text-zinc-500 text-sm uppercase tracking-wider">Rol</span>
+                  <span className="text-zinc-500 text-sm uppercase tracking-wider">Açılan Konu</span>
                 </div>
-                <p className="text-2xl font-black text-white uppercase">{profileUser.rol}</p>
+                <p className="text-2xl font-black text-white">{profileUser.acilan_konu_sayisi || 0}</p>
               </div>
-              <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-5" data-testid="stat-days">
+              <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-5" data-testid="stat-messages">
                 <div className="flex items-center space-x-3 mb-2">
-                  <Calendar className="text-[#FDD500]" size={20} />
-                  <span className="text-zinc-500 text-sm uppercase tracking-wider">Gün</span>
+                  <span className="text-zinc-500 text-sm uppercase tracking-wider">Gönderilen Mesaj</span>
                 </div>
-                <p className="text-2xl font-black text-white">
-                  {Math.floor((Date.now() - new Date(profileUser.kayit_tarihi)) / (1000 * 60 * 60 * 24))}
-                </p>
+                <p className="text-2xl font-black text-white">{profileUser.gonderilen_mesaj_sayisi || 0}</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4">
+              <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-5" data-testid="stat-spending">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-zinc-500 text-sm uppercase tracking-wider">Toplam Harcama</span>
+                  <Coins className="text-[#FDD500]" size={20} />
+                </div>
+                <p className="text-3xl font-black text-[#FDD500]">{profileUser.toplam_harcama ? profileUser.toplam_harcama.toFixed(2) : "0.00"} ₺</p>
               </div>
             </div>
 
             {/* Hesap Oluşturma Tarihi */}
             <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6" data-testid="account-date-section">
-              <h3 className="text-zinc-500 text-sm uppercase tracking-wider mb-3">Hesap Oluşturma Tarihi</h3>
+              <h3 className="minecraft-font text-zinc-500 text-sm uppercase tracking-wider mb-3">Hesap Oluşturma Tarihi</h3>
               <p className="text-zinc-300 text-sm">{formatDate(profileUser.kayit_tarihi)}</p>
             </div>
           </div>
@@ -167,7 +173,7 @@ const ProfilPage = () => {
           {/* Middle Column - Themes */}
           <div className="lg:col-span-4">
             <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6" data-testid="themes-section">
-              <h3 className="text-white font-bold uppercase tracking-wider text-center mb-6">Temalar</h3>
+              <h3 className="minecraft-font text-white font-bold uppercase tracking-wider text-center mb-6">Temalar</h3>
               {profileUser.aktif_tema_id && isOwnProfile && (
                 <button onClick={handleRemoveTheme} className="w-full mb-4 text-sm text-zinc-400 hover:text-red-400 transition-colors text-center underline" data-testid="remove-theme-button">
                   Mevcut temayı kaldır
@@ -221,7 +227,7 @@ const ProfilPage = () => {
           {/* Right Column - Full Body Skin */}
           <div className="lg:col-span-3">
             <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6 flex flex-col items-center" data-testid="skin-section">
-              <h3 className="text-zinc-500 text-sm uppercase tracking-wider mb-4">Oyuncu Görünümü</h3>
+              <h3 className="minecraft-font text-zinc-500 text-sm uppercase tracking-wider mb-4">Oyuncu Görünümü</h3>
               <img
                 src={`https://mc-heads.net/body/${displayName}`}
                 alt={`${displayName} skin`}

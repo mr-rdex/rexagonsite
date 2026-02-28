@@ -71,7 +71,7 @@ const CuzdanPage = () => {
     <div className="min-h-screen pt-24 pb-16 px-4" data-testid="wallet-page">
       <div className="container mx-auto max-w-6xl">
         <div className="mb-12">
-          <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase text-white mb-4">
+          <h1 className="minecraft-font text-5xl md:text-7xl font-black tracking-tighter uppercase text-white mb-4">
             Cüzdan
           </h1>
           <p className="text-lg text-zinc-400">
@@ -107,7 +107,7 @@ const CuzdanPage = () => {
         {/* Transaction History */}
         <div className="bg-[#1E1E1E] border border-zinc-800 rounded-xl overflow-hidden">
           <div className="p-6 border-b border-zinc-800">
-            <h2 className="text-2xl font-bold uppercase text-white flex items-center space-x-3">
+            <h2 className="minecraft-font text-2xl font-bold uppercase text-white flex items-center space-x-3">
               <Clock size={24} className="text-[#FDD500]" />
               <span>İşlem Geçmişi</span>
             </h2>
@@ -171,7 +171,7 @@ const CuzdanPage = () => {
       {showLoadModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80" data-testid="load-modal">
           <div className="bg-[#1E1E1E] border border-zinc-800 rounded-xl p-8 max-w-md w-full mx-4">
-            <h3 className="text-2xl font-bold text-white mb-6">Bakiye Yükle</h3>
+            <h3 className="minecraft-font text-2xl font-bold text-white mb-6">Bakiye Yükle</h3>
             <form onSubmit={handleLoadCredit} className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-zinc-400 mb-2">

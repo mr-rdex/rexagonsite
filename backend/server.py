@@ -66,6 +66,9 @@ class UserResponse(BaseModel):
     biyografi: Optional[str] = None
     ada_seviyesi: int = 0
     dinar: float = 0
+    acilan_konu_sayisi: int = 0
+    gonderilen_mesaj_sayisi: int = 0
+    toplam_harcama: float = 0.0
 
 class ForumKonu(BaseModel):
     baslik: str
@@ -229,6 +232,22 @@ async def get_user_profile(kullanici_adi: str):
     user = await db.users.find_one({"kullanici_adi": kullanici_adi}, {"_id": 0, "sifre_hash": 0})
     if not user:
         raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
+
+    # Calculate stats dynamically
+    acilan_konu_sayisi = await db.forum_topics.count_documents({"yazar_id": user["id"]})
+    gonderilen_mesaj_sayisi = await db.forum_replies.count_documents({"yazar_id": user["id"]})
+
+    # Total spending from market purchases and theme purchases
+    toplam_harcama = 0.0
+    # Add market purchases
+    purchases = await db.purchases.find({"kullanici_id": user["id"]}).to_list(1000)
+    for p in purchases:
+        toplam_harcama += float(p.get("toplam_fiyat", 0))
+    # Also add theme purchases if any logged in cuzdan_gecmisi
+    harcamalar = await db.cuzdan_gecmisi.find({"kullanici_id": user["id"], "tur": "harcama"}).to_list(1000)
+    for h in harcamalar:
+        toplam_harcama += float(h.get("tutar", 0))
+
     # Ensure theme fields exist
     user.setdefault("acik_temalar", [])
     user.setdefault("aktif_tema_id", None)
@@ -236,6 +255,10 @@ async def get_user_profile(kullanici_adi: str):
     user.setdefault("biyografi", None)
     user.setdefault("ada_seviyesi", 0)
     user.setdefault("dinar", 0)
+    user["acilan_konu_sayisi"] = acilan_konu_sayisi
+    user["gonderilen_mesaj_sayisi"] = gonderilen_mesaj_sayisi
+    user["toplam_harcama"] = toplam_harcama
+
     return user
 
 @api_router.put("/users/profil")
@@ -350,6 +373,12 @@ async def get_top_dinar():
 @api_router.get("/forum/kategoriler")
 async def get_forum_categories():
     categories = await db.forum_categories.find({}, {"_id": 0}).to_list(100)
+    # Return topic count for each category
+    for cat in categories:
+        cat_name = cat.get("isim")
+        if cat_name:
+            count = await db.forum_topics.count_documents({"kategori": cat_name})
+            cat["konu_sayisi"] = count
     return categories
 
 @api_router.get("/forum/{kategori}/konular")

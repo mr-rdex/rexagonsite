@@ -78,7 +78,7 @@ const ForumKategoriPage = () => {
               <ArrowLeft size={24} />
             </Link>
             <div>
-              <h1 className="text-4xl md:text-5xl font-black uppercase text-white">{kategori}</h1>
+              <h1 className="minecraft-font text-4xl md:text-5xl font-black uppercase text-white">{kategori}</h1>
               <p className="text-zinc-400 mt-1">{topics.length} konu</p>
             </div>
           </div>
@@ -96,7 +96,7 @@ const ForumKategoriPage = () => {
 
         {showNewTopic && (
           <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6 mb-8" data-testid="new-topic-form">
-            <h3 className="text-xl font-bold text-white mb-4">Yeni Konu Oluştur</h3>
+            <h3 className="minecraft-font text-xl font-bold text-white mb-4">Yeni Konu Oluştur</h3>
             <form onSubmit={handleCreateTopic} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-zinc-400 mb-2">Başlık</label>
@@ -153,7 +153,7 @@ const ForumKategoriPage = () => {
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <h3 className="text-xl font-bold text-white group-hover:text-[#FDD500] transition-colors mb-2">
+                    <h3 className="minecraft-font text-xl font-bold text-white group-hover:text-[#FDD500] transition-colors mb-2">
                       {topic.baslik}
                     </h3>
                     <p className="text-sm text-zinc-400 line-clamp-2 mb-3">{topic.icerik}</p>

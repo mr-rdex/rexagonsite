@@ -97,7 +97,7 @@ const ForumKonuPage = () => {
 
         {/* Topic */}
         <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6 mb-6" data-testid="topic-content">
-          <h1 className="text-3xl font-bold text-white mb-4">{konu.baslik}</h1>
+          <h1 className="minecraft-font text-3xl font-bold text-white mb-4">{konu.baslik}</h1>
           <div className="flex items-center space-x-4 mb-6">
             <Link to={`/profil/${konu.yazar_adi}`} className="flex items-center space-x-2">
               <img
@@ -156,7 +156,7 @@ const ForumKonuPage = () => {
         {/* Reply Form */}
         {user ? (
           <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6" data-testid="reply-form">
-            <h3 className="text-xl font-bold text-white mb-4">Cevap Yaz</h3>
+            <h3 className="minecraft-font text-xl font-bold text-white mb-4">Cevap Yaz</h3>
             <form onSubmit={handleReply} className="space-y-4">
               <textarea
                 required

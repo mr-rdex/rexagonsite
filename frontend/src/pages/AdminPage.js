@@ -130,7 +130,7 @@ const AdminPage = () => {
     <div className="min-h-screen pt-24 pb-16 px-4" data-testid="admin-page">
       <div className="container mx-auto max-w-7xl">
         <div className="mb-12">
-          <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase text-white mb-4">Admin Panel</h1>
+          <h1 className="minecraft-font text-5xl md:text-7xl font-black tracking-tighter uppercase text-white mb-4">Admin Panel</h1>
           <p className="text-lg text-zinc-400">Sistemi yönet ve içerikleri düzenle</p>
         </div>
 
@@ -194,7 +194,7 @@ const AdminPage = () => {
                       {item.gorsel && <div className="aspect-video bg-[#2A2A2A] overflow-hidden"><img src={item.gorsel} alt={item.isim} className="w-full h-full object-cover" /></div>}
                       <div className="p-6">
                         <div className="flex items-start justify-between mb-2">
-                          <div><h3 className="text-lg font-bold text-white mb-1">{item.isim}</h3><p className="text-xs text-zinc-500">{item.kategori}</p></div>
+                          <div><h3 className="minecraft-font text-lg font-bold text-white mb-1">{item.isim}</h3><p className="text-xs text-zinc-500">{item.kategori}</p></div>
                           <div className="flex items-center space-x-2">
                             <button onClick={() => setEditItem({...item})} className="text-[#FDD500] hover:text-[#E6C200]" data-testid={`edit-item-${item.id}`}><Edit size={16} /></button>
                             <button onClick={() => handleDeleteItem(item.id)} className="text-red-500 hover:text-red-400" data-testid={`delete-item-${item.id}`}><Trash2 size={16} /></button>
@@ -223,7 +223,7 @@ const AdminPage = () => {
                 </div>
                 {showNewNews && (
                   <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6 mb-6" data-testid="new-news-form">
-                    <h3 className="text-xl font-bold text-white mb-4">Yeni Haber Ekle</h3>
+                    <h3 className="minecraft-font text-xl font-bold text-white mb-4">Yeni Haber Ekle</h3>
                     <form onSubmit={handleCreateNews} className="space-y-4">
                       <div><label className="block text-sm font-medium text-zinc-400 mb-2">Başlık</label><input type="text" required className={inputCls} value={newNews.baslik} onChange={(e) => setNewNews({...newNews, baslik: e.target.value})} /></div>
                       <div><label className="block text-sm font-medium text-zinc-400 mb-2">İçerik</label><textarea required rows={6} className={inputCls} value={newNews.icerik} onChange={(e) => setNewNews({...newNews, icerik: e.target.value})} /></div>
@@ -239,7 +239,7 @@ const AdminPage = () => {
                     <div key={item.id} className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <h3 className="text-xl font-bold text-white mb-2">{item.baslik}</h3>
+                          <h3 className="minecraft-font text-xl font-bold text-white mb-2">{item.baslik}</h3>
                           <p className="text-zinc-400 mb-3 line-clamp-2">{item.icerik}</p>
                           <div className="flex items-center space-x-4 text-xs text-zinc-500">
                             <span>Yazar: {item.yazar_adi}</span>
@@ -260,7 +260,7 @@ const AdminPage = () => {
             {/* ===== REPORTS TAB ===== */}
             {activeTab === 'reports' && (
               <div data-testid="reports-section">
-                <h2 className="text-2xl font-bold text-white mb-6">Kullanıcı Raporları</h2>
+                <h2 className="minecraft-font text-2xl font-bold text-white mb-6">Kullanıcı Raporları</h2>
                 {reports.length === 0 ? (
                   <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-8 text-center"><AlertCircle className="mx-auto text-zinc-600 mb-4" size={48} /><p className="text-zinc-400">Henüz rapor yok</p></div>
                 ) : (
@@ -270,7 +270,7 @@ const AdminPage = () => {
                         <div className="flex items-start justify-between mb-3">
                           <div>
                             <div className="flex items-center space-x-3 mb-1">
-                              <h3 className="text-lg font-bold text-white">{r.baslik}</h3>
+                              <h3 className="minecraft-font text-lg font-bold text-white">{r.baslik}</h3>
                               <span className="px-3 py-1 rounded-full text-xs font-bold uppercase bg-[#FDD500]/10 text-[#FDD500]">{r.konu}</span>
                             </div>
                             <p className="text-xs text-zinc-500">Gönderen: {r.yazar_adi} - {new Date(r.tarih).toLocaleDateString('tr-TR')}</p>
@@ -301,7 +301,7 @@ const AdminPage = () => {
                         <div className="aspect-video bg-cover bg-center bg-[#2A2A2A]" style={{ backgroundImage: `url(${theme.gorsel_url})` }} />
                         <div className="p-4">
                           <div className="flex items-center justify-between">
-                            <div><h3 className="text-white font-bold">{theme.isim}</h3><p className="text-xs text-[#FDD500] font-bold">{theme.fiyat > 0 ? `${theme.fiyat} Kredi` : 'Ücretsiz'}</p></div>
+                            <div><h3 className="minecraft-font text-white font-bold">{theme.isim}</h3><p className="text-xs text-[#FDD500] font-bold">{theme.fiyat > 0 ? `${theme.fiyat} Kredi` : 'Ücretsiz'}</p></div>
                             <div className="flex items-center space-x-2">
                               <button onClick={() => setEditTheme({...theme})} className="text-[#FDD500] hover:text-[#E6C200]" data-testid={`edit-theme-${theme.id}`}><Edit size={16} /></button>
                               <button onClick={() => handleDeleteTheme(theme.id)} className="text-red-500 hover:text-red-400" data-testid={`delete-theme-${theme.id}`}><Trash2 size={16} /></button>
@@ -323,7 +323,7 @@ const AdminPage = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" data-testid="edit-item-modal">
           <div className="bg-[#1E1E1E] border border-zinc-800 rounded-xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold text-white">Ürün Düzenle</h3>
+              <h3 className="minecraft-font text-2xl font-bold text-white">Ürün Düzenle</h3>
               <button onClick={() => setEditItem(null)} className="text-zinc-400 hover:text-white"><X size={24} /></button>
             </div>
             <form onSubmit={handleUpdateItem} className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -352,7 +352,7 @@ const AdminPage = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" data-testid="edit-news-modal">
           <div className="bg-[#1E1E1E] border border-zinc-800 rounded-xl p-8 max-w-lg w-full">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold text-white">Haber Düzenle</h3>
+              <h3 className="minecraft-font text-2xl font-bold text-white">Haber Düzenle</h3>
               <button onClick={() => setEditNews(null)} className="text-zinc-400 hover:text-white"><X size={24} /></button>
             </div>
             <form onSubmit={handleUpdateNews} className="space-y-4">
@@ -372,7 +372,7 @@ const AdminPage = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" data-testid="edit-theme-modal">
           <div className="bg-[#1E1E1E] border border-zinc-800 rounded-xl p-8 max-w-lg w-full">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold text-white">Tema Düzenle</h3>
+              <h3 className="minecraft-font text-2xl font-bold text-white">Tema Düzenle</h3>
               <button onClick={() => setEditTheme(null)} className="text-zinc-400 hover:text-white"><X size={24} /></button>
             </div>
             <form onSubmit={handleUpdateTheme} className="space-y-4">
@@ -394,7 +394,7 @@ const AdminPage = () => {
 // Reusable Market Item Form
 const ItemForm = ({ item, setItem, onSubmit, onCancel, inputCls, title }) => (
   <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6 mb-6">
-    <h3 className="text-xl font-bold text-white mb-4">{title}</h3>
+    <h3 className="minecraft-font text-xl font-bold text-white mb-4">{title}</h3>
     <form onSubmit={onSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div><label className="block text-sm font-medium text-zinc-400 mb-2">Ürün Adı</label><input type="text" required className={inputCls} value={item.isim} onChange={(e) => setItem({...item, isim: e.target.value})} /></div>
       <div><label className="block text-sm font-medium text-zinc-400 mb-2">Fiyat</label><input type="number" required min="0" step="0.01" className={inputCls} value={item.fiyat} onChange={(e) => setItem({...item, fiyat: parseFloat(e.target.value)})} /></div>
@@ -418,7 +418,7 @@ const ItemForm = ({ item, setItem, onSubmit, onCancel, inputCls, title }) => (
 // Reusable Theme Form
 const ThemeForm = ({ theme, setTheme, onSubmit, onCancel, inputCls, title }) => (
   <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6 mb-6">
-    <h3 className="text-xl font-bold text-white mb-4">{title}</h3>
+    <h3 className="minecraft-font text-xl font-bold text-white mb-4">{title}</h3>
     <form onSubmit={onSubmit} className="space-y-4">
       <div><label className="block text-sm font-medium text-zinc-400 mb-2">Tema Adı</label><input type="text" required className={inputCls} value={theme.isim} onChange={(e) => setTheme({...theme, isim: e.target.value})} data-testid="theme-name-input" /></div>
       <div><label className="block text-sm font-medium text-zinc-400 mb-2">Görsel URL</label><input type="url" required className={inputCls} value={theme.gorsel_url} onChange={(e) => setTheme({...theme, gorsel_url: e.target.value})} placeholder="https://example.com/theme.jpg" data-testid="theme-url-input" /></div>
