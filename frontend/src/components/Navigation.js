@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../App';
 import axios from 'axios';
 import { Menu, X as XIcon, User, LogOut, Shield, Wallet, Settings, Copy, Check } from 'lucide-react';
@@ -7,6 +7,7 @@ import { Menu, X as XIcon, User, LogOut, Shield, Wallet, Settings, Copy, Check }
 const Navigation = () => {
   const { user, logout, API } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -71,16 +72,18 @@ const Navigation = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-14">
-            {navLinks.map(link => (
+            {navLinks.map(link => {
+              const isActive = link.to === '/' ? location.pathname === '/' : location.pathname.startsWith(link.to);
+              return (
               <Link
                 key={link.to}
                 to={link.to}
-                className="text-zinc-400 hover:text-[#FDD500] font-medium transition-colors uppercase tracking-wider text-sm whitespace-nowrap"
+                className={`font-medium transition-colors uppercase tracking-wider text-sm whitespace-nowrap ${isActive ? 'text-[#FDD500]' : 'text-zinc-400 hover:text-[#FDD500]'}`}
                 data-testid={`nav-${link.label.toLowerCase().replace(' ', '-')}`}
               >
                 {link.label}
               </Link>
-            ))}
+            )})}
             <Link
               to="/cuzdan"
               className="bg-[#FDD500] text-black font-bold uppercase tracking-wide px-4 py-2 rounded-lg hover:bg-[#E6C200] transition-all btn-3d ml-4 shadow-lg"
@@ -201,16 +204,18 @@ const Navigation = () => {
         {/* Mobile Menu */}
         {mobileMenuOpen && (
           <div className="md:hidden py-4 border-t border-white/5">
-            {navLinks.map(link => (
+            {navLinks.map(link => {
+              const isActive = link.to === '/' ? location.pathname === '/' : location.pathname.startsWith(link.to);
+              return (
               <Link
                 key={link.to}
                 to={link.to}
-                className="block py-3 text-zinc-400 hover:text-[#FDD500] font-medium transition-colors uppercase tracking-wider text-sm"
+                className={`block py-3 font-medium transition-colors uppercase tracking-wider text-sm ${isActive ? 'text-[#FDD500]' : 'text-zinc-400 hover:text-[#FDD500]'}`}
                 onClick={() => setMobileMenuOpen(false)}
               >
                 {link.label}
               </Link>
-            ))}
+            )})}
             <div className="border-t border-white/5 mt-4 pt-4">
               {user ? (
                 <>

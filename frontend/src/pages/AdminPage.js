@@ -376,9 +376,9 @@ const AdminPage = () => {
               <button onClick={() => setEditTheme(null)} className="text-zinc-400 hover:text-white"><X size={24} /></button>
             </div>
             <form onSubmit={handleUpdateTheme} className="space-y-4">
-              <div><label className="block text-sm font-medium text-zinc-400 mb-2">Tema Adı</label><input type="text" required className={inputCls} value={editTheme.isim} onChange={(e) => setTheme({...editTheme, isim: e.target.value})} /></div>
-              <div><label className="block text-sm font-medium text-zinc-400 mb-2">Görsel URL</label><input type="url" required className={inputCls} value={editTheme.gorsel_url} onChange={(e) => setTheme({...editTheme, gorsel_url: e.target.value})} /></div>
-              <div><label className="block text-sm font-medium text-zinc-400 mb-2">Fiyat (Kredi)</label><input type="number" min="0" className={inputCls} value={editTheme.fiyat} onChange={(e) => setTheme({...editTheme, fiyat: parseFloat(e.target.value) || 0})} /></div>
+              <div><label className="block text-sm font-medium text-zinc-400 mb-2">Tema Adı</label><input type="text" required className={inputCls} value={editTheme.isim} onChange={(e) => setEditTheme({...editTheme, isim: e.target.value})} /></div>
+              <div><label className="block text-sm font-medium text-zinc-400 mb-2">Görsel URL</label><input type="url" required className={inputCls} value={editTheme.gorsel_url} onChange={(e) => setEditTheme({...editTheme, gorsel_url: e.target.value})} /></div>
+              <div><label className="block text-sm font-medium text-zinc-400 mb-2">Fiyat (Kredi)</label><input type="number" min="0" className={inputCls} value={editTheme.fiyat} onChange={(e) => setEditTheme({...editTheme, fiyat: parseFloat(e.target.value) || 0})} /></div>
               <div className="flex space-x-4">
                 <button type="submit" className="bg-[#FDD500] text-black font-bold uppercase tracking-wide px-6 py-3 rounded-lg hover:bg-[#E6C200] transition-all btn-3d">Kaydet</button>
                 <button type="button" onClick={() => setEditTheme(null)} className="bg-transparent border-2 border-zinc-700 text-zinc-400 font-bold uppercase px-6 py-3 rounded-lg hover:border-zinc-600 transition-all">İptal</button>
