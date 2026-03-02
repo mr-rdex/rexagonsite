@@ -72,7 +72,7 @@ const CuzdanPage = () => {
       <div className="container mx-auto max-w-6xl">
         <div className="mb-12">
           <h1 className="minecraft-font text-5xl md:text-7xl font-black tracking-tighter uppercase text-white mb-4">
-            Cüzdan
+            Cuzdan
           </h1>
           <p className="text-lg text-zinc-400">
             Bakiyeni yönet ve işlem geçmişini görüntüle
@@ -107,10 +107,10 @@ const CuzdanPage = () => {
         {/* Transaction History */}
         <div className="bg-[#1E1E1E] border border-zinc-800 rounded-xl overflow-hidden">
           <div className="p-6 border-b border-zinc-800">
-            <h2 className="minecraft-font text-2xl font-bold uppercase text-white flex items-center space-x-3">
+            <h3 className="text-2xl font-bold uppercase text-white flex items-center space-x-3">
               <Clock size={24} className="text-[#FDD500]" />
               <span>İşlem Geçmişi</span>
-            </h2>
+            </h3>
           </div>
           <div className="divide-y divide-zinc-800">
             {transactions.length > 0 ? (

@@ -11,21 +11,30 @@ const SiralamaPage = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchData();
-  }, [activeTab, API]);
-
-  const fetchData = async () => {
+  const fetchLeaderboardData = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API}/leaderboard/${activeTab}`);
-      setData(Array.isArray(response.data) ? response.data : []);
+      let endpoint = '';
+      
+      // Sekmeye göre hangi adrese gideceğimizi seçiyoruz
+      if (activeTab === 'kredi') endpoint = `${API}/leaderboard/kredi`;
+      else if (activeTab === 'ada-seviyesi') endpoint = `${API}/leaderboard/ada-seviyesi`;
+      else if (activeTab === 'dinar') endpoint = `${API}/leaderboard/dinar`;
+
+      if (endpoint) {
+        const res = await axios.get(endpoint);
+        setData(res.data); // Gelen veriyi ekrana basılacak olan 'data' içine atar
+      }
     } catch (error) {
-      console.error('Veri yüklenemedi:', error);
+      console.error("Veri çekme hatası:", error);
       setData([]);
     } finally {
       setLoading(false);
     }
   };
+
+  fetchLeaderboardData();
+}, [activeTab, API]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -56,7 +65,7 @@ const SiralamaPage = () => {
     >
       <div className="flex items-center space-x-4">
         <span className={`text-2xl font-black w-12 text-center ${getRankColor(index)}`}>#{index + 1}</span>
-        <img src={`https://mc-heads.net/avatar/${user.kullanici_adi}/48`} alt={user.kullanici_adi} className="w-12 h-12 rounded" />
+        <img src={`https://mc-heads.net/avatar/${user.kullanici_adi}`} alt={user.kullanici_adi} className="w-12 h-12 rounded" />
         <div>
           <p className="text-white font-bold">{user.kullanici_adi}</p>
           <p className="text-xs text-zinc-500">Kayıt: {formatDate(user.kayit_tarihi)}</p>
@@ -130,7 +139,7 @@ const SiralamaPage = () => {
                 {data.map((user) => (
                   <Link key={user.id} to={`/profil/${user.kullanici_adi}`} className="flex items-center justify-between p-6 hover:bg-[#2A2A2A] transition-colors">
                     <div className="flex items-center space-x-4">
-                      <img src={`https://mc-heads.net/avatar/${user.kullanici_adi}/48`} alt={user.kullanici_adi} className="w-12 h-12 rounded" />
+                      <img src={`https://mc-heads.net/avatar/${user.kullanici_adi}`} alt={user.kullanici_adi} className="w-12 h-12 rounded" />
                       <div>
                         <p className="text-white font-bold">{user.kullanici_adi}</p>
                         <p className="text-xs text-zinc-500">{user.email}</p>
@@ -152,7 +161,7 @@ const SiralamaPage = () => {
                         <div>
                           <div className="flex items-center">
                             <img
-                                src={`https://mc-heads.net/avatar/${purchase.kullanici_adi}/32`}
+                                src={`https://mc-heads.net/avatar/${purchase.kullanici_adi}`}
                                 alt={purchase.kullanici_adi}
                                 className="w-8 h-8 rounded mr-3"
                             />
@@ -181,7 +190,7 @@ const SiralamaPage = () => {
                         <Coins className="text-[#FDD500]" size={24} />
                         <div className="flex items-center">
                             <img
-                                src={`https://mc-heads.net/avatar/${transaction.kullanici_adi}/32`}
+                                src={`https://mc-heads.net/avatar/${transaction.kullanici_adi}`}
                                 alt={transaction.kullanici_adi}
                                 className="w-8 h-8 rounded mr-3"
                             />

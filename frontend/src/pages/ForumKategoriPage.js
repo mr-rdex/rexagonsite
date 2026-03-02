@@ -78,7 +78,7 @@ const ForumKategoriPage = () => {
               <ArrowLeft size={24} />
             </Link>
             <div>
-              <h1 className="minecraft-font text-4xl md:text-5xl font-black uppercase text-white">{kategori}</h1>
+              <h1 className=" text-4xl md:text-5xl font-black uppercase text-white">{kategori}</h1>
               <p className="text-zinc-400 mt-1">{topics.length} konu</p>
             </div>
           </div>
@@ -160,7 +160,7 @@ const ForumKategoriPage = () => {
                     <div className="flex items-center space-x-4 text-xs text-zinc-500">
                       <span className="flex items-center space-x-1">
                         <img
-                          src={`https://cravatar.eu/helmavatar/${topic.yazar_adi}/24`}
+                          src={`https://mc-heads.net/avatar/${topic.yazar_adi}/24`}
                           alt={topic.yazar_adi}
                           className="w-4 h-4 rounded"
                         />

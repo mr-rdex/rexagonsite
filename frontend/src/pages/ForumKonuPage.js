@@ -97,11 +97,11 @@ const ForumKonuPage = () => {
 
         {/* Topic */}
         <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6 mb-6" data-testid="topic-content">
-          <h1 className="minecraft-font text-3xl font-bold text-white mb-4">{konu.baslik}</h1>
+          <h3 className="text-3xl font-bold text-white mb-4">{konu.baslik}</h3>
           <div className="flex items-center space-x-4 mb-6">
             <Link to={`/profil/${konu.yazar_adi}`} className="flex items-center space-x-2">
               <img
-                src={`https://cravatar.eu/helmavatar/${konu.yazar_adi}/48`}
+                src={`https://mc-heads.net/avatar/${konu.yazar_adi}`}
                 alt={konu.yazar_adi}
                 className="w-12 h-12 rounded"
               />
@@ -128,7 +128,7 @@ const ForumKonuPage = () => {
               <div className="flex items-start space-x-4">
                 <Link to={`/profil/${cevap.yazar_adi}`}>
                   <img
-                    src={`https://cravatar.eu/helmavatar/${cevap.yazar_adi}/40`}
+                    src={`https://mc-heads.net/avatar/${cevap.yazar_adi}/40`}
                     alt={cevap.yazar_adi}
                     className="w-10 h-10 rounded"
                   />

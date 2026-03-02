@@ -41,7 +41,7 @@ const Footer = () => {
             {/* Logo & Description */}
             <div className="md:col-span-1">
               <img 
-                src="/images/footer-logo.png" 
+                src="/images/rexanewlogo.png" 
                 alt="Rexagon" 
                 className="h-24 w-auto object-contain mb-4"
               />
@@ -116,14 +116,11 @@ const Footer = () => {
             <div>
               <h3 className="text-white font-bold uppercase tracking-wider mb-4 text-sm">Sosyal Medya</h3>
               <div className="flex space-x-4 mb-4">
-                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-[#2A2A2A] rounded-lg flex items-center justify-center text-zinc-400 hover:text-[#FDD500] hover:bg-[#FDD500]/10 transition-all duration-300">
-                  <Facebook size={20} />
+                <a href="https://instagram.com/rexagon.com.tr" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-[#2A2A2A] rounded-lg flex items-center justify-center text-zinc-400 hover:text-[#FDD500] hover:bg-[#FDD500]/10 transition-all duration-300">
+                  <Instagram size={20} />
                 </a>
                 <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-[#2A2A2A] rounded-lg flex items-center justify-center text-zinc-400 hover:text-[#FDD500] hover:bg-[#FDD500]/10 transition-all duration-300">
                   <Twitter size={20} />
-                </a>
-                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-[#2A2A2A] rounded-lg flex items-center justify-center text-zinc-400 hover:text-[#FDD500] hover:bg-[#FDD500]/10 transition-all duration-300">
-                  <Instagram size={20} />
                 </a>
                 <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-[#2A2A2A] rounded-lg flex items-center justify-center text-zinc-400 hover:text-[#FDD500] hover:bg-[#FDD500]/10 transition-all duration-300">
                   <Youtube size={20} />
@@ -144,7 +141,7 @@ const Footer = () => {
               2026 Rexagon Minecraft Server. Tüm hakları saklıdır.
             </p>
             <p className="text-zinc-500 text-xs">
-              Made with <span className="text-[#FDD500]">&#9829;</span> by Rexagon Team
+              Made with by <span className="text-[#FDD500]">&#9829;</span> Rexa Team
             </p>
           </div>
         </div>

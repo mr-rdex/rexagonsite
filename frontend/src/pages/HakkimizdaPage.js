@@ -4,17 +4,24 @@ import { Shield, Wrench, Users, Zap, Database, Lock, MessageCircle, ShoppingBag 
 const HakkimizdaPage = () => {
   const yetkililer = [
     {
-      isim: 'AdminKral',
+      isim: 'rdex',
       yetki: 'Yönetici',
       gorev: 'Sunucu Sahibi & Genel Yönetim',
-      avatar: 'AdminKral',
+      avatar: 'byrdex_',
       renk: 'from-red-500 to-orange-500'
     },
     {
-      isim: 'ModMaster',
+      isim: 'Nesh',
       yetki: 'Yönetici',
       gorev: 'Teknik Yönetim & Geliştirme',
-      avatar: 'ModMaster',
+      avatar: 'NeshxD_',
+      renk: 'from-red-500 to-orange-500'
+    },
+    {
+      isim: 'SupportHero',
+      yetki: 'Moderatör',
+      gorev: 'Forum & Destek Yönetimi',
+      avatar: 'SupportHero',
       renk: 'from-purple-500 to-pink-500'
     },
     {
@@ -23,13 +30,6 @@ const HakkimizdaPage = () => {
       gorev: 'Moderasyon & Oyuncu Desteği',
       avatar: 'HelperPro',
       renk: 'from-blue-500 to-cyan-500'
-    },
-    {
-      isim: 'SupportHero',
-      yetki: 'Moderatör',
-      gorev: 'Forum & Destek Yönetimi',
-      avatar: 'SupportHero',
-      renk: 'from-green-500 to-emerald-500'
     }
   ];
 
@@ -130,11 +130,11 @@ const HakkimizdaPage = () => {
               >
                 <div className="relative inline-block mb-4">
                   <img
-                    src={`https://cravatar.eu/helmavatar/${yetkili.avatar}/128`}
+                    src={`https://mc-heads.net/avatar/${yetkili.avatar}`}
                     alt={yetkili.isim}
                     className="w-24 h-24 rounded-xl mx-auto group-hover:scale-110 transition-transform duration-300"
                   />
-                  <div className={`absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-gradient-to-r ${yetkili.renk} px-4 py-1 rounded-full`}>
+                  <div className={`absolute -bottom-10 left-1/2 transform -translate-x-1/2 bg-gradient-to-r ${yetkili.renk} px-4 py-1 rounded-full`}>
                     <span className="text-white font-bold text-xs uppercase">{yetkili.yetki}</span>
                   </div>
                 </div>

@@ -57,7 +57,7 @@
       "themes_edit_modal": "PASS - Popup modal opens with fields: isim, gorsel_url, fiyat"
     },
     "cravatar_eu_usage": {
-      "navigation_avatar": "PASS - Logged-in user avatar uses cravatar.eu/helmavatar/{username}/32",
+      "navigation_avatar": "PASS - Logged-in user avatar uses cravatar.eu/helmavatar/{username}",
       "homepage_leaderboards": "PASS - All 8 avatars in En Çok Kredi and Son Kayıtlar use cravatar.eu",
       "profile_page": "PASS - Profile avatar uses cravatar.eu/helmavatar/{username}/80",
       "admin_users_table": "PASS - User avatars in admin panel use cravatar.eu"

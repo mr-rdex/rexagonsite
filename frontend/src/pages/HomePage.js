@@ -22,29 +22,37 @@ const HomePage = () => {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [krediRes, kayitRes, alisverisRes, yukleRes, haberRes, statsRes] = await Promise.all([
-          axios.get(`${API}/leaderboard/kredi`).catch(() => ({ data: [] })),
-          axios.get(`${API}/leaderboard/son-kayitlar`).catch(() => ({ data: [] })),
-          axios.get(`${API}/leaderboard/son-alisverisler`).catch(() => ({ data: [] })),
-          axios.get(`${API}/leaderboard/son-kredi-yuklemeler`).catch(() => ({ data: [] })),
-          axios.get(`${API}/haberler?limit=3`).catch(() => ({ data: [] })),
-          axios.get(`${API}/stats`).catch(() => ({ data: { kayitli_oyuncu: 0, aktif_oyuncu: 0 } }))
-        ]);
+  const fetchData = async () => {
+    try {
+      const [krediRes, kayitRes, alisverisRes, yukleRes, haberRes, statsRes, mcRes] = await Promise.all([
+        axios.get(`${API}/leaderboard/kredi`).catch(() => ({ data: [] })),
+        axios.get(`${API}/leaderboard/son-kayitlar`).catch(() => ({ data: [] })),
+        axios.get(`${API}/leaderboard/son-alisverisler`).catch(() => ({ data: [] })),
+        axios.get(`${API}/leaderboard/son-kredi-yuklemeler`).catch(() => ({ data: [] })),
+        axios.get(`${API}/haberler?limit=3`).catch(() => ({ data: [] })),
+        axios.get(`${API}/stats`).catch(() => ({ data: { kayitli_oyuncu: 0, aktif_oyuncu: 0 } })),
+        // Minecraft API isteği (Ücretsiz ve güvenilir bir servistir)
+        axios.get("https://api.mcsrvstat.us/3/play.rexagon.com.tr").catch(() => ({ data: { online: false } }))
+      ]);
 
         setTopKredi(Array.isArray(krediRes.data) ? krediRes.data.slice(0, 5) : []);
         setSonKayitlar(Array.isArray(kayitRes.data) ? kayitRes.data.slice(0, 5) : []);
         setSonAlisverisler(Array.isArray(alisverisRes.data) ? alisverisRes.data.slice(0, 5) : []);
         setSonKrediYuklemeler(Array.isArray(yukleRes.data) ? yukleRes.data.slice(0, 5) : []);
         setHaberler(Array.isArray(haberRes.data) ? haberRes.data : []);
-        setStats(statsRes.data || { kayitli_oyuncu: 0, aktif_oyuncu: 0 });
-      } catch (error) {
-        console.error('Veri yüklenemedi:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+        // Stats verisini düzenle
+      const realTimePlayers = mcRes.data.online ? mcRes.data.players.online : 0;
+      setStats({
+        kayitli_oyuncu: statsRes.data.kayitli_oyuncu || 0,
+        aktif_oyuncu: realTimePlayers // Burası artık Minecraft'tan geliyor
+      });
+
+    } catch (error) {
+      console.error('Veri yüklenemedi:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
     fetchData();
   }, [API]);
@@ -69,19 +77,21 @@ const HomePage = () => {
   }
 
   return (
-    <div className="min-h-screen pt-24 pb-16 px-4" data-testid="home-page">
+    <div className="min-h-screen" data-testid="home-page">
       {/* Hero Section */}
       <div className="relative mb-16 overflow-hidden rounded-xl" style={{
         backgroundImage: 'url(/images/manzara.jpg)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        minHeight: '800px'
+        minHeight: '900px'
       }}>
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-[#222222]"></div>
-        <div className="relative container mx-auto max-w-7xl px-6 py-20 text-center z-10">
-          <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase text-white mb-6" data-testid="hero-title">
-            Rexagon'a <span className="text-[#FDD500]">Hoş Geldin</span>
-          </h1>
+        <div className="relative container mx-auto max-w-7xl px-6 pt-52 text-center z-10">
+          <img 
+              src="/images/logo.png" 
+              alt="Rexagon" 
+              className="h-64 md:h-64 w-auto object-contain mx-auto block"
+            />
           <p className="text-lg md:text-xl text-zinc-300 mb-12 max-w-2xl mx-auto">
             Türkiye'nin en büyük Minecraft sunucu topluluğuna katıl ve maceraya atıl!
           </p>
@@ -103,13 +113,13 @@ const HomePage = () => {
               </div>
             </div>
             {/* IP Address */}
-            <div className="w-[37.5rem]">
+            <div className="w-full max-w-[39.5rem] px-4">
               <button
                 onClick={handleCopyIP}
                 className="w-full bg-[#1E1E1E]/50 backdrop-blur-md border-2 border-[#FDD500] rounded-xl px-8 py-4 hover:bg-[#FDD500]/10 hover:shadow-[0_0_30px_rgba(255,213,0,0.3)] transition-all duration-300 flex items-center justify-center space-x-3"
                 data-testid="copy-ip-button"
               >
-                <span className="text-[#FDD500] font-bold text-xl">play.rexagon.com.tr</span>
+                <span className="text-[#FDD500] font-bold text-lg md:text-xl">play.rexagon.com.tr</span>
                 {copied ? <Check className="text-[#FDD500]" size={24} /> : <Copy className="text-[#FDD500]" size={24} />}
               </button>
               {copied && (
@@ -159,12 +169,12 @@ const HomePage = () => {
                 <Link
                   key={user.id}
                   to={`/profil/${user.kullanici_adi}`}
-                  className="flex items-center justify-between p-3 bg-[#2A2A2A] rounded hover:bg-[#333333] transition-colors"
+                  className="mt-2 flex items-center justify-between p-3 bg-[#2A2A2A] rounded hover:bg-[#333333] transition-colors"
                 >
                   <div className="flex items-center space-x-3">
                     <span className="text-[#FDD500] font-bold w-6">#{index + 1}</span>
                     <img
-                      src={`https://mc-heads.net/avatar/${user.kullanici_adi}/32`}
+                      src={`https://mc-heads.net/avatar/${user.kullanici_adi}`}
                       alt={user.kullanici_adi}
                       className="w-8 h-8 rounded"
                     />
@@ -187,11 +197,11 @@ const HomePage = () => {
                 <Link
                   key={user.id}
                   to={`/profil/${user.kullanici_adi}`}
-                  className="flex items-center justify-between p-3 bg-[#2A2A2A] rounded hover:bg-[#333333] transition-colors"
+                  className="mt-2 flex items-center justify-between p-3 bg-[#2A2A2A] rounded hover:bg-[#333333] transition-colors"
                 >
                   <div className="flex items-center space-x-3">
                     <img
-                      src={`https://mc-heads.net/avatar/${user.kullanici_adi}/32`}
+                      src={`https://mc-heads.net/avatar/${user.kullanici_adi}`}
                       alt={user.kullanici_adi}
                       className="w-8 h-8 rounded"
                     />
@@ -212,10 +222,10 @@ const HomePage = () => {
             <div className="space-y-3">
               {sonAlisverisler.length > 0 ? (
                 sonAlisverisler.map((purchase, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-[#2A2A2A] rounded">
+                  <div key={index} className="mt-2 flex items-center justify-between p-3 bg-[#2A2A2A] rounded">
                     <div className="flex items-center">
                         <img
-                            src={`https://mc-heads.net/avatar/${purchase.kullanici_adi}/32`}
+                            src={`https://mc-heads.net/avatar/${purchase.kullanici_adi}`}
                             alt={purchase.kullanici_adi}
                             className="w-8 h-8 rounded mr-3"
                         />
@@ -242,10 +252,10 @@ const HomePage = () => {
             <div className="space-y-3">
               {sonKrediYuklemeler.length > 0 ? (
                 sonKrediYuklemeler.map((transaction, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-[#2A2A2A] rounded">
+                  <div key={index} className="mt-2 flex items-center justify-between p-3 bg-[#2A2A2A] rounded">
                     <div className="flex items-center space-x-3">
                         <img
-                            src={`https://mc-heads.net/avatar/${transaction.kullanici_adi}/32`}
+                            src={`https://mc-heads.net/avatar/${transaction.kullanici_adi}`}
                             alt={transaction.kullanici_adi}
                             className="w-8 h-8 rounded"
                         />

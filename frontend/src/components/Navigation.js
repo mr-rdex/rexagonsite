@@ -58,27 +58,27 @@ const Navigation = () => {
 
   return (
     <>
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#222222]/95 backdrop-blur-md border-b border-white/5">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#222222]/20 backdrop-blur-md border-b border-white/5">
       <div className="container mx-auto px-4 md:px-6 max-w-7xl">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center" data-testid="logo-link">
             <img 
-              src="/images/logo.png" 
+              src="/images/rexanewlogo.png" 
               alt="Rexagon" 
-              className="h-12 md:h-14 w-auto object-contain"
+              className="h-20 md:h-20 w-auto object-contain"
             />
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-14">
+          <div className="hidden lg:flex items-center">
             {navLinks.map(link => {
               const isActive = link.to === '/' ? location.pathname === '/' : location.pathname.startsWith(link.to);
               return (
               <Link
                 key={link.to}
                 to={link.to}
-                className={`font-medium transition-colors uppercase tracking-wider text-sm whitespace-nowrap ${isActive ? 'text-[#FDD500]' : 'text-zinc-400 hover:text-[#FDD500]'}`}
+                className={`font-medium transition-colors px-3 uppercase tracking-wider text-sm whitespace-nowrap ${isActive ? 'text-[#FDD500]' : 'text-zinc-400 hover:text-[#FDD500]'}`}
                 data-testid={`nav-${link.label.toLowerCase().replace(' ', '-')}`}
               >
                 {link.label}
@@ -102,7 +102,7 @@ const Navigation = () => {
                   data-testid="profile-menu-button"
                 >
                   <img
-                    src={`https://mc-heads.net/avatar/${user.kullanici_adi}/32`}
+                    src={`https://mc-heads.net/avatar/${user.kullanici_adi}`}
                     alt={user.kullanici_adi}
                     className="w-8 h-8 rounded"
                   />
@@ -175,7 +175,7 @@ const Navigation = () => {
               <>
                 <Link
                   to="/giris"
-                  className="text-zinc-400 hover:text-white font-medium transition-colors uppercase tracking-wider text-sm shadow-lg"
+                  className="text-zinc-400 px-5 hover:text-white font-medium transition-colors uppercase tracking-wider text-sm shadow-lg"
                   data-testid="login-link"
                 >
                   Giriş Yap
@@ -203,7 +203,7 @@ const Navigation = () => {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-white/5">
+          <div className="md:hidden px-3 py-4 border-t border-white/5">
             {navLinks.map(link => {
               const isActive = link.to === '/' ? location.pathname === '/' : location.pathname.startsWith(link.to);
               return (
@@ -221,7 +221,7 @@ const Navigation = () => {
                 <>
                   <div className="flex items-center space-x-3 mb-4">
                     <img
-                      src={`https://mc-heads.net/avatar/${user.kullanici_adi}/32`}
+                      src={`https://mc-heads.net/avatar/${user.kullanici_adi}`}
                       alt={user.kullanici_adi}
                       className="w-8 h-8 rounded"
                     />

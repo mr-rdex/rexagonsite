@@ -17,7 +17,7 @@ import AdminPage from './pages/AdminPage';
 import CuzdanPage from './pages/CuzdanPage';
 import HakkimizdaPage from './pages/HakkimizdaPage';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = process.env.REACT_APP_API_URL;
 const API = `${BACKEND_URL}/api`;
 
 export const AuthContext = createContext();

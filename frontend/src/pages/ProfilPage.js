@@ -85,24 +85,24 @@ const ProfilPage = () => {
   const displayName = profileUser.kullanici_adi;
 
   return (
-    <div className="min-h-screen pt-20" data-testid="profile-page">
+    <div className="min-h-screen" data-testid="profile-page">
       {/* Full-width Hero Banner - Taller */}
       <div
-        className="relative w-full"
+        className="relative"
         style={{
           backgroundImage: profileUser.aktif_tema_gorsel
             ? `url(${profileUser.aktif_tema_gorsel})`
             : 'url(/images/hero-bg.jpg)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          minHeight: '1000px'
+          minHeight: '500px'
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-[#222222]"></div>
-        <div className="relative container mx-auto max-w-7xl px-4 flex items-end pb-8" style={{ minHeight: '1000px' }}>
+        <div className="relative container mx-auto max-w-7xl px-4 flex items-end pb-2" style={{ minHeight: '600px' }}>
           <div className="flex items-center space-x-5">
             <img
-              src={profileUser.yetki_gorseli || `https://mc-heads.net/avatar/${displayName}/80`}
+              src={profileUser.yetki_gorseli || `https://mc-heads.net/avatar/${displayName}`}
               alt={displayName}
               className="w-20 h-20 rounded-lg border-2 border-[#FDD500] shadow-lg"
               data-testid="profile-avatar"
@@ -170,6 +170,23 @@ const ProfilPage = () => {
             </div>
           </div>
 
+          
+
+          {/* Right Column - Full Body Skin */}
+          <div className="lg:col-span-3">
+            <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6 flex flex-col items-center" data-testid="skin-section">
+              <h3 className="text-zinc-500 text-sm uppercase tracking-wider mb-4">Oyuncu Görünümü</h3>
+              <img
+                src={`https://mc-heads.net/body/${displayName}`}
+                alt={`${displayName} skin`}
+                className="max-w-[140px] w-full h-auto"
+                data-testid="profile-skin"
+              />
+              <p className="text-zinc-400 text-xs mt-4 text-center">{displayName}</p>
+            </div>
+          </div>
+
+
           {/* Middle Column - Themes */}
           <div className="lg:col-span-4">
             <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6" data-testid="themes-section">
@@ -221,20 +238,6 @@ const ProfilPage = () => {
                   })}
                 </div>
               )}
-            </div>
-          </div>
-
-          {/* Right Column - Full Body Skin */}
-          <div className="lg:col-span-3">
-            <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6 flex flex-col items-center" data-testid="skin-section">
-              <h3 className="text-zinc-500 text-sm uppercase tracking-wider mb-4">Oyuncu Görünümü</h3>
-              <img
-                src={`https://mc-heads.net/body/${displayName}`}
-                alt={`${displayName} skin`}
-                className="max-w-[140px] w-full h-auto"
-                data-testid="profile-skin"
-              />
-              <p className="text-zinc-400 text-xs mt-4 text-center">{displayName}</p>
             </div>
           </div>
         </div>
