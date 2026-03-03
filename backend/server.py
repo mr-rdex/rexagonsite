@@ -64,6 +64,9 @@ class UserResponse(BaseModel):
     aktif_tema_id: Optional[str] = None
     aktif_tema_gorsel: Optional[str] = None
     biyografi: Optional[str] = None
+    discord: Optional[str] = None
+    instagram: Optional[str] = None
+    steam: Optional[str] = None
     ada_seviyesi: int = 0
     dinar: float = 0
     acilan_konu_sayisi: int = 0
@@ -109,7 +112,10 @@ class SifreDegistir(BaseModel):
     yeni_sifre: str
 
 class BiyografiGuncelle(BaseModel):
-    biyografi: str
+    biyografi: Optional[str] = None
+    discord: Optional[str] = None
+    instagram: Optional[str] = None
+    steam: Optional[str] = None
 
 # ============ AUTH HELPERS ============
 
@@ -282,11 +288,22 @@ async def change_password(data: SifreDegistir, current_user: dict = Depends(get_
 
 @api_router.put("/users/biyografi")
 async def update_biography(data: BiyografiGuncelle, current_user: dict = Depends(get_current_user)):
-    await db.users.update_one(
-        {"id": current_user["id"]},
-        {"$set": {"biyografi": data.biyografi}}
-    )
-    return {"message": "Biyografi güncellendi"}
+    update_data = {}
+    if data.biyografi is not None:
+        update_data["biyografi"] = data.biyografi
+    if data.discord is not None:
+        update_data["discord"] = data.discord
+    if data.instagram is not None:
+        update_data["instagram"] = data.instagram
+    if data.steam is not None:
+        update_data["steam"] = data.steam
+
+    if update_data:
+        await db.users.update_one(
+            {"id": current_user["id"]},
+            {"$set": update_data}
+        )
+    return {"message": "Profil bilgileri güncellendi"}
 
 # ============ LEADERBOARD ROUTES ============
 
@@ -663,6 +680,9 @@ async def update_user(
     rol: Optional[str] = None,
     yetki: Optional[str] = None,
     yetki_gorseli: Optional[str] = None,
+    discord: Optional[str] = None,
+    instagram: Optional[str] = None,
+    steam: Optional[str] = None,
     admin: dict = Depends(get_admin_user)
 ):
     update_data = {}
@@ -674,6 +694,12 @@ async def update_user(
         update_data["yetki"] = yetki
     if yetki_gorseli is not None:
         update_data["yetki_gorseli"] = yetki_gorseli
+    if discord is not None:
+        update_data["discord"] = discord
+    if instagram is not None:
+        update_data["instagram"] = instagram
+    if steam is not None:
+        update_data["steam"] = steam
     
     if update_data:
         await db.users.update_one({"id": user_id}, {"$set": update_data})

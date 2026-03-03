@@ -13,6 +13,9 @@ const Navigation = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [settingsTab, setSettingsTab] = useState('bio');
   const [bio, setBio] = useState('');
+  const [discordHandle, setDiscordHandle] = useState('');
+  const [instagramHandle, setInstagramHandle] = useState('');
+  const [steamLink, setSteamLink] = useState('');
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [saving, setSaving] = useState(false);
@@ -127,7 +130,15 @@ const Navigation = () => {
                     </Link>
                     <button
                       className="w-full flex items-center space-x-3 px-4 py-3 hover:bg-[#2A2A2A] transition-colors text-white"
-                      onClick={() => { setShowProfileMenu(false); setBio(user?.biyografi || ''); setShowSettings(true); setSettingsTab('bio'); }}
+                      onClick={() => {
+                        setShowProfileMenu(false);
+                        setBio(user?.biyografi || '');
+                        setDiscordHandle(user?.discord || '');
+                        setInstagramHandle(user?.instagram || '');
+                        setSteamLink(user?.steam || '');
+                        setShowSettings(true);
+                        setSettingsTab('bio');
+                      }}
                       data-testid="profile-settings-button"
                     >
                       <Settings size={18} />
@@ -295,7 +306,7 @@ const Navigation = () => {
 
           {/* Tabs */}
           <div className="flex space-x-3 mb-6">
-            <button onClick={() => setSettingsTab('bio')} className={`px-4 py-2 rounded-lg text-sm font-bold uppercase transition-all ${settingsTab === 'bio' ? 'bg-[#FDD500] text-black' : 'bg-[#2A2A2A] text-zinc-400 hover:text-white'}`} data-testid="settings-tab-bio">Biyografi</button>
+            <button onClick={() => setSettingsTab('bio')} className={`px-4 py-2 rounded-lg text-sm font-bold uppercase transition-all ${settingsTab === 'bio' ? 'bg-[#FDD500] text-black' : 'bg-[#2A2A2A] text-zinc-400 hover:text-white'}`} data-testid="settings-tab-bio">Profil Bilgileri</button>
             <button onClick={() => setSettingsTab('password')} className={`px-4 py-2 rounded-lg text-sm font-bold uppercase transition-all ${settingsTab === 'password' ? 'bg-[#FDD500] text-black' : 'bg-[#2A2A2A] text-zinc-400 hover:text-white'}`} data-testid="settings-tab-password">Şifre Değiştir</button>
           </div>
 
@@ -305,17 +316,29 @@ const Navigation = () => {
               setSaving(true);
               try {
                 const token = localStorage.getItem('token');
-                await axios.put(`${API}/users/biyografi`, { biyografi: bio }, { headers: { Authorization: `Bearer ${token}` } });
-                alert('Biyografi güncellendi!');
+                await axios.put(`${API}/users/biyografi`, { biyografi: bio, discord: discordHandle, instagram: instagramHandle, steam: steamLink }, { headers: { Authorization: `Bearer ${token}` } });
+                alert('Profil bilgileri güncellendi!');
                 setShowSettings(false);
                 window.location.reload();
               } catch (err) { alert('Güncelleme başarısız'); } finally { setSaving(false); }
             }} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-zinc-400 mb-2">Biyografi</label>
-                <textarea rows={4} className="w-full bg-[#2A2A2A] border border-zinc-700 text-white rounded-md px-4 py-3 focus:outline-none focus:border-[#FDD500] focus:ring-1 focus:ring-[#FDD500] transition-all" value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Kendiniz hakkında bir şeyler yazın..." data-testid="bio-input" />
+                <textarea rows={3} className="w-full bg-[#2A2A2A] border border-zinc-700 text-white rounded-md px-4 py-2 focus:outline-none focus:border-[#FDD500] focus:ring-1 focus:ring-[#FDD500] transition-all" value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Kendiniz hakkında bir şeyler yazın..." data-testid="bio-input" />
               </div>
-              <button type="submit" disabled={saving} className="w-full bg-[#FDD500] text-black font-bold uppercase tracking-wide px-6 py-3 rounded-lg hover:bg-[#E6C200] transition-all btn-3d disabled:opacity-50" data-testid="save-bio-button">{saving ? 'Kaydediliyor...' : 'Kaydet'}</button>
+              <div>
+                <label className="block text-sm font-medium text-zinc-400 mb-2">Discord Kullanıcı Adı</label>
+                <input type="text" className="w-full bg-[#2A2A2A] border border-zinc-700 text-white rounded-md px-4 py-2 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all" value={discordHandle} onChange={(e) => setDiscordHandle(e.target.value)} placeholder="Örn: kullanici#1234 veya kullanici" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-zinc-400 mb-2">Instagram Kullanıcı Adı</label>
+                <input type="text" className="w-full bg-[#2A2A2A] border border-zinc-700 text-white rounded-md px-4 py-2 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition-all" value={instagramHandle} onChange={(e) => setInstagramHandle(e.target.value)} placeholder="Örn: kullaniciadi" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-zinc-400 mb-2">Steam Profil Linki</label>
+                <input type="url" className="w-full bg-[#2A2A2A] border border-zinc-700 text-white rounded-md px-4 py-2 focus:outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-500 transition-all" value={steamLink} onChange={(e) => setSteamLink(e.target.value)} placeholder="Örn: https://steamcommunity.com/id/kullanici" />
+              </div>
+              <button type="submit" disabled={saving} className="w-full bg-[#FDD500] text-black font-bold uppercase tracking-wide px-6 py-3 mt-4 rounded-lg hover:bg-[#E6C200] transition-all btn-3d disabled:opacity-50" data-testid="save-bio-button">{saving ? 'Kaydediliyor...' : 'Kaydet'}</button>
             </form>
           )}
 

@@ -127,7 +127,33 @@ const ProfilPage = () => {
             {/* Biyografi */}
             <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6" data-testid="bio-section">
               <h3 className="text-zinc-500 text-sm uppercase tracking-wider mb-3">Biyografi</h3>
-              <p className="text-zinc-300 text-sm">{profileUser.biyografi || 'Henüz bir biyografi eklenmemiş.'}</p>
+              <p className="text-zinc-300 text-sm mb-4">{profileUser.biyografi || 'Henüz bir biyografi eklenmemiş.'}</p>
+
+              {(profileUser.discord || profileUser.instagram || profileUser.steam) && (
+                <>
+                  <h3 className="text-zinc-500 text-sm uppercase tracking-wider mb-3 mt-4">Sosyal Medya</h3>
+                  <div className="space-y-2">
+                    {profileUser.discord && (
+                      <div className="flex items-center space-x-2 text-sm">
+                        <span className="text-blue-400 font-semibold w-20">Discord:</span>
+                        <span className="text-zinc-300">{profileUser.discord}</span>
+                      </div>
+                    )}
+                    {profileUser.instagram && (
+                      <div className="flex items-center space-x-2 text-sm">
+                        <span className="text-pink-400 font-semibold w-20">Instagram:</span>
+                        <a href={`https://instagram.com/${profileUser.instagram}`} target="_blank" rel="noreferrer" className="text-zinc-300 hover:text-white transition-colors">@{profileUser.instagram}</a>
+                      </div>
+                    )}
+                    {profileUser.steam && (
+                      <div className="flex items-center space-x-2 text-sm">
+                        <span className="text-gray-300 font-semibold w-20">Steam:</span>
+                        <a href={profileUser.steam} target="_blank" rel="noreferrer" className="text-zinc-300 hover:text-white transition-colors truncate">Profil Linki</a>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Stats */}

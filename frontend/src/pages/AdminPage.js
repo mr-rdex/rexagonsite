@@ -25,6 +25,7 @@ const AdminPage = () => {
   const [editItem, setEditItem] = useState(null);
   const [editNews, setEditNews] = useState(null);
   const [editTheme, setEditTheme] = useState(null);
+  const [editUser, setEditUser] = useState(null);
 
   const token = localStorage.getItem('token');
   const headers = { Authorization: `Bearer ${token}` };
@@ -50,6 +51,27 @@ const AdminPage = () => {
       alert('Kullanıcı güncellendi');
       fetchUsers();
     } catch(e) { alert('Güncelleme başarısız'); }
+  };
+
+  const submitUserEdit = async (e) => {
+    e.preventDefault();
+    try {
+      let queryParams = new URLSearchParams();
+      if (editUser.kredi !== undefined) queryParams.append('kredi', editUser.kredi);
+      if (editUser.yetki !== undefined) queryParams.append('yetki', editUser.yetki);
+      if (editUser.yetki_gorseli !== undefined) queryParams.append('yetki_gorseli', editUser.yetki_gorseli);
+      if (editUser.rol !== undefined) queryParams.append('rol', editUser.rol);
+      if (editUser.discord !== undefined) queryParams.append('discord', editUser.discord);
+      if (editUser.instagram !== undefined) queryParams.append('instagram', editUser.instagram);
+      if (editUser.steam !== undefined) queryParams.append('steam', editUser.steam);
+
+      await axios.put(`${API}/admin/kullanici/${editUser.id}?${queryParams.toString()}`, {}, { headers });
+      alert('Kullanıcı başarıyla güncellendi');
+      setEditUser(null);
+      fetchUsers();
+    } catch(err) {
+      alert('Kullanıcı güncellenirken hata oluştu');
+    }
   };
   const handleDeleteUser = async (userId) => {
     if (!window.confirm('Bu kullanıcıyı silmek istediğinize emin misiniz?')) return;
@@ -170,7 +192,7 @@ const AdminPage = () => {
                           <td className="p-4"><span className="px-3 py-1 rounded-full text-xs font-bold uppercase bg-zinc-800 text-zinc-300">{u.yetki || 'Oyuncu'}</span></td>
                           <td className="p-4"><span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${u.rol === 'admin' ? 'bg-[#FDD500]/10 text-[#FDD500]' : 'bg-zinc-800 text-zinc-400'}`}>{u.rol}</span></td>
                           <td className="p-4 text-right">
-                            <button onClick={() => { const c = prompt('Düzenle:\n1. Kredi\n2. Yetki\n3. Yetki Görseli URL'); if(c==='1'){const v=prompt('Yeni kredi:',u.kredi);if(v!==null)handleUpdateUser(u.id,'kredi',parseFloat(v));}else if(c==='2'){const v=prompt('Yeni yetki (Oyuncu/VIP/Moderatör/Yönetici):',u.yetki);if(v)handleUpdateUser(u.id,'yetki',v);}else if(c==='3'){const v=prompt('Yetki görseli URL:',u.yetki_gorseli||'');if(v!==null)handleUpdateUser(u.id,'yetki_gorseli',v);}}} className="text-[#FDD500] hover:text-[#E6C200] mr-3" data-testid={`edit-user-${u.kullanici_adi}`}><Edit size={18} /></button>
+                            <button onClick={() => setEditUser(u)} className="text-[#FDD500] hover:text-[#E6C200] mr-3" data-testid={`edit-user-${u.kullanici_adi}`}><Edit size={18} /></button>
                             <button onClick={() => handleDeleteUser(u.id)} className="text-red-500 hover:text-red-400" data-testid={`delete-user-${u.kullanici_adi}`}><Trash2 size={18} /></button>
                           </td>
                         </tr>
@@ -382,6 +404,30 @@ const AdminPage = () => {
               <div className="flex space-x-4">
                 <button type="submit" className="bg-[#FDD500] text-black font-bold uppercase tracking-wide px-6 py-3 rounded-lg hover:bg-[#E6C200] transition-all btn-3d">Kaydet</button>
                 <button type="button" onClick={() => setEditTheme(null)} className="bg-transparent border-2 border-zinc-700 text-zinc-400 font-bold uppercase px-6 py-3 rounded-lg hover:border-zinc-600 transition-all">İptal</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {editUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" data-testid="edit-user-modal">
+          <div className="bg-[#1E1E1E] border border-zinc-800 rounded-xl p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold text-white">Kullanıcı Düzenle: {editUser.kullanici_adi}</h3>
+              <button onClick={() => setEditUser(null)} className="text-zinc-400 hover:text-white"><X size={24} /></button>
+            </div>
+            <form onSubmit={submitUserEdit} className="space-y-4">
+              <div><label className="block text-sm font-medium text-zinc-400 mb-2">Kredi</label><input type="number" min="0" className={inputCls} value={editUser.kredi} onChange={(e) => setEditUser({...editUser, kredi: parseFloat(e.target.value) || 0})} /></div>
+              <div><label className="block text-sm font-medium text-zinc-400 mb-2">Rol (Kullanıcı/Admin vb.)</label><input type="text" className={inputCls} value={editUser.rol || ''} onChange={(e) => setEditUser({...editUser, rol: e.target.value})} /></div>
+              <div><label className="block text-sm font-medium text-zinc-400 mb-2">Yetki (Oyuncu/VIP vs.)</label><input type="text" className={inputCls} value={editUser.yetki || ''} onChange={(e) => setEditUser({...editUser, yetki: e.target.value})} /></div>
+              <div><label className="block text-sm font-medium text-zinc-400 mb-2">Yetki Görseli URL</label><input type="url" className={inputCls} value={editUser.yetki_gorseli || ''} onChange={(e) => setEditUser({...editUser, yetki_gorseli: e.target.value})} /></div>
+              <div><label className="block text-sm font-medium text-zinc-400 mb-2">Discord</label><input type="text" className={inputCls} value={editUser.discord || ''} onChange={(e) => setEditUser({...editUser, discord: e.target.value})} /></div>
+              <div><label className="block text-sm font-medium text-zinc-400 mb-2">Instagram</label><input type="text" className={inputCls} value={editUser.instagram || ''} onChange={(e) => setEditUser({...editUser, instagram: e.target.value})} /></div>
+              <div><label className="block text-sm font-medium text-zinc-400 mb-2">Steam</label><input type="url" className={inputCls} value={editUser.steam || ''} onChange={(e) => setEditUser({...editUser, steam: e.target.value})} /></div>
+              <div className="flex space-x-4 mt-6">
+                <button type="submit" className="bg-[#FDD500] text-black font-bold uppercase tracking-wide px-6 py-3 rounded-lg hover:bg-[#E6C200] transition-all btn-3d">Kaydet</button>
+                <button type="button" onClick={() => setEditUser(null)} className="bg-transparent border-2 border-zinc-700 text-zinc-400 font-bold uppercase px-6 py-3 rounded-lg hover:border-zinc-600 transition-all">İptal</button>
               </div>
             </form>
           </div>
