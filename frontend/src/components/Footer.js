@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Facebook, Twitter, Instagram, Youtube, Mail, X } from 'lucide-react';
+import { Mail, X } from 'lucide-react';
 import axios from 'axios';
 import { useAuth } from '../App';
+import { FaDiscord, FaInstagram, FaYoutube } from 'react-icons/fa';
+import { FaEnvelope } from 'react-icons/fa6'; // Yeni X logosu burada
 
 const Footer = () => {
   const { API, user } = useAuth();
@@ -116,20 +118,16 @@ const Footer = () => {
             <div>
               <h3 className="text-white font-bold uppercase tracking-wider mb-4 text-sm">Sosyal Medya</h3>
               <div className="flex space-x-4 mb-4">
-                <a href="https://instagram.com/rexagon.com.tr" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-[#2A2A2A] rounded-lg flex items-center justify-center text-zinc-400 hover:text-[#FDD500] hover:bg-[#FDD500]/10 transition-all duration-300">
-                  <Instagram size={20} />
+                {/* Instagram */}
+                <a href="https://instagram.com/rexagon.com.tr" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-[#2A2A2A] rounded-lg flex items-center justify-center text-zinc-400 hover:text-[#E4405F] hover:bg-[#E4405F]/10 transition-all duration-300">
+                  <FaInstagram size={20} />
                 </a>
-                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-[#2A2A2A] rounded-lg flex items-center justify-center text-zinc-400 hover:text-[#FDD500] hover:bg-[#FDD500]/10 transition-all duration-300">
-                  <Twitter size={20} />
+                {/* Discord */}
+                <a href="https://discord.gg/d8huURNrfT" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-[#2A2A2A] rounded-lg flex items-center justify-center text-zinc-400 hover:text-[#5865F2] hover:bg-[#5865F2]/10 transition-all duration-300">
+                  <FaDiscord size={22} />
                 </a>
-                <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-[#2A2A2A] rounded-lg flex items-center justify-center text-zinc-400 hover:text-[#FDD500] hover:bg-[#FDD500]/10 transition-all duration-300">
-                  <Youtube size={20} />
-                </a>
-              </div>
-              <div className="flex items-center space-x-2 text-zinc-400 text-sm">
-                <Mail size={16} />
-                <a href="mailto:info@rexagon.com.tr" className="hover:text-[#FDD500] transition-colors">
-                  info@rexagon.com.tr
+                <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-[#2A2A2A] rounded-lg flex items-center justify-center text-zinc-400 hover:text-[#FF0000] hover:bg-[#FF0000]/10 transition-all duration-300">
+                  <FaYoutube size={20} />
                 </a>
               </div>
             </div>
@@ -138,7 +136,7 @@ const Footer = () => {
           {/* Bottom Bar */}
           <div className="border-t border-zinc-800 pt-8 flex flex-col md:flex-row justify-between items-center">
             <p className="text-zinc-500 text-sm mb-4 md:mb-0">
-              2026 Rexagon Minecraft Server. Tüm hakları saklıdır.
+              2026 &copy; Rexagon Minecraft Server. Tüm hakları saklıdır.
             </p>
             <p className="text-zinc-500 text-xs">
               Made with by <span className="text-[#FDD500]">&#9829;</span> Rexa Team

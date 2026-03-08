@@ -81,7 +81,7 @@ const Navigation = () => {
               <Link
                 key={link.to}
                 to={link.to}
-                className={`font-medium transition-colors px-3 uppercase tracking-wider text-sm whitespace-nowrap ${isActive ? 'text-[#FDD500]' : 'text-zinc-400 hover:text-[#FDD500]'}`}
+                className={`font-medium transition-colors px-3 button-nav uppercase tracking-wider text-sm whitespace-nowrap ${isActive ? 'text-[#FDD500] [text-shadow:0_0_5px_#FDD500]' : 'text-zinc-400 hover:text-[#FDD500]'}`}
                 data-testid={`nav-${link.label.toLowerCase().replace(' ', '-')}`}
               >
                 {link.label}
@@ -89,7 +89,7 @@ const Navigation = () => {
             )})}
             <Link
               to="/cuzdan"
-              className="bg-[#FDD500] text-black font-bold uppercase tracking-wide px-4 py-2 rounded-lg hover:bg-[#E6C200] transition-all btn-3d ml-4 shadow-lg"
+              className="ml-4 button-card"
             >
               Kredi Yükle
             </Link>

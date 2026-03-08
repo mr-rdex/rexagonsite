@@ -32,6 +32,35 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 400;
 }
 
+.button-card {
+      text-transform: uppercase;
+      color: #FDD500;
+      transition: all 0.3s ease 0s;
+    }
+    
+.button-card:hover {
+      text-shadow: 0px 0px 20px #FDD500;
+      color: #fff;
+    }
+    
+.button-nav{
+  transition: all 0.3s;
+}
+
+.button-nav:hover{
+  text-shadow: 0px 0px 10px #FDD500;
+}
+
+.button-czdn{
+  transition: all 0.3s;
+}
+
+.button-czdn:hover{
+  text-shadow: 0px 0px 10px #FDD500;
+  color: #fff;
+  background-color: rgba(0, 0, 0, 0.886);
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }

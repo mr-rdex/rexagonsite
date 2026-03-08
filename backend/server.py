@@ -12,6 +12,7 @@ from datetime import datetime, timezone, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 import uuid
+import sqlite3
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -884,56 +885,10 @@ async def remove_active_theme(current_user: dict = Depends(get_current_user)):
     return {"message": "Tema kaldırıldı"}
 
 
-# server.py dosyana ekle
 
-@app.get("/api/leaderboard/ada-seviyesi")
-async def get_island_leaderboard():
-    # SuperiorSkyblock2 tablosundan veriyi çekiyoruz
-    # Tablo ve sütun isimlerini veritabanına göre kontrol etmelisin
-    query = "SELECT is_name as kullanici_adi, is_level as ada_seviyesi FROM s2_islands ORDER BY is_level DESC LIMIT 10"
-    # Buraya veritabanı bağlantı kodun gelecek (örneğin cursor.execute(query))
-    return [{"kullanici_adi": "Oyuncu1", "ada_seviyesi": 500}] # Örnek dönüş
-
-@app.get("/api/leaderboard/dinar")
-async def get_dinar_leaderboard():
-    # Vault/Ekonomi tablosundan veriyi çekiyoruz
-    query = "SELECT username as kullanici_adi, balance as dinar FROM economy_table ORDER BY balance DESC LIMIT 10"
-    return [{"kullanici_adi": "Oyuncu1", "dinar": 150000}] # Örnek dönüş
-
-#-------------------------------
 
 #-----------------------------
 
-import mysql.connector
-
-# Veritabanı bağlantı bilgilerini buraya giriyoruz
-def get_db_connection():
-    return mysql.connector.connect(
-        host="212.154.94.254:25567",
-        user="root",
-        password="root", # Senin config'indeki şifre
-        database="SuperiorSkyblock"
-    )
-
-@app.get("/api/leaderboard/ada-seviyesi")
-async def get_island_leaderboard():
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
-        
-        # SuperiorSkyblock2 genellikle s2_islands tablosunu kullanır
-        # 'name' ve 'level' sütun isimleri versiyona göre değişebilir, kontrol etmelisin
-        query = "SELECT name as kullanici_adi, level as ada_seviyesi FROM s2_islands ORDER BY level DESC LIMIT 10"
-        
-        cursor.execute(query)
-        rows = cursor.fetchall()
-        
-        cursor.close()
-        conn.close()
-        return rows
-    except Exception as e:
-        print(f"Hata: {e}")
-        return []
 
 # ============ ALL MARKET ITEMS ROUTE ============
 @api_router.get("/market/urunler")
@@ -1013,7 +968,44 @@ async def startup_event():
         ]
         await db.market_items.insert_many(sample_items)
         logger.info("Paketler kategorisine örnek ürünler eklendi")
+        
 
-@app.on_event("shutdown")
-async def shutdown_db_client():
-    client.close()
+# ============ MINECRAFT SQLITE LEADERBOARD ============
+
+# server.py içinde sadece bu kalsın:
+@api_router.get("/leaderboard/ada-seviyesi")
+async def get_top_island_level():
+    # 1. Aşama: MongoDB'deki 'leaderboard_islands' (sync.py'nin doldurduğu) koleksiyonunu al
+    # 2. Aşama: 'users' koleksiyonu ile kullanici_adi üzerinden eşleştir (Lookup)
+    pipeline = [
+        {
+            "$lookup": {
+                "from": "users",
+                "localField": "kullanici_adi",
+                "foreignField": "kullanici_adi",
+                "as": "user_info"
+            }
+        },
+        {
+            "$unwind": {
+                "path": "$user_info",
+                "preserveNullAndEmptyArrays": True # Kayıtlı olmayan oyuncular da listede görünsün
+            }
+        },
+        {
+            "$project": {
+                "_id": 0,
+                "kullanici_adi": 1,
+                "ada_seviyesi": 1,
+                # MongoDB'den gelen zengin bilgiler:
+                "id": "$user_info.id",
+                "email": "$user_info.email",
+                "kayit_tarihi": "$user_info.kayit_tarihi",
+                "rol": "$user_info.rol",
+                "yetki": "$user_info.yetki"
+            }
+        }
+    ]
+    
+    leaderboard = await db.leaderboard_islands.aggregate(pipeline).to_list(10)
+    return leaderboard

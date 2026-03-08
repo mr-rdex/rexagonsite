@@ -37,9 +37,10 @@ const SiralamaPage = () => {
 }, [activeTab, API]);
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('tr-TR');
-  };
+  if (!dateString) return "Bilinmiyor"; // Boş veri gelirse hata verme
+  const date = new Date(dateString);
+  return date.toLocaleDateString('tr-TR');
+};
 
   const tabs = [
     { id: 'kredi', label: 'En Çok Kredi', icon: Trophy },
@@ -58,22 +59,31 @@ const SiralamaPage = () => {
   };
 
   const renderUserRow = (user, index, valueKey, valueSuffix) => (
-    <Link
-      key={user.id}
-      to={`/profil/${user.kullanici_adi}`}
-      className="flex items-center justify-between p-6 hover:bg-[#2A2A2A] transition-colors"
-    >
-      <div className="flex items-center space-x-4">
-        <span className={`text-2xl font-black w-12 text-center ${getRankColor(index)}`}>#{index + 1}</span>
-        <img src={`https://mc-heads.net/avatar/${user.kullanici_adi}`} alt={user.kullanici_adi} className="w-12 h-12 rounded" />
-        <div>
-          <p className="text-white font-bold">{user.kullanici_adi}</p>
+  <Link
+    key={index} // user.id yerine index kullanıyoruz çünkü her oyuncu kayıtlı olmayabilir
+    to={`/profil/${user.kullanici_adi}`}
+    className="flex items-center justify-between p-6 hover:bg-[#2A2A2A] transition-colors"
+  >
+    <div className="flex items-center space-x-4">
+      <span className={`text-2xl font-black w-12 text-center ${getRankColor(index)}`}>#{index + 1}</span>
+      {/* Kafa resmi her zaman kullanici_adi üzerinden gelir */}
+      <img src={`https://mc-heads.net/avatar/${user.kullanici_adi}`} alt={user.kullanici_adi} className="w-12 h-12 rounded" />
+      <div>
+        <p className="text-white font-bold">{user.kullanici_adi}</p>
+        {/* SADECE kayıtlı kullanıcılar için kayıt tarihini gösterir */}
+        {user.kayit_tarihi ? (
           <p className="text-xs text-zinc-500">Kayıt: {formatDate(user.kayit_tarihi)}</p>
-        </div>
+        ) : (
+          <p className="text-xs text-zinc-600 italic">Siteye henüz kayıt olmamış</p>
+        )}
       </div>
-      <span className="text-2xl font-black text-[#FDD500]">{(user[valueKey] || 0).toFixed ? (user[valueKey] || 0).toFixed(0) : (user[valueKey] || 0)} {valueSuffix}</span>
-    </Link>
-  );
+    </div>
+    {/* Sayıları 1.500 şeklinde noktalı ve okunaklı yazar */}
+    <span className="text-2xl font-black text-[#FDD500]">
+      {Number(user[valueKey] || 0).toLocaleString('tr-TR')} {valueSuffix}
+    </span>
+  </Link>
+);
 
   return (
     <div className="min-h-screen pt-24 pb-16 px-4" data-testid="leaderboard-page">
@@ -114,25 +124,27 @@ const SiralamaPage = () => {
               </div>
             )}
 
-            {activeTab === 'ada-seviyesi' && (
-              <div className="divide-y divide-zinc-800" data-testid="ada-seviyesi-list">
-                {data.length > 0 ? (
-                  data.map((user, index) => renderUserRow(user, index, 'ada_seviyesi', 'Seviye'))
-                ) : (
-                  <div className="p-12 text-center text-zinc-400">Henüz veri yok</div>
-                )}
-              </div>
-            )}
+            {/* Ada Seviyesi Listesi */}
+{activeTab === 'ada-seviyesi' && (
+  <div className="divide-y divide-zinc-800" data-testid="ada-seviyesi-list">
+    {data.length > 0 ? (
+      data.map((user, index) => renderUserRow(user, index, 'ada_seviyesi', 'Seviye'))
+    ) : (
+      <div className="p-12 text-center text-zinc-400">Veriler senkronize ediliyor, lütfen bekleyin...</div>
+    )}
+  </div>
+)}
 
-            {activeTab === 'dinar' && (
-              <div className="divide-y divide-zinc-800" data-testid="dinar-list">
-                {data.length > 0 ? (
-                  data.map((user, index) => renderUserRow(user, index, 'dinar', 'Dinar'))
-                ) : (
-                  <div className="p-12 text-center text-zinc-400">Henüz veri yok</div>
-                )}
-              </div>
-            )}
+{/* Dinar Listesi */}
+{activeTab === 'dinar' && (
+  <div className="divide-y divide-zinc-800" data-testid="dinar-list">
+    {data.length > 0 ? (
+      data.map((user, index) => renderUserRow(user, index, 'dinar', 'Dinar'))
+    ) : (
+      <div className="p-12 text-center text-zinc-400">Veriler senkronize ediliyor, lütfen bekleyin...</div>
+    )}
+  </div>
+)}
 
             {activeTab === 'son-kayitlar' && (
               <div className="divide-y divide-zinc-800" data-testid="kayit-list">

@@ -81,7 +81,8 @@ const CuzdanPage = () => {
 
         {/* Balance Card */}
         <div className="bg-gradient-to-br from-[#FDD500] to-[#E6C200] rounded-xl p-8 mb-8 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/30 rounded-full -mr-32 -mt-32"></div>
+          <div className="absolute top-64 right-160 w-72 h-72 bg-white/30 rounded-full -mr-32 -mt-32"></div>
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
@@ -90,7 +91,7 @@ const CuzdanPage = () => {
               </div>
               <button
                 onClick={() => setShowLoadModal(true)}
-                className="bg-black text-[#FDD500] font-bold uppercase tracking-wide px-6 py-3 rounded-lg hover:bg-zinc-900 transition-all flex items-center space-x-2"
+                className="bg-black text-[#FDD500] rounded-2xl font-bold uppercase tracking-wide px-6 py-3 button-czdn transition-all flex items-center space-x-2"
                 data-testid="load-credit-button"
               >
                 <Plus size={20} />
