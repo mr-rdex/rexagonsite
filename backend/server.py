@@ -1054,10 +1054,10 @@ async def get_top_island_level():
         {
             "$project": {
                 "_id": 0,
-                "adaismi": 1,
-                "lider_kullanici_adi": 1,
-                "uyeler": 1,
-                "ada_seviyesi": 1,
+                "adaismi": {"$ifNull": ["$adaismi", "Bilinmeyen Ada"]},
+                "lider_kullanici_adi": {"$ifNull": ["$lider_kullanici_adi", "MHF_Question"]},
+                "uyeler": {"$ifNull": ["$uyeler", []]},
+                "ada_seviyesi": {"$ifNull": ["$ada_seviyesi", 0]},
                 # MongoDB'den gelen zengin bilgiler:
                 "id": "$user_info.id",
                 "email": "$user_info.email",

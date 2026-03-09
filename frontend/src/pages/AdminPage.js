@@ -348,7 +348,7 @@ const AdminPage = () => {
                           <div className="flex items-center justify-between">
                             <div><h3 className="text-white font-bold">{theme.isim}</h3><p className="text-xs text-[#FDD500] font-bold">{theme.fiyat > 0 ? `${theme.fiyat} Kredi` : 'Ücretsiz'}</p></div>
                             <div className="flex items-center space-x-2">
-                              <button onClick={() => setEditTheme({...theme})} className="text-[#FDD500] hover:text-[#E6C200]" data-testid={`edit-theme-${theme.id}`}><Edit size={16} /></button>
+                              <button onClick={() => setEditTheme({...theme, ambiyans: theme.ambiyans || 'yok'})} className="text-[#FDD500] hover:text-[#E6C200]" data-testid={`edit-theme-${theme.id}`}><Edit size={16} /></button>
                               <button onClick={() => handleDeleteTheme(theme.id)} className="text-red-500 hover:text-red-400" data-testid={`delete-theme-${theme.id}`}><Trash2 size={16} /></button>
                             </div>
                           </div>
@@ -436,7 +436,7 @@ const AdminPage = () => {
               <div><label className="block text-sm font-medium text-zinc-400 mb-2">Fiyat (Kredi)</label><input type="number" min="0" className={inputCls} value={editTheme.fiyat} onChange={(e) => setEditTheme({...editTheme, fiyat: parseFloat(e.target.value) || 0})} /></div>
       <div>
         <label className="block text-sm font-medium text-zinc-400 mb-2">Ambiyans Efekti</label>
-        <select className={inputCls} value={theme.ambiyans || 'yok'} onChange={(e) => setTheme({...theme, ambiyans: e.target.value})}>
+        <select className={inputCls} value={editTheme.ambiyans || 'yok'} onChange={(e) => setEditTheme({...editTheme, ambiyans: e.target.value})}>
           <option value="yok">Yok</option>
           <option value="kar">Kar (Kış)</option>
           <option value="ilkbahar">Çiçek/Yaprak (İlkbahar)</option>

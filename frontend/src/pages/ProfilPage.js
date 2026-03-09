@@ -87,19 +87,18 @@ const ProfilPage = () => {
   const displayName = profileUser.kullanici_adi;
 
   return (
-    <div className="min-h-screen relative" data-testid="profile-page">
+    <div className="min-h-screen" data-testid="profile-page">
       {profileUser.aktif_tema_ambiyans === 'kar' && (
-        <div className="absolute inset-0 pointer-events-none z-10" style={{ height: '100vh', position: 'fixed' }}>
-          <Snowfall snowflakeCount={100} style={{ position: 'absolute', width: '100vw', height: '100vh' }} />
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 9999, pointerEvents: 'none' }}>
+          <Snowfall snowflakeCount={150} />
         </div>
       )}
       {profileUser.aktif_tema_ambiyans === 'ilkbahar' && (
-        <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden" style={{ height: '100vh', position: 'fixed' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 9999, pointerEvents: 'none' }}>
           <Snowfall
-            snowflakeCount={50}
+            snowflakeCount={80}
             color="#ffb7c5"
-            style={{ position: 'absolute', width: '100vw', height: '100vh' }}
-            radius={[5, 10]}
+            radius={[5, 12]}
           />
         </div>
       )}
@@ -146,26 +145,22 @@ const ProfilPage = () => {
               <h3 className="text-zinc-500 text-sm uppercase tracking-wider mb-3">Biyografi</h3>
               <p className="text-zinc-300 text-sm mb-4">{profileUser.biyografi || 'Henüz bir biyografi eklenmemiş.'}</p>
 
-              {(profileUser.discord || profileUser.instagram || profileUser.steam) && (
+              {(profileUser.discord || profileUser.instagram) && (
                 <>
                   <h3 className="text-zinc-500 text-sm uppercase tracking-wider mb-3 mt-4">Sosyal Medya</h3>
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {profileUser.discord && (
-                      <div className="flex items-center space-x-2 text-sm">
-                        <span className="text-blue-400 font-semibold w-20">Discord:</span>
-                        <span className="text-zinc-300">{profileUser.discord}</span>
+                      <div className="flex items-center space-x-3 text-sm">
+                        <FaDiscord className="text-blue-500 text-xl" />
+                        <span className="text-zinc-300 font-medium">{profileUser.discord}</span>
                       </div>
                     )}
                     {profileUser.instagram && (
-                      <div className="flex items-center space-x-2 text-sm">
-                        <span className="text-pink-400 font-semibold w-20">Instagram:</span>
-                        <a href={`https://instagram.com/${profileUser.instagram}`} target="_blank" rel="noreferrer" className="text-zinc-300 hover:text-white transition-colors">@{profileUser.instagram}</a>
-                      </div>
-                    )}
-                    {profileUser.steam && (
-                      <div className="flex items-center space-x-2 text-sm">
-                        <span className="text-gray-300 font-semibold w-20">Steam:</span>
-                        <a href={profileUser.steam} target="_blank" rel="noreferrer" className="text-zinc-300 hover:text-white transition-colors truncate">Profil Linki</a>
+                      <div className="flex items-center space-x-3 text-sm">
+                        <FaInstagram className="text-pink-500 text-xl" />
+                        <a href={`https://instagram.com/${profileUser.instagram}`} target="_blank" rel="noreferrer" className="text-zinc-300 font-medium hover:text-white transition-colors">
+                          {profileUser.instagram}
+                        </a>
                       </div>
                     )}
                   </div>

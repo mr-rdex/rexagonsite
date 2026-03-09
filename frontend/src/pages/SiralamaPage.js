@@ -20,6 +20,9 @@ const SiralamaPage = () => {
       if (activeTab === 'kredi') endpoint = `${API}/leaderboard/kredi`;
       else if (activeTab === 'ada-seviyesi') endpoint = `${API}/leaderboard/ada-seviyesi`;
       else if (activeTab === 'dinar') endpoint = `${API}/leaderboard/dinar`;
+      else if (activeTab === 'son-kayitlar') endpoint = `${API}/leaderboard/son-kayitlar`;
+      else if (activeTab === 'son-alisverisler') endpoint = `${API}/leaderboard/son-alisverisler`;
+      else if (activeTab === 'son-kredi-yuklemeler') endpoint = `${API}/leaderboard/son-kredi-yuklemeler`;
 
       if (endpoint) {
         const res = await axios.get(endpoint);
@@ -80,7 +83,9 @@ const SiralamaPage = () => {
     </div>
     {/* Sayıları 1.500 şeklinde noktalı ve okunaklı yazar */}
     <span className="text-2xl font-black text-[#FDD500]">
-      {Number(user[valueKey] || 0).toLocaleString('tr-TR')} {valueSuffix}
+      {valueKey === 'dinar'
+        ? Number(user[valueKey] || 0).toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 2 })
+        : Number(user[valueKey] || 0).toLocaleString('tr-TR')} {valueSuffix}
     </span>
   </Link>
 );
@@ -135,7 +140,7 @@ const SiralamaPage = () => {
             <img src={`https://mc-heads.net/avatar/${island.lider_kullanici_adi}`} alt={island.lider_kullanici_adi} className="w-12 h-12 rounded" />
             <div>
               <p className="text-white font-bold">{island.adaismi}</p>
-              <p className="text-xs text-zinc-500">Ada Üyeleri: {island.uyeler ? island.uyeler.join(', ') : 'Yok'}</p>
+              <p className="text-xs text-zinc-500">Ada Üyeleri: {Array.isArray(island.uyeler) ? island.uyeler.join(', ') : 'Yok'}</p>
             </div>
           </div>
           <span className="text-2xl font-black text-[#FDD500]">
