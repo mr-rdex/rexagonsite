@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useAuth } from '../App';
 import { Calendar, Coins, Shield, Lock, Check, User as UserIcon } from 'lucide-react';
 import Snowfall from 'react-snowfall';
-import { FaDiscord, FaInstagram, FaSteam } from 'react-icons/fa';
+import { FaDiscord, FaInstagram } from 'react-icons/fa';
 
 const ProfilPage = () => {
   const { kullanici_adi } = useParams();
@@ -89,12 +89,12 @@ const ProfilPage = () => {
   return (
     <div className="min-h-screen" data-testid="profile-page">
       {profileUser.aktif_tema_ambiyans === 'kar' && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 9999, pointerEvents: 'none' }}>
+        <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 9999 }}>
           <Snowfall snowflakeCount={150} />
         </div>
       )}
       {profileUser.aktif_tema_ambiyans === 'ilkbahar' && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 9999, pointerEvents: 'none' }}>
+        <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 9999 }}>
           <Snowfall
             snowflakeCount={80}
             color="#ffb7c5"

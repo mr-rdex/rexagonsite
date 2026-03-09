@@ -69,7 +69,6 @@ class UserResponse(BaseModel):
     biyografi: Optional[str] = None
     discord: Optional[str] = None
     instagram: Optional[str] = None
-    steam: Optional[str] = None
     ada_seviyesi: int = 0
     dinar: float = 0
     acilan_konu_sayisi: int = 0
@@ -121,7 +120,6 @@ class BiyografiGuncelle(BaseModel):
     biyografi: Optional[str] = None
     discord: Optional[str] = None
     instagram: Optional[str] = None
-    steam: Optional[str] = None
 
 # ============ AUTH HELPERS ============
 
@@ -303,8 +301,6 @@ async def update_biography(data: BiyografiGuncelle, current_user: dict = Depends
         update_data["discord"] = data.discord
     if data.instagram is not None:
         update_data["instagram"] = data.instagram
-    if data.steam is not None:
-        update_data["steam"] = data.steam
 
     if update_data:
         await db.users.update_one(
@@ -709,7 +705,6 @@ async def update_user(
     yetki_gorseli: Optional[str] = None,
     discord: Optional[str] = None,
     instagram: Optional[str] = None,
-    steam: Optional[str] = None,
     admin: dict = Depends(get_admin_user)
 ):
     update_data = {}
@@ -725,8 +720,6 @@ async def update_user(
         update_data["discord"] = discord
     if instagram is not None:
         update_data["instagram"] = instagram
-    if steam is not None:
-        update_data["steam"] = steam
     
     if update_data:
         await db.users.update_one({"id": user_id}, {"$set": update_data})
@@ -1028,45 +1021,14 @@ async def startup_event():
 # server.py içinde sadece bu kalsın:
 @api_router.get("/leaderboard/ada-seviyesi")
 async def get_top_island_level():
-    # 1. Aşama: MongoDB'deki 'leaderboard_islands' (sync.py'nin doldurduğu) koleksiyonunu al
-    # 2. Aşama: 'users' koleksiyonu ile kullanici_adi üzerinden eşleştir (Lookup)
-    pipeline = [
-        {
-            "$sort": {"ada_seviyesi": -1}
-        },
-        {
-            "$limit": 10
-        },
-        {
-            "$lookup": {
-                "from": "users",
-                "localField": "lider_kullanici_adi",
-                "foreignField": "kullanici_adi",
-                "as": "user_info"
-            }
-        },
-        {
-            "$unwind": {
-                "path": "$user_info",
-                "preserveNullAndEmptyArrays": True # Kayıtlı olmayan oyuncular da listede görünsün
-            }
-        },
-        {
-            "$project": {
-                "_id": 0,
-                "adaismi": {"$ifNull": ["$adaismi", "Bilinmeyen Ada"]},
-                "lider_kullanici_adi": {"$ifNull": ["$lider_kullanici_adi", "MHF_Question"]},
-                "uyeler": {"$ifNull": ["$uyeler", []]},
-                "ada_seviyesi": {"$ifNull": ["$ada_seviyesi", 0]},
-                # MongoDB'den gelen zengin bilgiler:
-                "id": "$user_info.id",
-                "email": "$user_info.email",
-                "kayit_tarihi": "$user_info.kayit_tarihi",
-                "rol": "$user_info.rol",
-                "yetki": "$user_info.yetki"
-            }
-        }
-    ]
-    
-    leaderboard = await db.leaderboard_islands.aggregate(pipeline).to_list(10)
-    return leaderboard
+    islands = await db.leaderboard_islands.find({}, {"_id": 0}).sort("ada_seviyesi", -1).limit(10).to_list(10)
+    for island in islands:
+        if "adaismi" not in island:
+            island["adaismi"] = "Bilinmeyen Ada"
+        if "lider_kullanici_adi" not in island:
+            island["lider_kullanici_adi"] = "MHF_Question"
+        if "uyeler" not in island:
+            island["uyeler"] = []
+        if "ada_seviyesi" not in island:
+            island["ada_seviyesi"] = 0
+    return islands

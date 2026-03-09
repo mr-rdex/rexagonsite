@@ -84,7 +84,7 @@ const SiralamaPage = () => {
     {/* Sayıları 1.500 şeklinde noktalı ve okunaklı yazar */}
     <span className="text-2xl font-black text-[#FDD500]">
       {valueKey === 'dinar'
-        ? Number(user[valueKey] || 0).toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 2 })
+        ? user[valueKey] || "0"
         : Number(user[valueKey] || 0).toLocaleString('tr-TR')} {valueSuffix}
     </span>
   </Link>

@@ -63,7 +63,6 @@ const AdminPage = () => {
       if (editUser.rol !== undefined) queryParams.append('rol', editUser.rol);
       if (editUser.discord !== undefined) queryParams.append('discord', editUser.discord);
       if (editUser.instagram !== undefined) queryParams.append('instagram', editUser.instagram);
-      if (editUser.steam !== undefined) queryParams.append('steam', editUser.steam);
 
       await axios.put(`${API}/admin/kullanici/${editUser.id}?${queryParams.toString()}`, {}, { headers });
       alert('Kullanıcı başarıyla güncellendi');
@@ -432,7 +431,16 @@ const AdminPage = () => {
             </div>
             <form onSubmit={handleUpdateTheme} className="space-y-4">
               <div><label className="block text-sm font-medium text-zinc-400 mb-2">Tema Adı</label><input type="text" required className={inputCls} value={editTheme.isim} onChange={(e) => setEditTheme({...editTheme, isim: e.target.value})} /></div>
-              <div><label className="block text-sm font-medium text-zinc-400 mb-2">Görsel URL</label><input type="url" required className={inputCls} value={editTheme.gorsel_url} onChange={(e) => setEditTheme({...editTheme, gorsel_url: e.target.value})} /></div>
+              <div>
+                <label className="block text-sm font-medium text-zinc-400 mb-2">Görsel URL veya Yükle</label>
+                <div className="flex items-center space-x-2">
+                  <input type="text" className={inputCls} value={editTheme.gorsel_url || ''} onChange={(e) => setEditTheme({...editTheme, gorsel_url: e.target.value})} placeholder="/images/resim.jpg veya https://..." />
+                  <label className="bg-zinc-800 text-zinc-300 px-4 py-3 rounded-md cursor-pointer hover:bg-zinc-700 transition-colors whitespace-nowrap">
+                    Görsel Seç
+                    <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, setEditTheme, editTheme)} />
+                  </label>
+                </div>
+              </div>
               <div><label className="block text-sm font-medium text-zinc-400 mb-2">Fiyat (Kredi)</label><input type="number" min="0" className={inputCls} value={editTheme.fiyat} onChange={(e) => setEditTheme({...editTheme, fiyat: parseFloat(e.target.value) || 0})} /></div>
       <div>
         <label className="block text-sm font-medium text-zinc-400 mb-2">Ambiyans Efekti</label>
@@ -465,7 +473,6 @@ const AdminPage = () => {
               <div><label className="block text-sm font-medium text-zinc-400 mb-2">Yetki Görseli URL</label><input type="url" className={inputCls} value={editUser.yetki_gorseli || ''} onChange={(e) => setEditUser({...editUser, yetki_gorseli: e.target.value})} /></div>
               <div><label className="block text-sm font-medium text-zinc-400 mb-2">Discord</label><input type="text" className={inputCls} value={editUser.discord || ''} onChange={(e) => setEditUser({...editUser, discord: e.target.value})} /></div>
               <div><label className="block text-sm font-medium text-zinc-400 mb-2">Instagram</label><input type="text" className={inputCls} value={editUser.instagram || ''} onChange={(e) => setEditUser({...editUser, instagram: e.target.value})} /></div>
-              <div><label className="block text-sm font-medium text-zinc-400 mb-2">Steam</label><input type="url" className={inputCls} value={editUser.steam || ''} onChange={(e) => setEditUser({...editUser, steam: e.target.value})} /></div>
               <div className="flex space-x-4 mt-6">
                 <button type="submit" className="bg-[#FDD500] text-black font-bold uppercase tracking-wide px-6 py-3 rounded-lg hover:bg-[#E6C200] transition-all btn-3d">Kaydet</button>
                 <button type="button" onClick={() => setEditUser(null)} className="bg-transparent border-2 border-zinc-700 text-zinc-400 font-bold uppercase px-6 py-3 rounded-lg hover:border-zinc-600 transition-all">İptal</button>
@@ -503,12 +510,21 @@ const ItemForm = ({ item, setItem, onSubmit, onCancel, inputCls, title }) => (
 );
 
 // Reusable Theme Form
-const ThemeForm = ({ theme, setTheme, onSubmit, onCancel, inputCls, title }) => (
+const ThemeForm = ({ theme, setTheme, onSubmit, onCancel, inputCls, title, handleFileUpload }) => (
   <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6 mb-6">
     <h3 className="text-xl font-bold text-white mb-4">{title}</h3>
     <form onSubmit={onSubmit} className="space-y-4">
       <div><label className="block text-sm font-medium text-zinc-400 mb-2">Tema Adı</label><input type="text" required className={inputCls} value={theme.isim} onChange={(e) => setTheme({...theme, isim: e.target.value})} data-testid="theme-name-input" /></div>
-      <div><label className="block text-sm font-medium text-zinc-400 mb-2">Görsel URL</label><input type="url" required className={inputCls} value={theme.gorsel_url} onChange={(e) => setTheme({...theme, gorsel_url: e.target.value})} placeholder="https://example.com/theme.jpg" data-testid="theme-url-input" /></div>
+      <div>
+        <label className="block text-sm font-medium text-zinc-400 mb-2">Görsel URL veya Yükle</label>
+        <div className="flex items-center space-x-2">
+          <input type="text" className={inputCls} value={theme.gorsel_url || ''} onChange={(e) => setTheme({...theme, gorsel_url: e.target.value})} placeholder="/images/resim.jpg veya https://..." data-testid="theme-url-input" />
+          <label className="bg-zinc-800 text-zinc-300 px-4 py-3 rounded-md cursor-pointer hover:bg-zinc-700 transition-colors whitespace-nowrap">
+            Görsel Seç
+            <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, setTheme, theme)} />
+          </label>
+        </div>
+      </div>
       <div><label className="block text-sm font-medium text-zinc-400 mb-2">Fiyat (Kredi, 0 = ücretsiz)</label><input type="number" min="0" className={inputCls} value={theme.fiyat} onChange={(e) => setTheme({...theme, fiyat: parseFloat(e.target.value) || 0})} data-testid="theme-price-input" /></div>
       <div>
         <label className="block text-sm font-medium text-zinc-400 mb-2">Ambiyans Efekti</label>
