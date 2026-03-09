@@ -13,6 +13,8 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 import uuid
 import sqlite3
+import shutil
+from fastapi import UploadFile, File
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -109,6 +111,7 @@ class ThemeCreate(BaseModel):
     isim: str
     gorsel_url: str
     fiyat: float = 0
+    ambiyans: Optional[str] = "yok"
 
 class SifreDegistir(BaseModel):
     eski_sifre: str
@@ -155,6 +158,8 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     user.setdefault("acik_temalar", [])
     user.setdefault("aktif_tema_id", None)
     user.setdefault("aktif_tema_gorsel", None)
+    user.setdefault("aktif_tema_ambiyans", "yok")
+    user.setdefault("aktif_tema_ambiyans", "yok")
     user.setdefault("biyografi", None)
     user.setdefault("ada_seviyesi", 0)
     user.setdefault("dinar", 0)
@@ -364,29 +369,43 @@ async def get_latest_credit_loads():
     ]).to_list(10)
     return transactions
 
-@api_router.get("/leaderboard/ada-seviyesi")
-async def get_top_island_level():
-    users = await db.users.find({}, {"_id": 0, "sifre_hash": 0}).sort("ada_seviyesi", -1).limit(10).to_list(10)
-    for u in users:
-        u.setdefault("ada_seviyesi", 0)
-        u.setdefault("dinar", 0)
-        u.setdefault("biyografi", None)
-        u.setdefault("acik_temalar", [])
-        u.setdefault("aktif_tema_id", None)
-        u.setdefault("aktif_tema_gorsel", None)
-    return users
 
 @api_router.get("/leaderboard/dinar")
 async def get_top_dinar():
-    users = await db.users.find({}, {"_id": 0, "sifre_hash": 0}).sort("dinar", -1).limit(10).to_list(10)
-    for u in users:
-        u.setdefault("ada_seviyesi", 0)
-        u.setdefault("dinar", 0)
-        u.setdefault("biyografi", None)
-        u.setdefault("acik_temalar", [])
-        u.setdefault("aktif_tema_id", None)
-        u.setdefault("aktif_tema_gorsel", None)
-    return users
+    pipeline = [
+        {
+            "$sort": {"dinar": -1}
+        },
+        {
+            "$limit": 10
+        },
+        {
+            "$lookup": {
+                "from": "users",
+                "localField": "kullanici_adi",
+                "foreignField": "kullanici_adi",
+                "as": "user_info"
+            }
+        },
+        {
+            "$unwind": {
+                "path": "$user_info",
+                "preserveNullAndEmptyArrays": True
+            }
+        },
+        {
+            "$project": {
+                "_id": 0,
+                "kullanici_adi": 1,
+                "dinar": 1,
+                "kayit_tarihi": "$user_info.kayit_tarihi",
+                "id": "$user_info.id"
+            }
+        }
+    ]
+
+    leaderboard = await db.leaderboard_dinar.aggregate(pipeline).to_list(10)
+    return leaderboard
 
 # ============ FORUM ROUTES ============
 
@@ -719,6 +738,17 @@ async def delete_user(user_id: str, admin: dict = Depends(get_admin_user)):
     await db.users.delete_one({"id": user_id})
     return {"message": "Kullanıcı silindi"}
 
+@api_router.post("/admin/upload-image")
+async def upload_image(file: UploadFile = File(...), admin: dict = Depends(get_admin_user)):
+    images_dir = ROOT_DIR.parent / "frontend" / "public" / "images"
+    images_dir.mkdir(parents=True, exist_ok=True)
+
+    file_path = images_dir / file.filename
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    return {"gorsel_url": f"/images/{file.filename}"}
+
 @api_router.post("/admin/haber")
 async def create_news(haber: Haber, admin: dict = Depends(get_admin_user)):
     haber_id = str(uuid.uuid4())
@@ -831,6 +861,7 @@ async def create_theme(theme: ThemeCreate, admin: dict = Depends(get_admin_user)
         "isim": theme.isim,
         "gorsel_url": theme.gorsel_url,
         "fiyat": theme.fiyat,
+        "ambiyans": theme.ambiyans,
         "olusturulma_tarihi": datetime.now(timezone.utc).isoformat()
     }
     await db.themes.insert_one(theme_doc)
@@ -845,7 +876,7 @@ async def delete_theme(theme_id: str, admin: dict = Depends(get_admin_user)):
 async def update_theme(theme_id: str, theme: ThemeCreate, admin: dict = Depends(get_admin_user)):
     await db.themes.update_one(
         {"id": theme_id},
-        {"$set": {"isim": theme.isim, "gorsel_url": theme.gorsel_url, "fiyat": theme.fiyat}}
+        {"$set": {"isim": theme.isim, "gorsel_url": theme.gorsel_url, "fiyat": theme.fiyat, "ambiyans": theme.ambiyans}}
     )
     return {"message": "Tema güncellendi"}
 
@@ -881,7 +912,7 @@ async def set_active_theme(theme_id: str, current_user: dict = Depends(get_curre
     
     await db.users.update_one(
         {"id": current_user["id"]},
-        {"$set": {"aktif_tema_id": theme_id, "aktif_tema_gorsel": theme["gorsel_url"]}}
+        {"$set": {"aktif_tema_id": theme_id, "aktif_tema_gorsel": theme["gorsel_url"], "aktif_tema_ambiyans": theme.get("ambiyans", "yok")}}
     )
     return {"message": "Tema aktifleştirildi"}
 
@@ -889,7 +920,7 @@ async def set_active_theme(theme_id: str, current_user: dict = Depends(get_curre
 async def remove_active_theme(current_user: dict = Depends(get_current_user)):
     await db.users.update_one(
         {"id": current_user["id"]},
-        {"$set": {"aktif_tema_id": None, "aktif_tema_gorsel": None}}
+        {"$set": {"aktif_tema_id": None, "aktif_tema_gorsel": None, "aktif_tema_ambiyans": "yok"}}
     )
     return {"message": "Tema kaldırıldı"}
 
@@ -966,6 +997,19 @@ async def startup_event():
         await db.users.insert_one(admin_doc)
         logger.info("Admin kullanıcı oluşturuldu: admin / admin123")
     
+    # Örnek Kış Teması Ekle
+    kis_temasi = await db.themes.find_one({"isim": "Kış Teması"})
+    if not kis_temasi:
+        await db.themes.insert_one({
+            "id": str(uuid.uuid4()),
+            "isim": "Kış Teması",
+            "gorsel_url": "/images/kis.jpg",
+            "fiyat": 0,
+            "ambiyans": "kar",
+            "olusturulma_tarihi": datetime.now(timezone.utc).isoformat()
+        })
+        logger.info("Örnek Kış Teması oluşturuldu.")
+
     # Paketler kategorisine örnek ürünler ekle
     paketler_count = await db.market_items.count_documents({"kategori": "Paketler"})
     if paketler_count == 0:
@@ -988,9 +1032,15 @@ async def get_top_island_level():
     # 2. Aşama: 'users' koleksiyonu ile kullanici_adi üzerinden eşleştir (Lookup)
     pipeline = [
         {
+            "$sort": {"ada_seviyesi": -1}
+        },
+        {
+            "$limit": 10
+        },
+        {
             "$lookup": {
                 "from": "users",
-                "localField": "kullanici_adi",
+                "localField": "lider_kullanici_adi",
                 "foreignField": "kullanici_adi",
                 "as": "user_info"
             }
@@ -1004,7 +1054,9 @@ async def get_top_island_level():
         {
             "$project": {
                 "_id": 0,
-                "kullanici_adi": 1,
+                "adaismi": 1,
+                "lider_kullanici_adi": 1,
+                "uyeler": 1,
                 "ada_seviyesi": 1,
                 # MongoDB'den gelen zengin bilgiler:
                 "id": "$user_info.id",

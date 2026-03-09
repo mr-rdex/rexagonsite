@@ -128,7 +128,21 @@ const SiralamaPage = () => {
 {activeTab === 'ada-seviyesi' && (
   <div className="divide-y divide-zinc-800" data-testid="ada-seviyesi-list">
     {data.length > 0 ? (
-      data.map((user, index) => renderUserRow(user, index, 'ada_seviyesi', 'Seviye'))
+      data.map((island, index) => (
+        <div key={index} className="flex items-center justify-between p-6 hover:bg-[#2A2A2A] transition-colors">
+          <div className="flex items-center space-x-4">
+            <span className={`text-2xl font-black w-12 text-center ${getRankColor(index)}`}>#{index + 1}</span>
+            <img src={`https://mc-heads.net/avatar/${island.lider_kullanici_adi}`} alt={island.lider_kullanici_adi} className="w-12 h-12 rounded" />
+            <div>
+              <p className="text-white font-bold">{island.adaismi}</p>
+              <p className="text-xs text-zinc-500">Ada Üyeleri: {island.uyeler ? island.uyeler.join(', ') : 'Yok'}</p>
+            </div>
+          </div>
+          <span className="text-2xl font-black text-[#FDD500]">
+            {Number(island.ada_seviyesi || 0).toLocaleString('tr-TR')} Seviye
+          </span>
+        </div>
+      ))
     ) : (
       <div className="p-12 text-center text-zinc-400">Veriler senkronize ediliyor, lütfen bekleyin...</div>
     )}

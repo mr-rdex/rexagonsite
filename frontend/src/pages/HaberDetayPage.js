@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../App';
@@ -9,8 +9,12 @@ const HaberDetayPage = () => {
   const { API } = useAuth();
   const [haber, setHaber] = useState(null);
   const [loading, setLoading] = useState(true);
+  const fetched = useRef(false);
 
   useEffect(() => {
+    if (fetched.current) return;
+    fetched.current = true;
+
     const fetchHaber = async () => {
       try {
         const response = await axios.get(`${API}/haber/${id}`);

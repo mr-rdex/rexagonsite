@@ -3,6 +3,8 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../App';
 import { Calendar, Coins, Shield, Lock, Check, User as UserIcon } from 'lucide-react';
+import Snowfall from 'react-snowfall';
+import { FaDiscord, FaInstagram, FaSteam } from 'react-icons/fa';
 
 const ProfilPage = () => {
   const { kullanici_adi } = useParams();
@@ -85,7 +87,22 @@ const ProfilPage = () => {
   const displayName = profileUser.kullanici_adi;
 
   return (
-    <div className="min-h-screen" data-testid="profile-page">
+    <div className="min-h-screen relative" data-testid="profile-page">
+      {profileUser.aktif_tema_ambiyans === 'kar' && (
+        <div className="absolute inset-0 pointer-events-none z-10" style={{ height: '100vh', position: 'fixed' }}>
+          <Snowfall snowflakeCount={100} style={{ position: 'absolute', width: '100vw', height: '100vh' }} />
+        </div>
+      )}
+      {profileUser.aktif_tema_ambiyans === 'ilkbahar' && (
+        <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden" style={{ height: '100vh', position: 'fixed' }}>
+          <Snowfall
+            snowflakeCount={50}
+            color="#ffb7c5"
+            style={{ position: 'absolute', width: '100vw', height: '100vh' }}
+            radius={[5, 10]}
+          />
+        </div>
+      )}
       {/* Full-width Hero Banner - Taller */}
       <div
         className="relative"

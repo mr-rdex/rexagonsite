@@ -19,7 +19,7 @@ const AdminPage = () => {
   const [showNewTheme, setShowNewTheme] = useState(false);
   const [newItem, setNewItem] = useState({ isim: '', aciklama: '', fiyat: 0, kategori: "VIP'ler", stok: 100, gorsel: '', indirim: 0 });
   const [newNews, setNewNews] = useState({ baslik: '', icerik: '', gorsel_url: '' });
-  const [newTheme, setNewTheme] = useState({ isim: '', gorsel_url: '', fiyat: 0 });
+  const [newTheme, setNewTheme] = useState({ isim: '', gorsel_url: '', fiyat: 0, ambiyans: 'yok' });
 
   // Edit modals
   const [editItem, setEditItem] = useState(null);
@@ -99,6 +99,19 @@ const AdminPage = () => {
   };
 
   // News actions
+  const handleFileUpload = async (e, setter, state) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const res = await axios.post(`${API}/admin/upload-image`, formData, { headers: { ...headers, 'Content-Type': 'multipart/form-data' }});
+      setter({ ...state, gorsel_url: res.data.gorsel_url });
+    } catch (err) {
+      alert('Görsel yüklenirken hata oluştu');
+    }
+  };
+
   const handleCreateNews = async (e) => {
     e.preventDefault();
     try { await axios.post(`${API}/admin/haber`, newNews, { headers }); setShowNewNews(false); setNewNews({ baslik: '', icerik: '', gorsel_url: '' }); fetchNews(); } catch(e) { alert('Haber oluşturulamadı'); }
@@ -124,12 +137,12 @@ const AdminPage = () => {
   // Theme actions
   const handleCreateTheme = async (e) => {
     e.preventDefault();
-    try { await axios.post(`${API}/admin/themes`, newTheme, { headers }); setShowNewTheme(false); setNewTheme({ isim: '', gorsel_url: '', fiyat: 0 }); fetchThemes(); } catch(e) { alert('Tema oluşturulamadı'); }
+    try { await axios.post(`${API}/admin/themes`, newTheme, { headers }); setShowNewTheme(false); setNewTheme({ isim: '', gorsel_url: '', fiyat: 0, ambiyans: 'yok' }); fetchThemes(); } catch(e) { alert('Tema oluşturulamadı'); }
   };
   const handleUpdateTheme = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`${API}/admin/themes/${editTheme.id}`, { isim: editTheme.isim, gorsel_url: editTheme.gorsel_url, fiyat: editTheme.fiyat }, { headers });
+      await axios.put(`${API}/admin/themes/${editTheme.id}`, { isim: editTheme.isim, gorsel_url: editTheme.gorsel_url, fiyat: editTheme.fiyat, ambiyans: editTheme.ambiyans }, { headers });
       setEditTheme(null); fetchThemes();
     } catch(e) { alert('Güncelleme başarısız'); }
   };
@@ -248,7 +261,16 @@ const AdminPage = () => {
                     <h3 className="text-xl font-bold text-white mb-4">Yeni Haber Ekle</h3>
                     <form onSubmit={handleCreateNews} className="space-y-4">
                       <div><label className="block text-sm font-medium text-zinc-400 mb-2">Başlık</label><input type="text" required className={inputCls} value={newNews.baslik} onChange={(e) => setNewNews({...newNews, baslik: e.target.value})} /></div>
-                      <div><label className="block text-sm font-medium text-zinc-400 mb-2">Görsel URL</label><input type="text" className={inputCls} value={newNews.gorsel_url} onChange={(e) => setNewNews({...newNews, gorsel_url: e.target.value})} placeholder="https://ornek.com/resim.jpg" /></div>
+                      <div>
+                        <label className="block text-sm font-medium text-zinc-400 mb-2">Görsel URL veya Yükle</label>
+                        <div className="flex items-center space-x-2">
+                          <input type="text" className={inputCls} value={newNews.gorsel_url} onChange={(e) => setNewNews({...newNews, gorsel_url: e.target.value})} placeholder="/images/resim.jpg veya https://..." />
+                          <label className="bg-zinc-800 text-zinc-300 px-4 py-3 rounded-md cursor-pointer hover:bg-zinc-700 transition-colors whitespace-nowrap">
+                            Görsel Seç
+                            <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, setNewNews, newNews)} />
+                          </label>
+                        </div>
+                      </div>
                       <div><label className="block text-sm font-medium text-zinc-400 mb-2">İçerik</label><textarea required rows={6} className={inputCls} value={newNews.icerik} onChange={(e) => setNewNews({...newNews, icerik: e.target.value})} /></div>
                       <div className="flex space-x-4">
                         <button type="submit" className="bg-[#FDD500] text-black font-bold uppercase tracking-wide px-6 py-3 rounded-lg hover:bg-[#E6C200] transition-all btn-3d">Oluştur</button>
@@ -380,7 +402,16 @@ const AdminPage = () => {
             </div>
             <form onSubmit={handleUpdateNews} className="space-y-4">
               <div><label className="block text-sm font-medium text-zinc-400 mb-2">Başlık</label><input type="text" required className={inputCls} value={editNews.baslik} onChange={(e) => setEditNews({...editNews, baslik: e.target.value})} /></div>
-              <div><label className="block text-sm font-medium text-zinc-400 mb-2">Görsel URL</label><input type="text" className={inputCls} value={editNews.gorsel_url || ''} onChange={(e) => setEditNews({...editNews, gorsel_url: e.target.value})} placeholder="https://ornek.com/resim.jpg" /></div>
+              <div>
+                <label className="block text-sm font-medium text-zinc-400 mb-2">Görsel URL veya Yükle</label>
+                <div className="flex items-center space-x-2">
+                  <input type="text" className={inputCls} value={editNews.gorsel_url || ''} onChange={(e) => setEditNews({...editNews, gorsel_url: e.target.value})} placeholder="/images/resim.jpg veya https://..." />
+                  <label className="bg-zinc-800 text-zinc-300 px-4 py-3 rounded-md cursor-pointer hover:bg-zinc-700 transition-colors whitespace-nowrap">
+                    Görsel Seç
+                    <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, setEditNews, editNews)} />
+                  </label>
+                </div>
+              </div>
               <div><label className="block text-sm font-medium text-zinc-400 mb-2">İçerik</label><textarea required rows={6} className={inputCls} value={editNews.icerik} onChange={(e) => setEditNews({...editNews, icerik: e.target.value})} /></div>
               <div className="flex space-x-4">
                 <button type="submit" className="bg-[#FDD500] text-black font-bold uppercase tracking-wide px-6 py-3 rounded-lg hover:bg-[#E6C200] transition-all btn-3d">Kaydet</button>
@@ -403,6 +434,14 @@ const AdminPage = () => {
               <div><label className="block text-sm font-medium text-zinc-400 mb-2">Tema Adı</label><input type="text" required className={inputCls} value={editTheme.isim} onChange={(e) => setEditTheme({...editTheme, isim: e.target.value})} /></div>
               <div><label className="block text-sm font-medium text-zinc-400 mb-2">Görsel URL</label><input type="url" required className={inputCls} value={editTheme.gorsel_url} onChange={(e) => setEditTheme({...editTheme, gorsel_url: e.target.value})} /></div>
               <div><label className="block text-sm font-medium text-zinc-400 mb-2">Fiyat (Kredi)</label><input type="number" min="0" className={inputCls} value={editTheme.fiyat} onChange={(e) => setEditTheme({...editTheme, fiyat: parseFloat(e.target.value) || 0})} /></div>
+      <div>
+        <label className="block text-sm font-medium text-zinc-400 mb-2">Ambiyans Efekti</label>
+        <select className={inputCls} value={theme.ambiyans || 'yok'} onChange={(e) => setTheme({...theme, ambiyans: e.target.value})}>
+          <option value="yok">Yok</option>
+          <option value="kar">Kar (Kış)</option>
+          <option value="ilkbahar">Çiçek/Yaprak (İlkbahar)</option>
+        </select>
+      </div>
               <div className="flex space-x-4">
                 <button type="submit" className="bg-[#FDD500] text-black font-bold uppercase tracking-wide px-6 py-3 rounded-lg hover:bg-[#E6C200] transition-all btn-3d">Kaydet</button>
                 <button type="button" onClick={() => setEditTheme(null)} className="bg-transparent border-2 border-zinc-700 text-zinc-400 font-bold uppercase px-6 py-3 rounded-lg hover:border-zinc-600 transition-all">İptal</button>
@@ -471,6 +510,14 @@ const ThemeForm = ({ theme, setTheme, onSubmit, onCancel, inputCls, title }) => 
       <div><label className="block text-sm font-medium text-zinc-400 mb-2">Tema Adı</label><input type="text" required className={inputCls} value={theme.isim} onChange={(e) => setTheme({...theme, isim: e.target.value})} data-testid="theme-name-input" /></div>
       <div><label className="block text-sm font-medium text-zinc-400 mb-2">Görsel URL</label><input type="url" required className={inputCls} value={theme.gorsel_url} onChange={(e) => setTheme({...theme, gorsel_url: e.target.value})} placeholder="https://example.com/theme.jpg" data-testid="theme-url-input" /></div>
       <div><label className="block text-sm font-medium text-zinc-400 mb-2">Fiyat (Kredi, 0 = ücretsiz)</label><input type="number" min="0" className={inputCls} value={theme.fiyat} onChange={(e) => setTheme({...theme, fiyat: parseFloat(e.target.value) || 0})} data-testid="theme-price-input" /></div>
+      <div>
+        <label className="block text-sm font-medium text-zinc-400 mb-2">Ambiyans Efekti</label>
+        <select className={inputCls} value={theme.ambiyans || 'yok'} onChange={(e) => setTheme({...theme, ambiyans: e.target.value})}>
+          <option value="yok">Yok</option>
+          <option value="kar">Kar (Kış)</option>
+          <option value="ilkbahar">Çiçek/Yaprak (İlkbahar)</option>
+        </select>
+      </div>
       <div className="flex space-x-4">
         <button type="submit" className="bg-[#FDD500] text-black font-bold uppercase tracking-wide px-6 py-3 rounded-lg hover:bg-[#E6C200] transition-all btn-3d">Oluştur</button>
         <button type="button" onClick={onCancel} className="bg-transparent border-2 border-zinc-700 text-zinc-400 font-bold uppercase px-6 py-3 rounded-lg hover:border-zinc-600 transition-all">İptal</button>

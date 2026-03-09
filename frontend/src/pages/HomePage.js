@@ -181,14 +181,28 @@ const HomePage = () => {
               <h3 className="text-2xl font-bold uppercase text-white">En Çok Kredi Yükleyenler</h3>
             </div>
             <div className="space-y-3">
-              {topKredi.map((user, index) => (
+              {topKredi.map((user, index) => {
+                let rankClass = "bg-[#2A2A2A] hover:bg-[#333333]";
+                let rankTextClass = "text-[#FDD500]";
+                if (index === 0) {
+                  rankClass = "bg-yellow-500/20 border border-yellow-500/50 hover:bg-yellow-500/30";
+                  rankTextClass = "text-yellow-500";
+                } else if (index === 1) {
+                  rankClass = "bg-gray-400/20 border border-gray-400/50 hover:bg-gray-400/30";
+                  rankTextClass = "text-gray-400";
+                } else if (index === 2) {
+                  rankClass = "bg-orange-600/20 border border-orange-600/50 hover:bg-orange-600/30";
+                  rankTextClass = "text-orange-500";
+                }
+
+                return (
                 <Link
                   key={user.id}
                   to={`/profil/${user.kullanici_adi}`}
-                  className="mt-2 flex items-center justify-between p-3 bg-[#2A2A2A] rounded hover:bg-[#333333] transition-colors"
+                  className={`mt-2 flex items-center justify-between p-3 rounded transition-colors ${rankClass}`}
                 >
                   <div className="flex items-center space-x-3">
-                    <span className="text-[#FDD500] font-bold w-6">#{index + 1}</span>
+                    <span className={`font-bold w-6 ${rankTextClass}`}>#{index + 1}</span>
                     <img
                       src={`https://mc-heads.net/avatar/${user.kullanici_adi}`}
                       alt={user.kullanici_adi}
@@ -196,9 +210,9 @@ const HomePage = () => {
                     />
                     <span className="text-white font-medium">{user.kullanici_adi}</span>
                   </div>
-                  <span className="text-[#FDD500] font-bold">{user.kredi.toFixed(0)} Kredi</span>
+                  <span className={`font-bold ${rankTextClass}`}>{user.kredi.toFixed(0)} Kredi</span>
                 </Link>
-              ))}
+              )})}
             </div>
           </div>
 
@@ -238,7 +252,7 @@ const HomePage = () => {
             <div className="space-y-3">
               {sonAlisverisler.length > 0 ? (
                 sonAlisverisler.map((purchase, index) => (
-                  <div key={index} className="mt-2 flex items-center justify-between p-3 bg-[#2A2A2A] rounded">
+                  <Link key={index} to={`/profil/${purchase.kullanici_adi}`} className="mt-2 flex items-center justify-between p-3 bg-[#2A2A2A] rounded hover:bg-[#333333] transition-colors cursor-pointer">
                     <div className="flex items-center">
                         <img
                             src={`https://mc-heads.net/avatar/${purchase.kullanici_adi}`}
@@ -251,7 +265,7 @@ const HomePage = () => {
                         </div>
                     </div>
                     <span className="text-zinc-500 text-sm font-medium">{purchase.urun_adi}</span>
-                  </div>
+                  </Link>
                 ))
               ) : (
                 <p className="text-zinc-500 text-sm">Henüz alışveriş yok</p>
@@ -268,7 +282,7 @@ const HomePage = () => {
             <div className="space-y-3">
               {sonKrediYuklemeler.length > 0 ? (
                 sonKrediYuklemeler.map((transaction, index) => (
-                  <div key={index} className="mt-2 flex items-center justify-between p-3 bg-[#2A2A2A] rounded">
+                  <Link key={index} to={`/profil/${transaction.kullanici_adi}`} className="mt-2 flex items-center justify-between p-3 bg-[#2A2A2A] rounded hover:bg-[#333333] transition-colors cursor-pointer">
                     <div className="flex items-center space-x-3">
                         <img
                             src={`https://mc-heads.net/avatar/${transaction.kullanici_adi}`}
@@ -281,7 +295,7 @@ const HomePage = () => {
                         </div>
                     </div>
                     <span className="text-[#FDD500] font-bold">+{transaction.tutar} Kredi</span>
-                  </div>
+                  </Link>
                 ))
               ) : (
                 <p className="text-zinc-500 text-sm">Henüz kredi yükleme yok</p>
