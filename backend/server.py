@@ -94,6 +94,8 @@ class MarketUrun(BaseModel):
 class Haber(BaseModel):
     baslik: str
     icerik: str
+    gorsel_url: Optional[str] = None
+    goruntulenme: Optional[int] = 0
 
 class KrediYukle(BaseModel):
     tutar: float
@@ -655,7 +657,9 @@ async def get_news(limit: int = 10):
             "baslik": 1,
             "icerik": 1,
             "tarih": 1,
-            "yazar_adi": "$yazar.kullanici_adi"
+            "yazar_adi": "$yazar.kullanici_adi",
+            "gorsel_url": 1,
+            "goruntulenme": 1
         }}
     ]).to_list(limit)
     return news
@@ -665,6 +669,9 @@ async def get_news_detail(haber_id: str):
     news = await db.news.find_one({"id": haber_id}, {"_id": 0})
     if not news:
         raise HTTPException(status_code=404, detail="Haber bulunamadı")
+
+    await db.news.update_one({"id": haber_id}, {"$inc": {"goruntulenme": 1}})
+    news["goruntulenme"] = news.get("goruntulenme", 0) + 1
     return news
 
 # ============ ADMIN ROUTES ============
@@ -720,7 +727,9 @@ async def create_news(haber: Haber, admin: dict = Depends(get_admin_user)):
         "baslik": haber.baslik,
         "icerik": haber.icerik,
         "yazar_id": admin["id"],
-        "tarih": datetime.now(timezone.utc).isoformat()
+        "tarih": datetime.now(timezone.utc).isoformat(),
+        "gorsel_url": haber.gorsel_url,
+        "goruntulenme": 0
     }
     await db.news.insert_one(haber_doc)
     return {"message": "Haber oluşturuldu", "id": haber_id}
@@ -729,7 +738,7 @@ async def create_news(haber: Haber, admin: dict = Depends(get_admin_user)):
 async def update_news(haber_id: str, haber: Haber, admin: dict = Depends(get_admin_user)):
     await db.news.update_one(
         {"id": haber_id},
-        {"$set": {"baslik": haber.baslik, "icerik": haber.icerik}}
+        {"$set": {"baslik": haber.baslik, "icerik": haber.icerik, "gorsel_url": haber.gorsel_url}}
     )
     return {"message": "Haber güncellendi"}
 

@@ -16,6 +16,7 @@ import SiralamaPage from './pages/SiralamaPage';
 import AdminPage from './pages/AdminPage';
 import CuzdanPage from './pages/CuzdanPage';
 import HakkimizdaPage from './pages/HakkimizdaPage';
+import HaberDetayPage from './pages/HaberDetayPage';
 
 const BACKEND_URL = process.env.REACT_APP_API_URL;
 const API = `${BACKEND_URL}/api`;
@@ -89,6 +90,7 @@ function App() {
             <Route path="/cuzdan" element={user ? <CuzdanPage /> : <Navigate to="/giris" />} />
             <Route path="/siralama" element={<SiralamaPage />} />
             <Route path="/hakkimizda" element={<HakkimizdaPage />} />
+            <Route path="/haber/:id" element={<HaberDetayPage />} />
             <Route path="/admin" element={user?.rol === 'admin' ? <AdminPage /> : <Navigate to="/" />} />
           </Routes>
           <Footer />

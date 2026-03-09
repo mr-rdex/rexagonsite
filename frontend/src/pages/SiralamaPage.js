@@ -39,7 +39,7 @@ const SiralamaPage = () => {
   const formatDate = (dateString) => {
   if (!dateString) return "Bilinmiyor"; // Boş veri gelirse hata verme
   const date = new Date(dateString);
-  return date.toLocaleDateString('tr-TR');
+  return date.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(',', '');
 };
 
   const tabs = [
@@ -169,6 +169,7 @@ const SiralamaPage = () => {
                   data.map((purchase, index) => (
                     <div key={index} className="flex items-center justify-between p-6">
                       <div className="flex items-center space-x-4">
+                        <span className={`text-2xl font-black w-12 text-center ${getRankColor(index)}`}>#{index + 1}</span>
                         <ShoppingBag className="text-[#FDD500]" size={24} />
                         <div>
                           <div className="flex items-center">
@@ -199,6 +200,7 @@ const SiralamaPage = () => {
                   data.map((transaction, index) => (
                     <div key={index} className="flex items-center justify-between p-6">
                       <div className="flex items-center space-x-4">
+                        <span className={`text-2xl font-black w-12 text-center ${getRankColor(index)}`}>#{index + 1}</span>
                         <Coins className="text-[#FDD500]" size={24} />
                         <div className="flex items-center">
                             <img

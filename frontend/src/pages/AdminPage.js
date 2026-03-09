@@ -18,7 +18,7 @@ const AdminPage = () => {
   const [showNewNews, setShowNewNews] = useState(false);
   const [showNewTheme, setShowNewTheme] = useState(false);
   const [newItem, setNewItem] = useState({ isim: '', aciklama: '', fiyat: 0, kategori: "VIP'ler", stok: 100, gorsel: '', indirim: 0 });
-  const [newNews, setNewNews] = useState({ baslik: '', icerik: '' });
+  const [newNews, setNewNews] = useState({ baslik: '', icerik: '', gorsel_url: '' });
   const [newTheme, setNewTheme] = useState({ isim: '', gorsel_url: '', fiyat: 0 });
 
   // Edit modals
@@ -101,12 +101,12 @@ const AdminPage = () => {
   // News actions
   const handleCreateNews = async (e) => {
     e.preventDefault();
-    try { await axios.post(`${API}/admin/haber`, newNews, { headers }); setShowNewNews(false); setNewNews({ baslik: '', icerik: '' }); fetchNews(); } catch(e) { alert('Haber oluşturulamadı'); }
+    try { await axios.post(`${API}/admin/haber`, newNews, { headers }); setShowNewNews(false); setNewNews({ baslik: '', icerik: '', gorsel_url: '' }); fetchNews(); } catch(e) { alert('Haber oluşturulamadı'); }
   };
   const handleUpdateNews = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`${API}/admin/haber/${editNews.id}`, { baslik: editNews.baslik, icerik: editNews.icerik }, { headers });
+      await axios.put(`${API}/admin/haber/${editNews.id}`, { baslik: editNews.baslik, icerik: editNews.icerik, gorsel_url: editNews.gorsel_url }, { headers });
       setEditNews(null); fetchNews();
     } catch(e) { alert('Güncelleme başarısız'); }
   };
@@ -248,6 +248,7 @@ const AdminPage = () => {
                     <h3 className="text-xl font-bold text-white mb-4">Yeni Haber Ekle</h3>
                     <form onSubmit={handleCreateNews} className="space-y-4">
                       <div><label className="block text-sm font-medium text-zinc-400 mb-2">Başlık</label><input type="text" required className={inputCls} value={newNews.baslik} onChange={(e) => setNewNews({...newNews, baslik: e.target.value})} /></div>
+                      <div><label className="block text-sm font-medium text-zinc-400 mb-2">Görsel URL</label><input type="text" className={inputCls} value={newNews.gorsel_url} onChange={(e) => setNewNews({...newNews, gorsel_url: e.target.value})} placeholder="https://ornek.com/resim.jpg" /></div>
                       <div><label className="block text-sm font-medium text-zinc-400 mb-2">İçerik</label><textarea required rows={6} className={inputCls} value={newNews.icerik} onChange={(e) => setNewNews({...newNews, icerik: e.target.value})} /></div>
                       <div className="flex space-x-4">
                         <button type="submit" className="bg-[#FDD500] text-black font-bold uppercase tracking-wide px-6 py-3 rounded-lg hover:bg-[#E6C200] transition-all btn-3d">Oluştur</button>
@@ -379,6 +380,7 @@ const AdminPage = () => {
             </div>
             <form onSubmit={handleUpdateNews} className="space-y-4">
               <div><label className="block text-sm font-medium text-zinc-400 mb-2">Başlık</label><input type="text" required className={inputCls} value={editNews.baslik} onChange={(e) => setEditNews({...editNews, baslik: e.target.value})} /></div>
+              <div><label className="block text-sm font-medium text-zinc-400 mb-2">Görsel URL</label><input type="text" className={inputCls} value={editNews.gorsel_url || ''} onChange={(e) => setEditNews({...editNews, gorsel_url: e.target.value})} placeholder="https://ornek.com/resim.jpg" /></div>
               <div><label className="block text-sm font-medium text-zinc-400 mb-2">İçerik</label><textarea required rows={6} className={inputCls} value={editNews.icerik} onChange={(e) => setEditNews({...editNews, icerik: e.target.value})} /></div>
               <div className="flex space-x-4">
                 <button type="submit" className="bg-[#FDD500] text-black font-bold uppercase tracking-wide px-6 py-3 rounded-lg hover:bg-[#E6C200] transition-all btn-3d">Kaydet</button>

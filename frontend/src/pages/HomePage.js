@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../App';
-import { Trophy, Clock, ShoppingBag, Coins, Copy, Check } from 'lucide-react';
+import { Trophy, Clock, ShoppingBag, Coins, Copy, Check, Eye } from 'lucide-react';
 
 const HomePage = () => {
   const { API } = useAuth();
@@ -60,7 +60,7 @@ const HomePage = () => {
   const formatDate = (dateString) => {
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString('tr-TR');
+      return date.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(',', '');
     } catch {
       return '';
     }
@@ -137,20 +137,36 @@ const HomePage = () => {
             <h2 className="text-4xl md:text-5xl pl-4 font-bold tracking-tight uppercase text-white mb-8">Son Haberler</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {haberler.map((haber) => (
-                <div
+                <Link
                   key={haber.id}
-                  className="bg-[#1E1E1E] border border-zinc-800 rounded-xl p-6 hover:border-[#FDD500]/50 hover:shadow-[0_0_30px_rgba(255,255,255,0.1)] transition-all group"
+                  to={`/haber/${haber.id}`}
+                  className="bg-[#1E1E1E] border border-zinc-800 rounded-xl overflow-hidden hover:border-[#FDD500]/50 hover:shadow-[0_0_30px_rgba(255,255,255,0.1)] transition-all group flex flex-col cursor-pointer"
                   data-testid="news-card"
                 >
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-xs text-zinc-500">{formatDate(haber.tarih)}</span>
-                    <span className="text-xs text-[#FDD500]">{haber.yazar_adi}</span>
+                  {haber.gorsel_url && (
+                    <div className="w-full h-48 overflow-hidden">
+                      <img
+                        src={haber.gorsel_url}
+                        alt={haber.baslik}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                  )}
+                  <div className="p-6 flex flex-col flex-1">
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-xs text-zinc-500">{formatDate(haber.tarih)}</span>
+                      <span className="text-xs text-[#FDD500]">{haber.yazar_adi}</span>
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-2 group-hover:text-[#FDD500] transition-colors">
+                      {haber.baslik}
+                    </h3>
+                    <p className="text-zinc-400 text-sm line-clamp-3 mb-4 flex-1">{haber.icerik}</p>
+                    <div className="flex items-center justify-end text-zinc-500 text-xs mt-auto space-x-1">
+                      <Eye size={14} />
+                      <span>{haber.goruntulenme || 0}</span>
+                    </div>
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-2 group-hover:text-[#FDD500] transition-colors">
-                    {haber.baslik}
-                  </h3>
-                  <p className="text-zinc-400 text-sm line-clamp-3">{haber.icerik}</p>
-                </div>
+                </Link>
               ))}
             </div>
           </div>
@@ -162,7 +178,7 @@ const HomePage = () => {
           <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6" data-testid="top-credits">
             <div className="flex items-center space-x-3 mb-6">
               <Trophy className="text-[#FDD500]" size={28} />
-              <h3 className="text-2xl font-bold uppercase text-white">En Çok Kredi</h3>
+              <h3 className="text-2xl font-bold uppercase text-white">En Çok Kredi Yükleyenler</h3>
             </div>
             <div className="space-y-3">
               {topKredi.map((user, index) => (
@@ -207,7 +223,7 @@ const HomePage = () => {
                     />
                     <span className="text-white font-medium">{user.kullanici_adi}</span>
                   </div>
-                  <span className="text-xs text-zinc-500">{formatDate(user.kayit_tarihi)}</span>
+                  <span className="text-sm font-medium text-zinc-400">{formatDate(user.kayit_tarihi)}</span>
                 </Link>
               ))}
             </div>
@@ -231,10 +247,10 @@ const HomePage = () => {
                         />
                         <div className="flex flex-col">
                           <span className="text-white font-medium">{purchase.kullanici_adi}</span>
-                          <span className="text-xs text-zinc-500">{purchase.urun_adi}</span>
+                          <span className="text-[#FDD500] font-bold text-xs">{purchase.toplam_fiyat} Kredi</span>
                         </div>
                     </div>
-                    <span className="text-[#FDD500] font-bold">{purchase.toplam_fiyat} Kredi</span>
+                    <span className="text-zinc-500 text-sm font-medium">{purchase.urun_adi}</span>
                   </div>
                 ))
               ) : (
@@ -259,7 +275,10 @@ const HomePage = () => {
                             alt={transaction.kullanici_adi}
                             className="w-8 h-8 rounded"
                         />
-                        <span className="text-white font-medium">{transaction.kullanici_adi}</span>
+                        <div className="flex flex-col">
+                          <span className="text-white font-medium">{transaction.kullanici_adi}</span>
+                          <span className="text-xs text-zinc-500">{formatDate(transaction.tarih)}</span>
+                        </div>
                     </div>
                     <span className="text-[#FDD500] font-bold">+{transaction.tutar} Kredi</span>
                   </div>
