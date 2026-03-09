@@ -105,7 +105,11 @@ const AdminPage = () => {
     formData.append('file', file);
     try {
       const res = await axios.post(`${API}/admin/upload-image`, formData, { headers: { ...headers, 'Content-Type': 'multipart/form-data' }});
-      setter({ ...state, gorsel_url: res.data.gorsel_url });
+      if (setter) {
+        setter({ ...state, gorsel_url: res.data.gorsel_url });
+      } else {
+        alert(`Görsel başarıyla yüklendi. URL: ${res.data.gorsel_url}`);
+      }
     } catch (err) {
       alert('Görsel yüklenirken hata oluştu');
     }
@@ -252,8 +256,12 @@ const AdminPage = () => {
             {/* ===== NEWS TAB ===== */}
             {activeTab === 'news' && (
               <div data-testid="news-admin-section">
-                <div className="mb-6">
+                <div className="mb-6 flex flex-wrap gap-4">
                   <button onClick={() => setShowNewNews(!showNewNews)} className="bg-[#FDD500] text-black font-bold uppercase tracking-wide px-6 py-3 rounded-lg hover:bg-[#E6C200] transition-all btn-3d flex items-center space-x-2" data-testid="new-news-button"><Plus size={20} /><span>Yeni Haber Ekle</span></button>
+                  <label className="bg-zinc-800 text-zinc-300 px-6 py-3 rounded-lg cursor-pointer hover:bg-zinc-700 transition-colors font-bold uppercase flex items-center justify-center">
+                    Bağımsız Görsel Yükle
+                    <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, null, null)} />
+                  </label>
                 </div>
                 {showNewNews && (
                   <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6 mb-6" data-testid="new-news-form">
@@ -332,8 +340,12 @@ const AdminPage = () => {
             {/* ===== THEMES TAB ===== */}
             {activeTab === 'themes' && (
               <div data-testid="themes-admin-section">
-                <div className="mb-6">
+                <div className="mb-6 flex flex-wrap gap-4">
                   <button onClick={() => setShowNewTheme(!showNewTheme)} className="bg-[#FDD500] text-black font-bold uppercase tracking-wide px-6 py-3 rounded-lg hover:bg-[#E6C200] transition-all btn-3d flex items-center space-x-2" data-testid="new-theme-button"><Plus size={20} /><span>Yeni Tema Ekle</span></button>
+                  <label className="bg-zinc-800 text-zinc-300 px-6 py-3 rounded-lg cursor-pointer hover:bg-zinc-700 transition-colors font-bold uppercase flex items-center justify-center">
+                    Bağımsız Görsel Yükle
+                    <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, null, null)} />
+                  </label>
                 </div>
                 {showNewTheme && <ThemeForm theme={newTheme} setTheme={setNewTheme} onSubmit={handleCreateTheme} onCancel={() => setShowNewTheme(false)} inputCls={inputCls} title="Yeni Tema Ekle" />}
                 {themes.length === 0 ? (

@@ -368,39 +368,7 @@ async def get_latest_credit_loads():
 
 @api_router.get("/leaderboard/dinar")
 async def get_top_dinar():
-    pipeline = [
-        {
-            "$sort": {"dinar": -1}
-        },
-        {
-            "$limit": 10
-        },
-        {
-            "$lookup": {
-                "from": "users",
-                "localField": "kullanici_adi",
-                "foreignField": "kullanici_adi",
-                "as": "user_info"
-            }
-        },
-        {
-            "$unwind": {
-                "path": "$user_info",
-                "preserveNullAndEmptyArrays": True
-            }
-        },
-        {
-            "$project": {
-                "_id": 0,
-                "kullanici_adi": 1,
-                "dinar": 1,
-                "kayit_tarihi": "$user_info.kayit_tarihi",
-                "id": "$user_info.id"
-            }
-        }
-    ]
-
-    leaderboard = await db.leaderboard_dinar.aggregate(pipeline).to_list(10)
+    leaderboard = await db.leaderboard_dinar.find({}, {"_id": 0}).sort("sira", 1).limit(10).to_list(10)
     return leaderboard
 
 # ============ FORUM ROUTES ============
@@ -1018,17 +986,18 @@ async def startup_event():
 
 # ============ MINECRAFT SQLITE LEADERBOARD ============
 
-# server.py içinde sadece bu kalsın:
 @api_router.get("/leaderboard/ada-seviyesi")
 async def get_top_island_level():
-    islands = await db.leaderboard_islands.find({}, {"_id": 0}).sort("ada_seviyesi", -1).limit(10).to_list(10)
+    islands = await db.leaderboard_islands.find({}, {"_id": 0}).sort("sira", 1).limit(10).to_list(10)
     for island in islands:
-        if "adaismi" not in island:
-            island["adaismi"] = "Bilinmeyen Ada"
-        if "lider_kullanici_adi" not in island:
-            island["lider_kullanici_adi"] = "MHF_Question"
+        if "ada_adi" not in island:
+            island["ada_adi"] = "Bilinmeyen Ada"
+        if "ada_lideri" not in island:
+            island["ada_lideri"] = "MHF_Question"
         if "uyeler" not in island:
-            island["uyeler"] = []
+            island["uyeler"] = ""
         if "ada_seviyesi" not in island:
-            island["ada_seviyesi"] = 0
+            island["ada_seviyesi"] = "0"
+        if "sira" not in island:
+            island["sira"] = 0
     return islands

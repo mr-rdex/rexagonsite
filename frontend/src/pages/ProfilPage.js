@@ -89,16 +89,17 @@ const ProfilPage = () => {
   return (
     <div className="min-h-screen" data-testid="profile-page">
       {profileUser.aktif_tema_ambiyans === 'kar' && (
-        <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 9999 }}>
-          <Snowfall snowflakeCount={150} />
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, pointerEvents: 'none' }}>
+          <Snowfall snowflakeCount={150} style={{ width: '100%', height: '100%', position: 'absolute' }} />
         </div>
       )}
       {profileUser.aktif_tema_ambiyans === 'ilkbahar' && (
-        <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 9999 }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, pointerEvents: 'none' }}>
           <Snowfall
             snowflakeCount={80}
             color="#ffb7c5"
             radius={[5, 12]}
+            style={{ width: '100%', height: '100%', position: 'absolute' }}
           />
         </div>
       )}

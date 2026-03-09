@@ -136,15 +136,15 @@ const SiralamaPage = () => {
       data.map((island, index) => (
         <div key={index} className="flex items-center justify-between p-6 hover:bg-[#2A2A2A] transition-colors">
           <div className="flex items-center space-x-4">
-            <span className={`text-2xl font-black w-12 text-center ${getRankColor(index)}`}>#{index + 1}</span>
-            <img src={`https://mc-heads.net/avatar/${island.lider_kullanici_adi}`} alt={island.lider_kullanici_adi} className="w-12 h-12 rounded" />
+            <span className={`text-2xl font-black w-12 text-center ${getRankColor(island.sira - 1)}`}>#{island.sira}</span>
+            <img src={`https://mc-heads.net/avatar/${island.ada_lideri}`} alt={island.ada_lideri} className="w-12 h-12 rounded" />
             <div>
-              <p className="text-white font-bold">{island.adaismi}</p>
-              <p className="text-xs text-zinc-500">Ada Üyeleri: {Array.isArray(island.uyeler) ? island.uyeler.join(', ') : 'Yok'}</p>
+              <p className="text-white font-bold">{island.ada_adi}</p>
+              <p className="text-xs text-zinc-500">Ada Üyeleri: {island.uyeler || 'Yok'}</p>
             </div>
           </div>
           <span className="text-2xl font-black text-[#FDD500]">
-            {Number(island.ada_seviyesi || 0).toLocaleString('tr-TR')} Seviye
+            {island.ada_seviyesi} Seviye
           </span>
         </div>
       ))
@@ -158,7 +158,20 @@ const SiralamaPage = () => {
 {activeTab === 'dinar' && (
   <div className="divide-y divide-zinc-800" data-testid="dinar-list">
     {data.length > 0 ? (
-      data.map((user, index) => renderUserRow(user, index, 'dinar', 'Dinar'))
+      data.map((user, index) => (
+        <div key={index} className="flex items-center justify-between p-6 hover:bg-[#2A2A2A] transition-colors">
+          <div className="flex items-center space-x-4">
+            <span className={`text-2xl font-black w-12 text-center ${getRankColor(user.sira - 1)}`}>#{user.sira}</span>
+            <img src={`https://mc-heads.net/avatar/${user.oyuncu}`} alt={user.oyuncu} className="w-12 h-12 rounded" />
+            <div>
+              <p className="text-white font-bold">{user.oyuncu}</p>
+            </div>
+          </div>
+          <span className="text-2xl font-black text-[#FDD500]">
+            {user.dinar} Dinar
+          </span>
+        </div>
+      ))
     ) : (
       <div className="p-12 text-center text-zinc-400">Veriler senkronize ediliyor, lütfen bekleyin...</div>
     )}
