@@ -85,6 +85,7 @@ const ProfilPage = () => {
 
   const userThemes = profileUser.acik_temalar || [];
   const displayName = profileUser.kullanici_adi;
+  const ambiyans = profileUser.aktif_tema_ambiyans?.toLowerCase();
 
   return (
     <div className="min-h-screen" data-testid="profile-page">

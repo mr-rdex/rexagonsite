@@ -133,21 +133,28 @@ const SiralamaPage = () => {
 {activeTab === 'ada-seviyesi' && (
   <div className="divide-y divide-zinc-800" data-testid="ada-seviyesi-list">
     {data.length > 0 ? (
-      data.map((island, index) => (
-        <div key={index} className="flex items-center justify-between p-6 hover:bg-[#2A2A2A] transition-colors">
-          <div className="flex items-center space-x-4">
-            <span className={`text-2xl font-black w-12 text-center ${getRankColor(island.sira - 1)}`}>#{island.sira}</span>
-            <img src={`https://mc-heads.net/avatar/${island.ada_lideri}`} alt={island.ada_lideri} className="w-12 h-12 rounded" />
-            <div>
-              <p className="text-white font-bold">{island.ada_adi}</p>
-              <p className="text-xs text-zinc-500">Ada Üyeleri: {island.uyeler || 'Yok'}</p>
+      data.map((island, index) => {
+        // Eğer veritabanında 'sira' yoksa, döngüdeki 'index + 1'i kullanıyoruz
+        const rank = island.sira || index + 1;
+        return (
+          <div key={index} className="flex items-center justify-between p-6 hover:bg-[#2A2A2A] transition-colors">
+            <div className="flex items-center space-x-4">
+              <span className={`text-2xl font-black w-12 text-center ${getRankColor(rank - 1)}`}>
+                #{rank}
+              </span>
+              <img src={`https://mc-heads.net/avatar/${island.ada_lideri}`} alt={island.ada_lideri} className="w-12 h-12 rounded" />
+              <div>
+                <p className="text-white font-bold">{island.ada_adi}</p>
+                <p className="text-xs text-zinc-500">Ada Üyeleri: {island.uyeler || 'Yok'}</p>
+              </div>
             </div>
+            <span className="text-2xl font-black text-[#FDD500]">
+              {/* Sayıyı 1.500 şeklinde formatlayalım */}
+              {Number(island.ada_seviyesi || 0).toLocaleString('tr-TR')} Seviye
+            </span>
           </div>
-          <span className="text-2xl font-black text-[#FDD500]">
-            {island.ada_seviyesi} Seviye
-          </span>
-        </div>
-      ))
+        );
+      })
     ) : (
       <div className="p-12 text-center text-zinc-400">Veriler senkronize ediliyor, lütfen bekleyin...</div>
     )}

@@ -15,6 +15,8 @@ import uuid
 import sqlite3
 import shutil
 from fastapi import UploadFile, File
+import hashlib
+import secrets
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -66,6 +68,7 @@ class UserResponse(BaseModel):
     acik_temalar: List[str] = []
     aktif_tema_id: Optional[str] = None
     aktif_tema_gorsel: Optional[str] = None
+    aktif_tema_ambiyans: Optional[str] = None
     biyografi: Optional[str] = None
     discord: Optional[str] = None
     instagram: Optional[str] = None
@@ -124,10 +127,28 @@ class BiyografiGuncelle(BaseModel):
 # ============ AUTH HELPERS ============
 
 def verify_password(plain_password, hashed_password):
+    """Hem AuthMe ($SHA$) hem de eski site şifrelerini doğrular."""
+    if hashed_password.startswith("$SHA$"):
+        try:
+            parts = hashed_password.split("$")
+            salt = parts[2]
+            correct_hash = parts[3]
+            # AuthMe SHA256 Algoritması: sha256(sha256(pass) + salt)
+            pass_hash = hashlib.sha256(plain_password.encode()).hexdigest()
+            test_hash = hashlib.sha256((pass_hash + salt).encode()).hexdigest()
+            return test_hash == correct_hash
+        except:
+            return False
+    
+    # Eğer şifre AuthMe formatında değilse eski yöntemi (Bcrypt) kullan
     return pwd_context.verify(plain_password, hashed_password)
 
 def get_password_hash(password):
-    return pwd_context.hash(password)
+    """Yeni kayıtlar için AuthMe uyumlu $SHA$ formatında şifre üretir."""
+    salt = secrets.token_hex(8) 
+    pass_hash = hashlib.sha256(password.encode()).hexdigest()
+    final_hash = hashlib.sha256((pass_hash + salt).encode()).hexdigest()
+    return f"$SHA${salt}${final_hash}"
 
 def create_access_token(data: dict):
     to_encode = data.copy()
@@ -153,14 +174,28 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     user = await db.users.find_one({"id": user_id}, {"_id": 0})
     if user is None:
         raise credentials_exception
+
+    # --- KRİTİK DÜZENLEMELER ---
+    # Email null gelirse boş string yap (Validation hatasını çözen kısım)
+    if user.get("email") is None:
+        user["email"] = ""
+
+    # Diğer eksik olabilecek alanlar için varsayılanlar
+    user.setdefault("rol", "user")
+    user.setdefault("yetki", "Oyuncu")
+    user.setdefault("kredi", 0.0)
+    user.setdefault("dinar", 0.0)
+    user.setdefault("ada_seviyesi", 0)
+    user.setdefault("biyografi", "")
     user.setdefault("acik_temalar", [])
     user.setdefault("aktif_tema_id", None)
     user.setdefault("aktif_tema_gorsel", None)
     user.setdefault("aktif_tema_ambiyans", "yok")
-    user.setdefault("aktif_tema_ambiyans", "yok")
-    user.setdefault("biyografi", None)
-    user.setdefault("ada_seviyesi", 0)
-    user.setdefault("dinar", 0)
+    
+    # Kayıt ve doğum tarihi gibi alanlar modelde zorunluysa boş kalmasınlar
+    user.setdefault("dogum_tarihi", None)
+    user.setdefault("kayit_tarihi", datetime.now(timezone.utc).isoformat())
+
     return user
 
 async def get_admin_user(current_user: dict = Depends(get_current_user)):
@@ -192,18 +227,21 @@ async def kayit_ol(user: UserRegister):
         raise HTTPException(status_code=400, detail="Gizlilik sözleşmesini kabul etmelisiniz")
     
     user_id = str(uuid.uuid4())
+    
+    # YENİ: AuthMe uyumlu ve sync scriptinin fark edeceği yapı
     user_doc = {
         "id": user_id,
         "kullanici_adi": user.kullanici_adi,
         "email": user.email,
-        "sifre_hash": get_password_hash(user.sifre),
+        "sifre_hash": get_password_hash(user.sifre), # Helpers'da güncellediğimiz SHA256
+        "source": "web", # <--- sync.py'nin bu kaydı oyuna atması için bu şart!
         "kredi": 0.0,
         "profil_arka_plani": None,
         "rol": "user",
         "yetki": "Oyuncu",
         "yetki_gorseli": None,
         "dogum_tarihi": user.dogum_tarihi,
-        "kayit_tarihi": datetime.now(timezone.utc).isoformat(),
+        "kayit_tarihi": datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.%f+00:00'),
         "acik_temalar": [],
         "aktif_tema_id": None,
         "aktif_tema_gorsel": None,
@@ -223,7 +261,10 @@ async def kayit_ol(user: UserRegister):
 
 @api_router.post("/auth/giris", response_model=Token)
 async def giris_yap(user: UserLogin):
-    db_user = await db.users.find_one({"kullanici_adi": user.kullanici_adi}, {"_id": 0})
+    # Kullanıcıyı buluyoruz (Şifre hashini kontrol etmek için _id:0 değil tüm veriyi çekelim)
+    db_user = await db.users.find_one({"kullanici_adi": user.kullanici_adi})
+    
+    # verify_password fonksiyonu hem eski sitenin hem AuthMe'nin şifresini tanıyacak şekilde güncellendi
     if not db_user or not verify_password(user.sifre, db_user["sifre_hash"]):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -283,14 +324,25 @@ async def update_profile(profil_arka_plani: str, current_user: dict = Depends(ge
 
 @api_router.put("/users/sifre")
 async def change_password(data: SifreDegistir, current_user: dict = Depends(get_current_user)):
+    # Mevcut kullanıcıyı şifresini kontrol etmek için çekiyoruz
     user_full = await db.users.find_one({"id": current_user["id"]}, {"_id": 0})
+    
+    # Mevcut (eski) şifre doğrulaması
     if not verify_password(data.eski_sifre, user_full["sifre_hash"]):
         raise HTTPException(status_code=400, detail="Mevcut şifre hatalı")
+    
+    # Yeni şifreyi AuthMe formatında ($SHA$) hashleyip kaydediyoruz
     await db.users.update_one(
         {"id": current_user["id"]},
-        {"$set": {"sifre_hash": get_password_hash(data.yeni_sifre)}}
+        {
+            "$set": {
+                "sifre_hash": get_password_hash(data.yeni_sifre),
+                "source": "web_update" # <--- Sync scriptinin yakalaması için gereken etiket
+            }
+        }
     )
-    return {"message": "Şifre başarıyla değiştirildi"}
+    
+    return {"message": "Şifre başarıyla değiştirildi, oyunda aktif olması 1 dakika'yı bulabilir."}
 
 @api_router.put("/users/biyografi")
 async def update_biography(data: BiyografiGuncelle, current_user: dict = Depends(get_current_user)):
@@ -366,10 +418,31 @@ async def get_latest_credit_loads():
     return transactions
 
 
+# ============ Ada Sıralama ============
+
+@api_router.get("/leaderboard/ada-seviyesi")
+async def get_top_island_level():
+    islands = await db.leaderboard_islands.find({}, {"_id": 0}).sort("sira", 1).limit(10).to_list(10)
+    for island in islands:
+        if "ada_adi" not in island:
+            island["ada_adi"] = "Bilinmeyen Ada"
+        if "ada_lideri" not in island:
+            island["ada_lideri"] = "MHF_Question"
+        if "uyeler" not in island:
+            island["uyeler"] = ""
+        if "ada_seviyesi" not in island:
+            island["ada_seviyesi"] = "0"
+        if "sira" not in island:
+            island["sira"] = 0
+    return islands
+
+# ============ Dinar sıralaması ============
+
 @api_router.get("/leaderboard/dinar")
 async def get_top_dinar():
     leaderboard = await db.leaderboard_dinar.find({}, {"_id": 0}).sort("sira", 1).limit(10).to_list(10)
     return leaderboard
+
 
 # ============ FORUM ROUTES ============
 
@@ -983,21 +1056,3 @@ async def startup_event():
         await db.market_items.insert_many(sample_items)
         logger.info("Paketler kategorisine örnek ürünler eklendi")
         
-
-# ============ MINECRAFT SQLITE LEADERBOARD ============
-
-@api_router.get("/leaderboard/ada-seviyesi")
-async def get_top_island_level():
-    islands = await db.leaderboard_islands.find({}, {"_id": 0}).sort("sira", 1).limit(10).to_list(10)
-    for island in islands:
-        if "ada_adi" not in island:
-            island["ada_adi"] = "Bilinmeyen Ada"
-        if "ada_lideri" not in island:
-            island["ada_lideri"] = "MHF_Question"
-        if "uyeler" not in island:
-            island["uyeler"] = ""
-        if "ada_seviyesi" not in island:
-            island["ada_seviyesi"] = "0"
-        if "sira" not in island:
-            island["sira"] = 0
-    return islands
