@@ -128,7 +128,7 @@ const CuzdanPage = () => {
                       </div>
                       <div>
                         <p className="text-white font-bold">
-                          {transaction.tip === 'yukleme' ? 'Bakiye Yükleme' : 'Satın Alma'}
+                          {transaction.tip === 'yukleme' ? 'Bakiye Yükleme' : (transaction.urun_adi || 'Satın Alma')}
                         </p>
                         <p className="text-sm text-zinc-500">{formatDate(transaction.tarih)}</p>
                       </div>
@@ -137,7 +137,7 @@ const CuzdanPage = () => {
                       <p className={`text-xl font-bold ${
                         transaction.tip === 'yukleme' ? 'text-green-500' : 'text-red-500'
                       }`}>
-                        {transaction.tip === 'yukleme' ? '+' : '-'}{transaction.tutar} ₺
+                        {transaction.tip === 'yukleme' ? '+' : '-'}{transaction.tutar} {transaction.tip === 'yukleme' ? '₺' : 'Kredi'}
                       </p>
                       <p className="text-xs text-zinc-500 uppercase">
                         {transaction.durum || 'Tamamlandı'}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../App';
-import { Users, Package, Newspaper, Trash2, Edit, Plus, AlertCircle, Palette, X } from 'lucide-react';
+import { Users, Package, Newspaper, Trash2, Edit, Plus, AlertCircle, Palette, X, Settings, Image as ImageIcon, MessageSquare, Lock, Unlock, CheckCircle } from 'lucide-react';
 
 const AdminPage = () => {
   const { API } = useAuth();
@@ -12,12 +12,18 @@ const AdminPage = () => {
   const [reports, setReports] = useState([]);
   const [themes, setThemes] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [siteAmbiance, setSiteAmbiance] = useState('yok');
+  const [gallery, setGallery] = useState([]);
+  const [forumTopics, setForumTopics] = useState([]);
 
   // Create forms
   const [showNewItem, setShowNewItem] = useState(false);
+  const [showNewCategory, setShowNewCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [marketCategories, setMarketCategories] = useState([]);
   const [showNewNews, setShowNewNews] = useState(false);
   const [showNewTheme, setShowNewTheme] = useState(false);
-  const [newItem, setNewItem] = useState({ isim: '', aciklama: '', fiyat: 0, kategori: "VIP'ler", stok: 100, gorsel: '', indirim: 0 });
+  const [newItem, setNewItem] = useState({ isim: '', aciklama: '', detayli_bilgi: '', fiyat: 0, kategori: "VIP'ler", stok: 100, gorsel: '', indirim: 0 });
   const [newNews, setNewNews] = useState({ baslik: '', icerik: '', gorsel_url: '' });
   const [newTheme, setNewTheme] = useState({ isim: '', gorsel_url: '', fiyat: 0, ambiyans: 'yok' });
 
@@ -36,13 +42,52 @@ const AdminPage = () => {
     if (activeTab === 'news') fetchNews();
     if (activeTab === 'reports') fetchReports();
     if (activeTab === 'themes') fetchThemes();
+    if (activeTab === 'settings') fetchSettings();
+    if (activeTab === 'gallery') fetchGallery();
+    if (activeTab === 'forum') fetchForumTopics();
   }, [activeTab]);
 
+  const fetchSettings = async () => {
+    try {
+      const res = await axios.get(`${API}/settings`);
+      setSiteAmbiance(res.data.site_ambiyans || 'yok');
+    } catch(e) {}
+  };
+
+  const handleSaveSettings = async () => {
+    try {
+      await axios.put(`${API}/admin/settings`, { site_ambiyans: siteAmbiance }, { headers });
+      alert('Site ayarları başarıyla kaydedildi. Efekti görmek için sayfayı yenileyin.');
+    } catch(e) {
+      alert('Ayarlar kaydedilirken hata oluştu.');
+    }
+  };
+
+  const fetchGallery = async () => {
+    try {
+      const res = await axios.get(`${API}/admin/gallery`, { headers });
+      setGallery(res.data || []);
+    } catch(e) {}
+  };
+
   const fetchUsers = async () => { setLoading(true); try { const r = await axios.get(`${API}/admin/kullanicilar`, { headers }); setUsers(r.data); } catch(e) {} finally { setLoading(false); } };
-  const fetchMarketItems = async () => { setLoading(true); try { const r = await axios.get(`${API}/market/urunler`); setMarketItems(r.data); } catch(e) {} finally { setLoading(false); } };
+  const fetchMarketItems = async () => { setLoading(true); try { const r = await axios.get(`${API}/market/urunler`); setMarketItems(r.data); const cat = await axios.get(`${API}/market/kategoriler`); setMarketCategories(cat.data); } catch(e) {} finally { setLoading(false); } };
   const fetchNews = async () => { setLoading(true); try { const r = await axios.get(`${API}/haberler?limit=50`); setNews(r.data); } catch(e) {} finally { setLoading(false); } };
   const fetchReports = async () => { setLoading(true); try { const r = await axios.get(`${API}/admin/reports`, { headers }); setReports(r.data); } catch(e) {} finally { setLoading(false); } };
   const fetchThemes = async () => { setLoading(true); try { const r = await axios.get(`${API}/themes`); setThemes(r.data); } catch(e) {} finally { setLoading(false); } };
+  const fetchForumTopics = async () => { setLoading(true); try { const r = await axios.get(`${API}/admin/forum/konular`, { headers }); setForumTopics(r.data); } catch(e) {} finally { setLoading(false); } };
+
+  // Forum actions
+  const handleForumStatus = async (id, action) => {
+    try {
+      await axios.put(`${API}/admin/forum/konu/${id}/durum?action=${action}`, {}, { headers });
+      fetchForumTopics();
+    } catch(e) { alert('İşlem başarısız'); }
+  };
+  const handleDeleteTopic = async (id) => {
+    if (!window.confirm('Konuyu silmek istediğinize emin misiniz?')) return;
+    try { await axios.delete(`${API}/admin/forum/konu/${id}`, { headers }); fetchForumTopics(); } catch(e) { alert('Silme başarısız'); }
+  };
 
   // User actions
   const handleUpdateUser = async (userId, field, value) => {
@@ -78,15 +123,25 @@ const AdminPage = () => {
   };
 
   // Market actions
+  const handleCreateCategory = async (e) => {
+    e.preventDefault();
+    if (!newCategoryName.trim()) return;
+    try {
+      await axios.post(`${API}/admin/market/kategori`, { isim: newCategoryName }, { headers });
+      setShowNewCategory(false);
+      setNewCategoryName('');
+      fetchMarketItems();
+    } catch(e) { alert('Kategori eklenemedi'); }
+  };
   const handleCreateItem = async (e) => {
     e.preventDefault();
-    try { await axios.post(`${API}/admin/market/urun`, newItem, { headers }); setShowNewItem(false); setNewItem({ isim: '', aciklama: '', fiyat: 0, kategori: "VIP'ler", stok: 100, gorsel: '', indirim: 0 }); fetchMarketItems(); } catch(e) { alert('Ürün oluşturulamadı'); }
+    try { await axios.post(`${API}/admin/market/urun`, newItem, { headers }); setShowNewItem(false); setNewItem({ isim: '', aciklama: '', detayli_bilgi: '', fiyat: 0, kategori: marketCategories[0]?.isim || "VIP'ler", stok: 100, gorsel: '', indirim: 0 }); fetchMarketItems(); } catch(e) { alert('Ürün oluşturulamadı'); }
   };
   const handleUpdateItem = async (e) => {
     e.preventDefault();
     try {
       await axios.put(`${API}/admin/market/urun/${editItem.id}`, {
-        isim: editItem.isim, aciklama: editItem.aciklama, fiyat: editItem.fiyat,
+        isim: editItem.isim, aciklama: editItem.aciklama, detayli_bilgi: editItem.detayli_bilgi, fiyat: editItem.fiyat,
         kategori: editItem.kategori, stok: editItem.stok, gorsel: editItem.gorsel, indirim: editItem.indirim
       }, { headers });
       setEditItem(null); fetchMarketItems();
@@ -159,7 +214,10 @@ const AdminPage = () => {
     { id: 'market', label: 'Market', icon: Package },
     { id: 'news', label: 'Haberler', icon: Newspaper },
     { id: 'reports', label: 'Raporlar', icon: AlertCircle },
-    { id: 'themes', label: 'Temalar', icon: Palette }
+    { id: 'themes', label: 'Temalar', icon: Palette },
+    { id: 'settings', label: 'Site Ayarları', icon: Settings },
+    { id: 'gallery', label: 'Galeri', icon: ImageIcon },
+    { id: 'forum', label: 'Forum', icon: MessageSquare }
   ];
 
   const inputCls = "w-full bg-[#2A2A2A] border border-zinc-700 text-white rounded-md px-4 py-3 focus:outline-none focus:border-[#FDD500] focus:ring-1 focus:ring-[#FDD500] transition-all";
@@ -222,10 +280,20 @@ const AdminPage = () => {
             {/* ===== MARKET TAB ===== */}
             {activeTab === 'market' && (
               <div data-testid="market-section">
-                <div className="mb-6">
+                <div className="mb-6 flex gap-4">
                   <button onClick={() => setShowNewItem(!showNewItem)} className="bg-[#FDD500] text-black font-bold uppercase tracking-wide px-6 py-3 rounded-lg hover:bg-[#E6C200] transition-all btn-3d flex items-center space-x-2" data-testid="new-item-button"><Plus size={20} /><span>Yeni Ürün Ekle</span></button>
+                  <button onClick={() => setShowNewCategory(!showNewCategory)} className="bg-zinc-800 text-zinc-300 font-bold uppercase tracking-wide px-6 py-3 rounded-lg hover:bg-zinc-700 transition-all flex items-center space-x-2"><Plus size={20} /><span>Yeni Kategori Ekle</span></button>
                 </div>
-                {showNewItem && <ItemForm item={newItem} setItem={setNewItem} onSubmit={handleCreateItem} onCancel={() => setShowNewItem(false)} inputCls={inputCls} title="Yeni Ürün Ekle" />}
+                {showNewCategory && (
+                  <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6 mb-6">
+                    <h3 className="text-xl font-bold text-white mb-4">Yeni Kategori Ekle</h3>
+                    <form onSubmit={handleCreateCategory} className="flex gap-4">
+                      <input type="text" placeholder="Kategori Adı" required className={inputCls} value={newCategoryName} onChange={(e) => setNewCategoryName(e.target.value)} />
+                      <button type="submit" className="bg-[#FDD500] text-black font-bold px-6 py-3 rounded-lg hover:bg-[#E6C200] transition-all btn-3d">Ekle</button>
+                    </form>
+                  </div>
+                )}
+                {showNewItem && <ItemForm categories={marketCategories} item={newItem} setItem={setNewItem} onSubmit={handleCreateItem} onCancel={() => setShowNewItem(false)} inputCls={inputCls} title="Yeni Ürün Ekle" />}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {marketItems.map((item) => (
                     <div key={item.id} className="bg-[#1E1E1E] border border-zinc-800 rounded-lg overflow-hidden">
@@ -330,6 +398,90 @@ const AdminPage = () => {
                           <button onClick={() => handleDeleteReport(r.id)} className="text-red-500 hover:text-red-400" data-testid={`delete-report-${r.id}`}><Trash2 size={18} /></button>
                         </div>
                         <p className="text-zinc-400 text-sm">{r.aciklama}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ===== SETTINGS TAB ===== */}
+            {activeTab === 'settings' && (
+              <div data-testid="settings-admin-section">
+                <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6 max-w-lg">
+                  <h3 className="text-xl font-bold text-white mb-6">Site Geneli Ayarlar</h3>
+                  <div className="space-y-6">
+                    <div>
+                      <label className="block text-sm font-medium text-zinc-400 mb-2">Site Ambiyans Efekti (Profil hariç tüm sayfalarda)</label>
+                      <select className={inputCls} value={siteAmbiance} onChange={(e) => setSiteAmbiance(e.target.value)}>
+                        <option value="yok">Yok</option>
+                        <option value="kar">Kar (Kış)</option>
+                        <option value="ilkbahar">Çiçek/Yaprak (İlkbahar)</option>
+                      </select>
+                    </div>
+                    <button onClick={handleSaveSettings} className="bg-[#FDD500] text-black font-bold uppercase tracking-wide px-6 py-3 rounded-lg hover:bg-[#E6C200] transition-all btn-3d w-full">Ayarları Kaydet</button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ===== FORUM TAB ===== */}
+            {activeTab === 'forum' && (
+              <div data-testid="forum-admin-section">
+                <div className="space-y-4">
+                  {forumTopics.length === 0 ? (
+                    <div className="p-8 text-center text-zinc-400">Henüz forum konusu bulunmuyor.</div>
+                  ) : (
+                    forumTopics.map((topic) => (
+                      <div key={topic.id} className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+                              {topic.baslik}
+                              {topic.kapali && <span className="text-xs bg-red-500/20 text-red-500 px-2 py-1 rounded">Kapalı</span>}
+                              {topic.cozuldu && <span className="text-xs bg-green-500/20 text-green-500 px-2 py-1 rounded flex items-center gap-1"><CheckCircle size={12} /> Çözüldü</span>}
+                            </h3>
+                            <p className="text-sm text-zinc-400 mb-4">{topic.kategori}</p>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            {topic.kapali ? (
+                              <button onClick={() => handleForumStatus(topic.id, 'ac')} className="text-green-500 hover:text-green-400 flex flex-col items-center p-2"><Unlock size={16} /><span className="text-[10px]">Aç</span></button>
+                            ) : (
+                              <button onClick={() => handleForumStatus(topic.id, 'kapat')} className="text-orange-500 hover:text-orange-400 flex flex-col items-center p-2"><Lock size={16} /><span className="text-[10px]">Kapat</span></button>
+                            )}
+                            <button onClick={() => handleForumStatus(topic.id, topic.cozuldu ? 'cozulmedi' : 'cozuldu')} className="text-[#FDD500] hover:text-[#E6C200] flex flex-col items-center p-2"><CheckCircle size={16} /><span className="text-[10px]">Çözüldü</span></button>
+                            <button onClick={() => handleDeleteTopic(topic.id)} className="text-red-500 hover:text-red-400 flex flex-col items-center p-2"><Trash2 size={16} /><span className="text-[10px]">Sil</span></button>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* ===== GALLERY TAB ===== */}
+            {activeTab === 'gallery' && (
+              <div data-testid="gallery-admin-section">
+                <div className="mb-6 flex flex-wrap gap-4">
+                  <label className="bg-[#FDD500] text-black px-6 py-3 rounded-lg cursor-pointer hover:bg-[#E6C200] transition-colors font-bold uppercase flex items-center justify-center btn-3d">
+                    <Plus size={20} className="mr-2" /> Yeni Görsel Yükle
+                    <input type="file" className="hidden" accept="image/*" onChange={(e) => {
+                      handleFileUpload(e, null, null).then(() => fetchGallery());
+                    }} />
+                  </label>
+                </div>
+                {gallery.length === 0 ? (
+                  <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-8 text-center"><ImageIcon className="mx-auto text-zinc-600 mb-4" size={48} /><p className="text-zinc-400">Sunucuda henüz görsel bulunmuyor.</p></div>
+                ) : (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {gallery.map((imgUrl, idx) => (
+                      <div key={idx} className="bg-[#1E1E1E] border border-zinc-800 rounded-lg overflow-hidden group">
+                        <div className="aspect-square bg-cover bg-center bg-[#2A2A2A]" style={{ backgroundImage: `url(${imgUrl})` }} />
+                        <div className="p-3 text-center">
+                          <p className="text-xs text-zinc-400 truncate mb-2" title={imgUrl}>{imgUrl}</p>
+                          <button onClick={() => { navigator.clipboard.writeText(imgUrl); alert('URL Kopyalandı!'); }} className="text-xs bg-zinc-800 hover:bg-zinc-700 text-white px-3 py-1 rounded transition-colors w-full">URL'yi Kopyala</button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -498,7 +650,7 @@ const AdminPage = () => {
 };
 
 // Reusable Market Item Form
-const ItemForm = ({ item, setItem, onSubmit, onCancel, inputCls, title }) => (
+const ItemForm = ({ item, setItem, onSubmit, onCancel, inputCls, title, categories }) => (
   <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6 mb-6">
     <h3 className="text-xl font-bold text-white mb-4">{title}</h3>
     <form onSubmit={onSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -506,15 +658,16 @@ const ItemForm = ({ item, setItem, onSubmit, onCancel, inputCls, title }) => (
       <div><label className="block text-sm font-medium text-zinc-400 mb-2">Fiyat</label><input type="number" required min="0" step="0.01" className={inputCls} value={item.fiyat} onChange={(e) => setItem({...item, fiyat: parseFloat(e.target.value)})} /></div>
       <div><label className="block text-sm font-medium text-zinc-400 mb-2">Kategori</label>
         <select className={inputCls} value={item.kategori} onChange={(e) => setItem({...item, kategori: e.target.value})}>
-          <option value="VIP'ler">VIP'ler</option><option value="Spawnerlar">Spawnerlar</option><option value="Özel Eşyalar">Özel Eşyalar</option><option value="Paketler">Paketler</option>
+          {categories && categories.length > 0 ? categories.map(c => <option key={c.id} value={c.isim}>{c.isim}</option>) : <option value="VIP'ler">VIP'ler</option>}
         </select>
       </div>
       <div><label className="block text-sm font-medium text-zinc-400 mb-2">Stok</label><input type="number" required min="0" className={inputCls} value={item.stok} onChange={(e) => setItem({...item, stok: parseInt(e.target.value)})} /></div>
       <div><label className="block text-sm font-medium text-zinc-400 mb-2">İndirim (%)</label><input type="number" min="0" max="100" className={inputCls} value={item.indirim} onChange={(e) => setItem({...item, indirim: parseInt(e.target.value) || 0})} /></div>
-      <div className="md:col-span-2"><label className="block text-sm font-medium text-zinc-400 mb-2">Açıklama</label><textarea required rows={3} className={inputCls} value={item.aciklama} onChange={(e) => setItem({...item, aciklama: e.target.value})} /></div>
-      <div className="md:col-span-2"><label className="block text-sm font-medium text-zinc-400 mb-2">Görsel URL (Opsiyonel)</label><input type="url" className={inputCls} value={item.gorsel} onChange={(e) => setItem({...item, gorsel: e.target.value})} placeholder="https://example.com/image.png" /><p className="text-xs text-zinc-500 mt-1">Önerilen boyut: 300x300 piksel</p></div>
+      <div className="md:col-span-2"><label className="block text-sm font-medium text-zinc-400 mb-2">Kısa Açıklama</label><textarea required rows={2} className={inputCls} value={item.aciklama} onChange={(e) => setItem({...item, aciklama: e.target.value})} /></div>
+      <div className="md:col-span-2"><label className="block text-sm font-medium text-zinc-400 mb-2">Detaylı Bilgi</label><textarea rows={4} className={inputCls} value={item.detayli_bilgi || ''} onChange={(e) => setItem({...item, detayli_bilgi: e.target.value})} /></div>
+      <div className="md:col-span-2"><label className="block text-sm font-medium text-zinc-400 mb-2">Görsel URL (Opsiyonel)</label><input type="url" className={inputCls} value={item.gorsel || ''} onChange={(e) => setItem({...item, gorsel: e.target.value})} placeholder="https://example.com/image.png" /><p className="text-xs text-zinc-500 mt-1">Önerilen boyut: 300x300 piksel</p></div>
       <div className="md:col-span-2 flex space-x-4">
-        <button type="submit" className="bg-[#FDD500] text-black font-bold uppercase tracking-wide px-6 py-3 rounded-lg hover:bg-[#E6C200] transition-all btn-3d">Oluştur</button>
+        <button type="submit" className="bg-[#FDD500] text-black font-bold uppercase tracking-wide px-6 py-3 rounded-lg hover:bg-[#E6C200] transition-all btn-3d">Kaydet</button>
         <button type="button" onClick={onCancel} className="bg-transparent border-2 border-zinc-700 text-zinc-400 font-bold uppercase px-6 py-3 rounded-lg hover:border-zinc-600 transition-all">İptal</button>
       </div>
     </form>

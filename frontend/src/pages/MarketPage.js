@@ -15,6 +15,9 @@ const MarketPage = () => {
   const [purchasing, setPurchasing] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [detailItem, setDetailItem] = useState(null);
+  const [sortOption, setSortOption] = useState('varsayilan');
 
   useEffect(() => {
     fetchCategories();
@@ -149,16 +152,40 @@ const MarketPage = () => {
           ))}
         </div>
 
+        {/* Sort Button */}
+        {selectedCategory === 'Tümü' && (
+          <div className="mb-6 flex justify-end">
+            <select
+              className="bg-[#1E1E1E] border border-zinc-800 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-[#FDD500]"
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value)}
+            >
+              <option value="varsayilan">Varsayılan Sıralama</option>
+              <option value="fiyat_azalan">En Yüksek Fiyat</option>
+              <option value="fiyat_artan">En Düşük Fiyat</option>
+              <option value="indirim">En Çok İndirim</option>
+            </select>
+          </div>
+        )}
+
         {/* Items Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
           {items.length > 0 ? (
-            items.map((item) => {
+            [...items].sort((a, b) => {
+              const priceA = a.indirim > 0 ? a.fiyat * (1 - a.indirim / 100) : a.fiyat;
+              const priceB = b.indirim > 0 ? b.fiyat * (1 - b.indirim / 100) : b.fiyat;
+              if (sortOption === 'fiyat_azalan') return priceB - priceA;
+              if (sortOption === 'fiyat_artan') return priceA - priceB;
+              if (sortOption === 'indirim') return (b.indirim || 0) - (a.indirim || 0);
+              return 0;
+            }).map((item) => {
               const finalPrice = item.indirim > 0 ? item.fiyat * (1 - item.indirim / 100) : item.fiyat;
               return (
               <div
                 key={item.id}
-                className="bg-[#1E1E1E] border border-zinc-800 rounded-xl overflow-hidden hover:border-[#FDD500]/50 hover:shadow-[0_0_30px_rgba(255,255,255,0.1)] transition-all group relative"
+                className="bg-[#1E1E1E] border border-zinc-800 rounded-xl overflow-hidden hover:border-[#FDD500]/50 hover:shadow-[0_0_30px_rgba(255,255,255,0.1)] transition-all group relative cursor-pointer"
                 data-testid="market-item-card"
+                onClick={() => { setDetailItem(item); setShowDetailModal(true); }}
               >
                 {item.indirim > 0 && (
                   <div className="absolute top-4 right-4 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full z-10">
@@ -187,14 +214,14 @@ const MarketPage = () => {
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex flex-col">
                       {item.indirim > 0 && (
-                        <span className="text-sm text-zinc-500 line-through">{item.fiyat} ₺</span>
+                        <span className="text-sm text-zinc-500 line-through">{item.fiyat} Kredi</span>
                       )}
-                      <span className="text-2xl font-bold text-[#FDD500]">{finalPrice.toFixed(2)} ₺</span>
+                      <span className="text-2xl font-bold text-[#FDD500]">{finalPrice.toFixed(2)} Kredi</span>
                     </div>
                     <span className="text-xs text-zinc-500">Stok: {item.stok}</span>
                   </div>
                   <button
-                    onClick={() => openConfirmModal(item)}
+                    onClick={(e) => { e.stopPropagation(); openConfirmModal(item); }}
                     disabled={item.stok <= 0}
                     className="w-full bg-[#FDD500] text-black font-bold uppercase tracking-wide px-6 py-3 rounded-lg hover:bg-[#E6C200] transition-all btn-3d disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                     data-testid="purchase-button"
@@ -214,6 +241,36 @@ const MarketPage = () => {
           )}
         </div>
       </div>
+
+      {/* Detail Modal */}
+      {showDetailModal && detailItem && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50" data-testid="detail-modal" onClick={() => setShowDetailModal(false)}>
+          <div className="bg-[#1E1E1E] border border-zinc-800 rounded-xl p-8 max-w-lg w-full text-center relative" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setShowDetailModal(false)} className="absolute top-4 right-4 text-zinc-400 hover:text-white transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+            {detailItem.gorsel && (
+              <img src={detailItem.gorsel} alt={detailItem.isim} className="w-32 h-32 object-contain mx-auto mb-6" />
+            )}
+            <h3 className="text-2xl font-black text-white mb-2">{detailItem.isim}</h3>
+            <div className="text-[#FDD500] font-bold text-xl mb-6">
+              {detailItem.indirim > 0 ? (detailItem.fiyat * (1 - detailItem.indirim / 100)).toFixed(2) : detailItem.fiyat} Kredi
+            </div>
+
+            <div className="text-zinc-300 text-left mb-8 whitespace-pre-wrap">
+              {detailItem.detayli_bilgi || detailItem.aciklama}
+            </div>
+
+            <button
+              disabled={detailItem.stok <= 0}
+              onClick={() => { setShowDetailModal(false); openConfirmModal(detailItem); }}
+              className={`w-full font-bold uppercase tracking-wide py-4 rounded-lg transition-colors btn-3d ${detailItem.stok > 0 ? 'bg-[#FDD500] text-black hover:bg-[#E6C200]' : 'bg-zinc-800 text-zinc-500 cursor-not-allowed'}`}
+            >
+              {detailItem.stok > 0 ? 'Satın Al' : 'Stokta Yok'}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Purchase Confirmation Modal */}
       {showConfirmModal && selectedItem && (

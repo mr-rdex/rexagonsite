@@ -65,24 +65,24 @@ const SiralamaPage = () => {
   <Link
     key={index} // user.id yerine index kullanıyoruz çünkü her oyuncu kayıtlı olmayabilir
     to={`/profil/${user.kullanici_adi}`}
-    className="flex items-center justify-between p-6 hover:bg-[#2A2A2A] transition-colors"
+    className="flex flex-col md:flex-row md:items-center justify-between p-6 hover:bg-[#2A2A2A] transition-colors gap-4"
   >
     <div className="flex items-center space-x-4">
-      <span className={`text-2xl font-black w-12 text-center ${getRankColor(index)}`}>#{index + 1}</span>
+      <span className={`text-xl md:text-2xl font-black w-8 md:w-12 text-center ${getRankColor(index)}`}>#{index + 1}</span>
       {/* Kafa resmi her zaman kullanici_adi üzerinden gelir */}
-      <img src={`https://mc-heads.net/avatar/${user.kullanici_adi}`} alt={user.kullanici_adi} className="w-12 h-12 rounded" />
-      <div>
-        <p className="text-white font-bold">{user.kullanici_adi}</p>
+      <img src={`https://mc-heads.net/avatar/${user.kullanici_adi}`} alt={user.kullanici_adi} className="w-10 h-10 md:w-12 md:h-12 rounded" />
+      <div className="overflow-hidden">
+        <p className="text-white font-bold truncate">{user.kullanici_adi}</p>
         {/* SADECE kayıtlı kullanıcılar için kayıt tarihini gösterir */}
         {user.kayit_tarihi ? (
-          <p className="text-xs text-zinc-500">Kayıt: {formatDate(user.kayit_tarihi)}</p>
+          <p className="text-xs text-zinc-500 truncate">Kayıt: {formatDate(user.kayit_tarihi)}</p>
         ) : (
-          <p className="text-xs text-zinc-600 italic">Siteye henüz kayıt olmamış</p>
+          <p className="text-xs text-zinc-600 italic truncate">Siteye henüz kayıt olmamış</p>
         )}
       </div>
     </div>
     {/* Sayıları 1.500 şeklinde noktalı ve okunaklı yazar */}
-    <span className="text-2xl font-black text-[#FDD500]">
+    <span className="text-lg md:text-2xl font-black text-[#FDD500] self-end md:self-auto">
       {valueKey === 'dinar'
         ? user[valueKey] || "0"
         : Number(user[valueKey] || 0).toLocaleString('tr-TR')} {valueSuffix}
@@ -133,28 +133,21 @@ const SiralamaPage = () => {
 {activeTab === 'ada-seviyesi' && (
   <div className="divide-y divide-zinc-800" data-testid="ada-seviyesi-list">
     {data.length > 0 ? (
-      data.map((island, index) => {
-        // Eğer veritabanında 'sira' yoksa, döngüdeki 'index + 1'i kullanıyoruz
-        const rank = island.sira || index + 1;
-        return (
-          <div key={index} className="flex items-center justify-between p-6 hover:bg-[#2A2A2A] transition-colors">
-            <div className="flex items-center space-x-4">
-              <span className={`text-2xl font-black w-12 text-center ${getRankColor(rank - 1)}`}>
-                #{rank}
-              </span>
-              <img src={`https://mc-heads.net/avatar/${island.ada_lideri}`} alt={island.ada_lideri} className="w-12 h-12 rounded" />
-              <div>
-                <p className="text-white font-bold">{island.ada_adi}</p>
-                <p className="text-xs text-zinc-500">Ada Üyeleri: {island.uyeler || 'Yok'}</p>
-              </div>
+      data.map((island, index) => (
+        <div key={index} className="flex flex-col md:flex-row md:items-center justify-between p-6 hover:bg-[#2A2A2A] transition-colors gap-4">
+          <div className="flex items-center space-x-4">
+            <span className={`text-xl md:text-2xl font-black w-8 md:w-12 text-center ${getRankColor(island.sira - 1)}`}>#{island.sira}</span>
+            <img src={`https://mc-heads.net/avatar/${island.ada_lideri}`} alt={island.ada_lideri} className="w-10 h-10 md:w-12 md:h-12 rounded" />
+            <div className="overflow-hidden">
+              <p className="text-white font-bold truncate">{island.ada_adi}</p>
+              <p className="text-xs text-zinc-500 truncate" title={island.uyeler || 'Yok'}>Ada Üyeleri: {island.uyeler || 'Yok'}</p>
             </div>
-            <span className="text-2xl font-black text-[#FDD500]">
-              {/* Sayıyı 1.500 şeklinde formatlayalım */}
-              {Number(island.ada_seviyesi || 0).toLocaleString('tr-TR')} Seviye
-            </span>
           </div>
-        );
-      })
+          <span className="text-lg md:text-2xl font-black text-[#FDD500] self-end md:self-auto">
+            {island.ada_seviyesi} Seviye
+          </span>
+        </div>
+      ))
     ) : (
       <div className="p-12 text-center text-zinc-400">Veriler senkronize ediliyor, lütfen bekleyin...</div>
     )}
@@ -166,15 +159,15 @@ const SiralamaPage = () => {
   <div className="divide-y divide-zinc-800" data-testid="dinar-list">
     {data.length > 0 ? (
       data.map((user, index) => (
-        <div key={index} className="flex items-center justify-between p-6 hover:bg-[#2A2A2A] transition-colors">
+        <div key={index} className="flex flex-col md:flex-row md:items-center justify-between p-6 hover:bg-[#2A2A2A] transition-colors gap-4">
           <div className="flex items-center space-x-4">
-            <span className={`text-2xl font-black w-12 text-center ${getRankColor(user.sira - 1)}`}>#{user.sira}</span>
-            <img src={`https://mc-heads.net/avatar/${user.oyuncu}`} alt={user.oyuncu} className="w-12 h-12 rounded" />
-            <div>
-              <p className="text-white font-bold">{user.oyuncu}</p>
+            <span className={`text-xl md:text-2xl font-black w-8 md:w-12 text-center ${getRankColor(user.sira - 1)}`}>#{user.sira}</span>
+            <img src={`https://mc-heads.net/avatar/${user.oyuncu}`} alt={user.oyuncu} className="w-10 h-10 md:w-12 md:h-12 rounded" />
+            <div className="overflow-hidden">
+              <p className="text-white font-bold truncate">{user.oyuncu}</p>
             </div>
           </div>
-          <span className="text-2xl font-black text-[#FDD500]">
+          <span className="text-lg md:text-2xl font-black text-[#FDD500] self-end md:self-auto">
             {user.dinar} Dinar
           </span>
         </div>
@@ -188,15 +181,15 @@ const SiralamaPage = () => {
             {activeTab === 'son-kayitlar' && (
               <div className="divide-y divide-zinc-800" data-testid="kayit-list">
                 {data.map((user) => (
-                  <Link key={user.id} to={`/profil/${user.kullanici_adi}`} className="flex items-center justify-between p-6 hover:bg-[#2A2A2A] transition-colors">
+                  <Link key={user.id} to={`/profil/${user.kullanici_adi}`} className="flex flex-col md:flex-row md:items-center justify-between p-6 hover:bg-[#2A2A2A] transition-colors gap-4">
                     <div className="flex items-center space-x-4">
-                      <img src={`https://mc-heads.net/avatar/${user.kullanici_adi}`} alt={user.kullanici_adi} className="w-12 h-12 rounded" />
-                      <div>
-                        <p className="text-white font-bold">{user.kullanici_adi}</p>
-                        <p className="text-xs text-zinc-500">{user.email}</p>
+                      <img src={`https://mc-heads.net/avatar/${user.kullanici_adi}`} alt={user.kullanici_adi} className="w-10 h-10 md:w-12 md:h-12 rounded" />
+                      <div className="overflow-hidden">
+                        <p className="text-white font-bold truncate">{user.kullanici_adi}</p>
+                        <p className="text-xs text-zinc-500 truncate">{user.email}</p>
                       </div>
                     </div>
-                    <span className="text-sm text-zinc-400">{formatDate(user.kayit_tarihi)}</span>
+                    <span className="text-sm text-zinc-400 self-end md:self-auto">{formatDate(user.kayit_tarihi)}</span>
                   </Link>
                 ))}
               </div>
@@ -206,25 +199,25 @@ const SiralamaPage = () => {
               <div className="divide-y divide-zinc-800" data-testid="alisveris-list">
                 {data.length > 0 ? (
                   data.map((purchase, index) => (
-                    <div key={index} className="flex items-center justify-between p-6">
+                    <div key={index} className="flex flex-col md:flex-row md:items-center justify-between p-6 gap-4">
                       <div className="flex items-center space-x-4">
-                        <span className={`text-2xl font-black w-12 text-center ${getRankColor(index)}`}>#{index + 1}</span>
-                        <ShoppingBag className="text-[#FDD500]" size={24} />
-                        <div>
+                        <span className={`text-xl md:text-2xl font-black w-8 md:w-12 text-center ${getRankColor(index)}`}>#{index + 1}</span>
+                        <ShoppingBag className="text-[#FDD500] hidden md:block" size={24} />
+                        <div className="overflow-hidden">
                           <div className="flex items-center">
                             <img
                                 src={`https://mc-heads.net/avatar/${purchase.kullanici_adi}`}
                                 alt={purchase.kullanici_adi}
                                 className="w-8 h-8 rounded mr-3"
                             />
-                            <div>
-                                <p className="text-white font-bold">{purchase.kullanici_adi}</p>
-                                <p className="text-xs text-zinc-500">{purchase.urun_adi}</p>
+                            <div className="overflow-hidden">
+                                <p className="text-white font-bold truncate">{purchase.kullanici_adi}</p>
+                                <p className="text-xs text-zinc-500 truncate">{purchase.urun_adi}</p>
                             </div>
                           </div>
                         </div>
                       </div>
-                      <span className="text-lg font-bold text-[#FDD500]">{purchase.toplam_fiyat} Kredi</span>
+                      <span className="text-lg font-bold text-[#FDD500] self-end md:self-auto">{purchase.toplam_fiyat} Kredi</span>
                     </div>
                   ))
                 ) : (
@@ -237,20 +230,20 @@ const SiralamaPage = () => {
               <div className="divide-y divide-zinc-800" data-testid="kredi-yukleme-list">
                 {data.length > 0 ? (
                   data.map((transaction, index) => (
-                    <div key={index} className="flex items-center justify-between p-6">
+                    <div key={index} className="flex flex-col md:flex-row md:items-center justify-between p-6 gap-4">
                       <div className="flex items-center space-x-4">
-                        <span className={`text-2xl font-black w-12 text-center ${getRankColor(index)}`}>#{index + 1}</span>
-                        <Coins className="text-[#FDD500]" size={24} />
-                        <div className="flex items-center">
+                        <span className={`text-xl md:text-2xl font-black w-8 md:w-12 text-center ${getRankColor(index)}`}>#{index + 1}</span>
+                        <Coins className="text-[#FDD500] hidden md:block" size={24} />
+                        <div className="flex items-center overflow-hidden">
                             <img
                                 src={`https://mc-heads.net/avatar/${transaction.kullanici_adi}`}
                                 alt={transaction.kullanici_adi}
                                 className="w-8 h-8 rounded mr-3"
                             />
-                            <p className="text-white font-bold">{transaction.kullanici_adi}</p>
+                            <p className="text-white font-bold truncate">{transaction.kullanici_adi}</p>
                         </div>
                       </div>
-                      <span className="text-lg font-bold text-green-500">+{transaction.tutar} Kredi</span>
+                      <span className="text-lg font-bold text-green-500 self-end md:self-auto">+{transaction.tutar} Kredi</span>
                     </div>
                   ))
                 ) : (

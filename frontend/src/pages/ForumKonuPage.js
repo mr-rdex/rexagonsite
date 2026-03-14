@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../App';
-import { ArrowLeft, Send, Clock } from 'lucide-react';
+import { ArrowLeft, Send, Clock, Lock, CheckCircle, Trash2, Heart } from 'lucide-react';
 
 const ForumKonuPage = () => {
   const { id } = useParams();
@@ -45,6 +45,35 @@ const ForumKonuPage = () => {
       fetchTopic();
     } catch (error) {
       console.error('Cevap eklenemedi:', error);
+    }
+  };
+
+  const handleDeleteReply = async (cevapId) => {
+    if (!window.confirm('Bu yorumu silmek istediğinize emin misiniz?')) return;
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`${API}/admin/forum/cevap/${cevapId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      fetchTopic();
+    } catch (error) {
+      alert('Yorum silinemedi.');
+    }
+  };
+
+  const handleLike = async () => {
+    if (!user) {
+      navigate('/giris');
+      return;
+    }
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(`${API}/forum/konu/${id}/begen`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      fetchTopic();
+    } catch (error) {
+      console.error('Beğeni işlemi başarısız', error);
     }
   };
 
@@ -91,7 +120,11 @@ const ForumKonuPage = () => {
 
         {/* Topic */}
         <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6 mb-6" data-testid="topic-content">
-          <h3 className="text-3xl font-bold text-white mb-4">{konu.baslik}</h3>
+          <h3 className="text-3xl font-bold text-white mb-4 flex items-center gap-3">
+            {konu.baslik}
+            {konu.kapali && <span className="text-xs bg-red-500/20 text-red-500 px-3 py-1 rounded-full flex items-center gap-1"><Lock size={14} /> Kapalı</span>}
+            {konu.cozuldu && <span className="text-xs bg-green-500/20 text-green-500 px-3 py-1 rounded-full flex items-center gap-1"><CheckCircle size={14} /> Çözüldü</span>}
+          </h3>
           <div className="flex items-center space-x-4 mb-6">
             <Link to={`/profil/${konu.yazar_adi}`} className="flex items-center space-x-2">
               <img
@@ -135,10 +168,17 @@ const ForumKonuPage = () => {
                     >
                       {cevap.yazar_adi}
                     </Link>
-                    <p className="text-xs text-zinc-500 flex items-center space-x-1">
-                      <Clock size={12} />
-                      <span>{formatDate(cevap.tarih)}</span>
-                    </p>
+                    <div className="flex items-center space-x-4">
+                      <p className="text-xs text-zinc-500 flex items-center space-x-1">
+                        <Clock size={12} />
+                        <span>{formatDate(cevap.tarih)}</span>
+                      </p>
+                      {user && user.rol === 'admin' && (
+                        <button onClick={() => handleDeleteReply(cevap.id)} className="text-red-500 hover:text-red-400" title="Yorumu Sil">
+                          <Trash2 size={16} />
+                        </button>
+                      )}
+                    </div>
                   </div>
                   <div className="text-zinc-300 leading-relaxed whitespace-pre-wrap">{cevap.icerik}</div>
                 </div>
@@ -148,7 +188,12 @@ const ForumKonuPage = () => {
         </div>
 
         {/* Reply Form */}
-        {user ? (
+        {konu.kapali ? (
+          <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-8 text-center text-red-500 font-bold flex flex-col items-center justify-center">
+            <Lock size={32} className="mb-4" />
+            Bu konu yorumlara kapatılmıştır.
+          </div>
+        ) : user ? (
           <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6" data-testid="reply-form">
             <h3 className="text-xl font-bold text-white mb-4">Cevap Yaz</h3>
             <form onSubmit={handleReply} className="space-y-4">

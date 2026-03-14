@@ -17,6 +17,8 @@ import AdminPage from './pages/AdminPage';
 import CuzdanPage from './pages/CuzdanPage';
 import HakkimizdaPage from './pages/HakkimizdaPage';
 import HaberDetayPage from './pages/HaberDetayPage';
+import Snowfall from 'react-snowfall';
+import { useLocation } from 'react-router-dom';
 
 const BACKEND_URL = process.env.REACT_APP_API_URL;
 const API = `${BACKEND_URL}/api`;
@@ -25,11 +27,43 @@ export const AuthContext = createContext();
 
 export const useAuth = () => useContext(AuthContext);
 
+const GlobalAmbiance = ({ siteAmbiance }) => {
+  const location = useLocation();
+  if (location.pathname.startsWith('/profil')) return null;
+
+  if (siteAmbiance === 'kar') {
+    return (
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9998, pointerEvents: 'none' }}>
+        <Snowfall snowflakeCount={150} style={{ width: '100%', height: '100%', position: 'absolute' }} />
+      </div>
+    );
+  }
+  if (siteAmbiance === 'ilkbahar') {
+    return (
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9998, pointerEvents: 'none' }}>
+        <Snowfall
+          snowflakeCount={80}
+          color="#ffb7c5"
+          radius={[5, 12]}
+          style={{ width: '100%', height: '100%', position: 'absolute' }}
+        />
+      </div>
+    );
+  }
+  return null;
+};
+
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [siteAmbiance, setSiteAmbiance] = useState('yok');
 
   useEffect(() => {
+    // Fetch settings
+    axios.get(`${API}/settings`).then(res => {
+      setSiteAmbiance(res.data.site_ambiyans || 'yok');
+    }).catch(err => console.error("Ayarlar çekilemedi", err));
+
     const token = localStorage.getItem('token');
     if (token) {
       axios.get(`${API}/auth/me`, {
@@ -74,7 +108,8 @@ function App() {
   return (
     <AuthContext.Provider value={{ user, login, logout, API, BACKEND_URL }}>
       <BrowserRouter>
-        <div className="App">
+        <GlobalAmbiance siteAmbiance={siteAmbiance} />
+        <div className="App relative">
           <Navigation />
           <Routes>
             <Route path="/" element={<HomePage />} />

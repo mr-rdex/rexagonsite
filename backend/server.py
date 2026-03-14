@@ -15,8 +15,6 @@ import uuid
 import sqlite3
 import shutil
 from fastapi import UploadFile, File
-import hashlib
-import secrets
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -68,7 +66,6 @@ class UserResponse(BaseModel):
     acik_temalar: List[str] = []
     aktif_tema_id: Optional[str] = None
     aktif_tema_gorsel: Optional[str] = None
-    aktif_tema_ambiyans: Optional[str] = None
     biyografi: Optional[str] = None
     discord: Optional[str] = None
     instagram: Optional[str] = None
@@ -86,6 +83,9 @@ class ForumKonu(BaseModel):
 class ForumCevap(BaseModel):
     icerik: str
 
+class MarketKategori(BaseModel):
+    isim: str
+
 class MarketUrun(BaseModel):
     isim: str
     aciklama: str
@@ -94,6 +94,7 @@ class MarketUrun(BaseModel):
     stok: int
     gorsel: Optional[str] = None
     indirim: Optional[float] = 0
+    detayli_bilgi: Optional[str] = None
 
 class Haber(BaseModel):
     baslik: str
@@ -115,6 +116,9 @@ class ThemeCreate(BaseModel):
     fiyat: float = 0
     ambiyans: Optional[str] = "yok"
 
+class SiteSettings(BaseModel):
+    site_ambiyans: str
+
 class SifreDegistir(BaseModel):
     eski_sifre: str
     yeni_sifre: str
@@ -127,28 +131,10 @@ class BiyografiGuncelle(BaseModel):
 # ============ AUTH HELPERS ============
 
 def verify_password(plain_password, hashed_password):
-    """Hem AuthMe ($SHA$) hem de eski site şifrelerini doğrular."""
-    if hashed_password.startswith("$SHA$"):
-        try:
-            parts = hashed_password.split("$")
-            salt = parts[2]
-            correct_hash = parts[3]
-            # AuthMe SHA256 Algoritması: sha256(sha256(pass) + salt)
-            pass_hash = hashlib.sha256(plain_password.encode()).hexdigest()
-            test_hash = hashlib.sha256((pass_hash + salt).encode()).hexdigest()
-            return test_hash == correct_hash
-        except:
-            return False
-    
-    # Eğer şifre AuthMe formatında değilse eski yöntemi (Bcrypt) kullan
     return pwd_context.verify(plain_password, hashed_password)
 
 def get_password_hash(password):
-    """Yeni kayıtlar için AuthMe uyumlu $SHA$ formatında şifre üretir."""
-    salt = secrets.token_hex(8) 
-    pass_hash = hashlib.sha256(password.encode()).hexdigest()
-    final_hash = hashlib.sha256((pass_hash + salt).encode()).hexdigest()
-    return f"$SHA${salt}${final_hash}"
+    return pwd_context.hash(password)
 
 def create_access_token(data: dict):
     to_encode = data.copy()
@@ -174,28 +160,14 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     user = await db.users.find_one({"id": user_id}, {"_id": 0})
     if user is None:
         raise credentials_exception
-
-    # --- KRİTİK DÜZENLEMELER ---
-    # Email null gelirse boş string yap (Validation hatasını çözen kısım)
-    if user.get("email") is None:
-        user["email"] = ""
-
-    # Diğer eksik olabilecek alanlar için varsayılanlar
-    user.setdefault("rol", "user")
-    user.setdefault("yetki", "Oyuncu")
-    user.setdefault("kredi", 0.0)
-    user.setdefault("dinar", 0.0)
-    user.setdefault("ada_seviyesi", 0)
-    user.setdefault("biyografi", "")
     user.setdefault("acik_temalar", [])
     user.setdefault("aktif_tema_id", None)
     user.setdefault("aktif_tema_gorsel", None)
     user.setdefault("aktif_tema_ambiyans", "yok")
-    
-    # Kayıt ve doğum tarihi gibi alanlar modelde zorunluysa boş kalmasınlar
-    user.setdefault("dogum_tarihi", None)
-    user.setdefault("kayit_tarihi", datetime.now(timezone.utc).isoformat())
-
+    user.setdefault("aktif_tema_ambiyans", "yok")
+    user.setdefault("biyografi", None)
+    user.setdefault("ada_seviyesi", 0)
+    user.setdefault("dinar", 0)
     return user
 
 async def get_admin_user(current_user: dict = Depends(get_current_user)):
@@ -208,6 +180,37 @@ async def get_admin_user(current_user: dict = Depends(get_current_user)):
 @api_router.get("/")
 async def root():
     return {"message": "Rexagon API", "status": "online"}
+
+# ============ SETTINGS ROUTES ============
+
+@api_router.get("/settings")
+async def get_settings():
+    settings = await db.settings.find_one({"id": "global_settings"}, {"_id": 0})
+    if not settings:
+        return {"site_ambiyans": "yok"}
+    return settings
+
+@api_router.put("/admin/settings")
+async def update_settings(settings: SiteSettings, admin: dict = Depends(get_admin_user)):
+    await db.settings.update_one(
+        {"id": "global_settings"},
+        {"$set": {"site_ambiyans": settings.site_ambiyans}},
+        upsert=True
+    )
+    return {"message": "Site ayarları güncellendi"}
+
+@api_router.get("/admin/gallery")
+async def get_gallery(admin: dict = Depends(get_admin_user)):
+    images_dir = ROOT_DIR.parent / "frontend" / "public" / "images"
+    if not images_dir.exists():
+        return []
+
+    images = []
+    for file in images_dir.iterdir():
+        if file.is_file() and file.suffix.lower() in ['.jpg', '.jpeg', '.png', '.gif', '.webp']:
+            images.append(f"/images/{file.name}")
+
+    return images
 
 # ============ AUTH ROUTES ============
 
@@ -227,21 +230,18 @@ async def kayit_ol(user: UserRegister):
         raise HTTPException(status_code=400, detail="Gizlilik sözleşmesini kabul etmelisiniz")
     
     user_id = str(uuid.uuid4())
-    
-    # YENİ: AuthMe uyumlu ve sync scriptinin fark edeceği yapı
     user_doc = {
         "id": user_id,
         "kullanici_adi": user.kullanici_adi,
         "email": user.email,
-        "sifre_hash": get_password_hash(user.sifre), # Helpers'da güncellediğimiz SHA256
-        "source": "web", # <--- sync.py'nin bu kaydı oyuna atması için bu şart!
+        "sifre_hash": get_password_hash(user.sifre),
         "kredi": 0.0,
         "profil_arka_plani": None,
         "rol": "user",
         "yetki": "Oyuncu",
         "yetki_gorseli": None,
         "dogum_tarihi": user.dogum_tarihi,
-        "kayit_tarihi": datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.%f+00:00'),
+        "kayit_tarihi": datetime.now(timezone.utc).isoformat(),
         "acik_temalar": [],
         "aktif_tema_id": None,
         "aktif_tema_gorsel": None,
@@ -261,10 +261,7 @@ async def kayit_ol(user: UserRegister):
 
 @api_router.post("/auth/giris", response_model=Token)
 async def giris_yap(user: UserLogin):
-    # Kullanıcıyı buluyoruz (Şifre hashini kontrol etmek için _id:0 değil tüm veriyi çekelim)
-    db_user = await db.users.find_one({"kullanici_adi": user.kullanici_adi})
-    
-    # verify_password fonksiyonu hem eski sitenin hem AuthMe'nin şifresini tanıyacak şekilde güncellendi
+    db_user = await db.users.find_one({"kullanici_adi": user.kullanici_adi}, {"_id": 0})
     if not db_user or not verify_password(user.sifre, db_user["sifre_hash"]):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -324,25 +321,14 @@ async def update_profile(profil_arka_plani: str, current_user: dict = Depends(ge
 
 @api_router.put("/users/sifre")
 async def change_password(data: SifreDegistir, current_user: dict = Depends(get_current_user)):
-    # Mevcut kullanıcıyı şifresini kontrol etmek için çekiyoruz
     user_full = await db.users.find_one({"id": current_user["id"]}, {"_id": 0})
-    
-    # Mevcut (eski) şifre doğrulaması
     if not verify_password(data.eski_sifre, user_full["sifre_hash"]):
         raise HTTPException(status_code=400, detail="Mevcut şifre hatalı")
-    
-    # Yeni şifreyi AuthMe formatında ($SHA$) hashleyip kaydediyoruz
     await db.users.update_one(
         {"id": current_user["id"]},
-        {
-            "$set": {
-                "sifre_hash": get_password_hash(data.yeni_sifre),
-                "source": "web_update" # <--- Sync scriptinin yakalaması için gereken etiket
-            }
-        }
+        {"$set": {"sifre_hash": get_password_hash(data.yeni_sifre)}}
     )
-    
-    return {"message": "Şifre başarıyla değiştirildi, oyunda aktif olması 1 dakika'yı bulabilir."}
+    return {"message": "Şifre başarıyla değiştirildi"}
 
 @api_router.put("/users/biyografi")
 async def update_biography(data: BiyografiGuncelle, current_user: dict = Depends(get_current_user)):
@@ -418,31 +404,10 @@ async def get_latest_credit_loads():
     return transactions
 
 
-# ============ Ada Sıralama ============
-
-@api_router.get("/leaderboard/ada-seviyesi")
-async def get_top_island_level():
-    islands = await db.leaderboard_islands.find({}, {"_id": 0}).sort("sira", 1).limit(10).to_list(10)
-    for island in islands:
-        if "ada_adi" not in island:
-            island["ada_adi"] = "Bilinmeyen Ada"
-        if "ada_lideri" not in island:
-            island["ada_lideri"] = "MHF_Question"
-        if "uyeler" not in island:
-            island["uyeler"] = ""
-        if "ada_seviyesi" not in island:
-            island["ada_seviyesi"] = "0"
-        if "sira" not in island:
-            island["sira"] = 0
-    return islands
-
-# ============ Dinar sıralaması ============
-
 @api_router.get("/leaderboard/dinar")
 async def get_top_dinar():
     leaderboard = await db.leaderboard_dinar.find({}, {"_id": 0}).sort("sira", 1).limit(10).to_list(10)
     return leaderboard
-
 
 # ============ FORUM ROUTES ============
 
@@ -459,8 +424,12 @@ async def get_forum_categories():
 
 @api_router.get("/forum/{kategori}/konular")
 async def get_forum_topics(kategori: str, skip: int = 0, limit: int = 20):
+    match_query = {}
+    if kategori != "Tümü":
+        match_query = {"kategori": kategori}
+
     topics = await db.forum_topics.aggregate([
-        {"$match": {"kategori": kategori}},
+        {"$match": match_query},
         {"$sort": {"tarih": -1}},
         {"$skip": skip},
         {"$limit": limit},
@@ -484,6 +453,9 @@ async def get_forum_topics(kategori: str, skip: int = 0, limit: int = 20):
             "icerik": 1,
             "kategori": 1,
             "tarih": 1,
+            "begenenler": 1,
+            "kapali": 1,
+            "cozuldu": 1,
             "yazar_adi": "$yazar.kullanici_adi",
             "cevap_sayisi": {"$size": "$cevaplar"}
         }}
@@ -508,6 +480,9 @@ async def get_forum_topic(konu_id: str):
             "icerik": 1,
             "kategori": 1,
             "tarih": 1,
+            "begenenler": {"$ifNull": ["$begenenler", []]},
+            "kapali": {"$ifNull": ["$kapali", False]},
+            "cozuldu": {"$ifNull": ["$cozuldu", False]},
             "yazar_adi": "$yazar.kullanici_adi",
             "yazar_id": 1
         }}
@@ -548,10 +523,29 @@ async def create_forum_topic(konu: ForumKonu, current_user: dict = Depends(get_c
         "icerik": konu.icerik,
         "kategori": konu.kategori,
         "yazar_id": current_user["id"],
-        "tarih": datetime.now(timezone.utc).isoformat()
+        "tarih": datetime.now(timezone.utc).isoformat(),
+        "begenenler": [],
+        "kapali": False,
+        "cozuldu": False
     }
     await db.forum_topics.insert_one(konu_doc)
     return {"message": "Konu oluşturuldu", "id": konu_id}
+
+@api_router.post("/forum/konu/{konu_id}/begen")
+async def like_forum_topic(konu_id: str, current_user: dict = Depends(get_current_user)):
+    topic = await db.forum_topics.find_one({"id": konu_id})
+    if not topic:
+        raise HTTPException(status_code=404, detail="Konu bulunamadı")
+
+    begenenler = topic.get("begenenler", [])
+    if current_user["id"] in begenenler:
+        # Zaten beğenmiş, beğeniyi kaldır
+        await db.forum_topics.update_one({"id": konu_id}, {"$pull": {"begenenler": current_user["id"]}})
+        return {"message": "Beğeni kaldırıldı", "begenenler_sayisi": len(begenenler) - 1}
+    else:
+        # Beğen
+        await db.forum_topics.update_one({"id": konu_id}, {"$push": {"begenenler": current_user["id"]}})
+        return {"message": "Konu beğenildi", "begenenler_sayisi": len(begenenler) + 1}
 
 @api_router.post("/forum/konu/{konu_id}/cevap")
 async def create_forum_reply(konu_id: str, cevap: ForumCevap, current_user: dict = Depends(get_current_user)):
@@ -588,7 +582,22 @@ async def get_wallet_history(current_user: dict = Depends(get_current_user)):
         {"kullanici_id": current_user["id"]},
         {"_id": 0}
     ).sort("tarih", -1).to_list(100)
-    return transactions
+
+    purchases = await db.purchases.find(
+        {"kullanici_id": current_user["id"]},
+        {"_id": 0}
+    ).sort("tarih", -1).to_list(100)
+
+    # purchases listesindeki "toplam_fiyat" ve "urun_adi" gibi alanları frontend'in tanıyabileceği tutar ve tipe çevirelim
+    for p in purchases:
+        p["tutar"] = p.get("toplam_fiyat", 0)
+        p["tip"] = "harcama"
+        p["durum"] = "onaylandi"
+        p["urun_adi"] = p.get("urun_adi", "Market Ürünü")
+
+    combined = transactions + purchases
+    combined.sort(key=lambda x: x.get("tarih", ""), reverse=True)
+    return combined[:100]
 
 @api_router.post("/cuzdan/yukle")
 async def load_wallet(tutar: float, current_user: dict = Depends(get_current_user)):
@@ -811,6 +820,17 @@ async def delete_news(haber_id: str, admin: dict = Depends(get_admin_user)):
     await db.news.delete_one({"id": haber_id})
     return {"message": "Haber silindi"}
 
+@api_router.post("/admin/market/kategori")
+async def create_market_category(kategori: MarketKategori, admin: dict = Depends(get_admin_user)):
+    kategori_id = str(uuid.uuid4())
+    doc = {
+        "id": kategori_id,
+        "isim": kategori.isim,
+        "aciklama": f"{kategori.isim} kategorisi"
+    }
+    await db.market_categories.insert_one(doc)
+    return {"message": "Kategori eklendi", "id": kategori_id}
+
 @api_router.post("/admin/market/urun")
 async def create_market_item(urun: MarketUrun, admin: dict = Depends(get_admin_user)):
     urun_id = str(uuid.uuid4())
@@ -823,6 +843,7 @@ async def create_market_item(urun: MarketUrun, admin: dict = Depends(get_admin_u
         "stok": urun.stok,
         "gorsel": urun.gorsel,
         "indirim": urun.indirim if urun.indirim else 0,
+        "detayli_bilgi": urun.detayli_bilgi,
         "olusturulma_tarihi": datetime.now(timezone.utc).isoformat()
     }
     await db.market_items.insert_one(urun_doc)
@@ -841,6 +862,29 @@ async def update_market_item(urun_id: str, urun: MarketUrun, admin: dict = Depen
 async def delete_market_item(urun_id: str, admin: dict = Depends(get_admin_user)):
     await db.market_items.delete_one({"id": urun_id})
     return {"message": "Ürün silindi"}
+
+@api_router.get("/admin/forum/konular")
+async def admin_get_all_topics(admin: dict = Depends(get_admin_user)):
+    topics = await db.forum_topics.find({}, {"_id": 0}).sort("tarih", -1).to_list(1000)
+    return topics
+
+@api_router.put("/admin/forum/konu/{konu_id}/durum")
+async def update_forum_topic_status(konu_id: str, action: str, admin: dict = Depends(get_admin_user)):
+    # action can be: 'kapat', 'ac', 'cozuldu'
+    update_data = {}
+    if action == "kapat":
+        update_data["kapali"] = True
+    elif action == "ac":
+        update_data["kapali"] = False
+    elif action == "cozuldu":
+        update_data["cozuldu"] = True
+    elif action == "cozulmedi":
+        update_data["cozuldu"] = False
+
+    if update_data:
+        await db.forum_topics.update_one({"id": konu_id}, {"$set": update_data})
+        return {"message": "Konu durumu güncellendi"}
+    return {"message": "Geçersiz işlem"}
 
 @api_router.delete("/admin/forum/konu/{konu_id}")
 async def delete_forum_topic(konu_id: str, admin: dict = Depends(get_admin_user)):
@@ -1056,3 +1100,21 @@ async def startup_event():
         await db.market_items.insert_many(sample_items)
         logger.info("Paketler kategorisine örnek ürünler eklendi")
         
+
+# ============ MINECRAFT SQLITE LEADERBOARD ============
+
+@api_router.get("/leaderboard/ada-seviyesi")
+async def get_top_island_level():
+    islands = await db.leaderboard_islands.find({}, {"_id": 0}).sort("sira", 1).limit(10).to_list(10)
+    for island in islands:
+        if "ada_adi" not in island:
+            island["ada_adi"] = "Bilinmeyen Ada"
+        if "ada_lideri" not in island:
+            island["ada_lideri"] = "MHF_Question"
+        if "uyeler" not in island:
+            island["uyeler"] = ""
+        if "ada_seviyesi" not in island:
+            island["ada_seviyesi"] = "0"
+        if "sira" not in island:
+            island["sira"] = 0
+    return islands
