@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../App';
-import { ArrowLeft, Plus, MessageSquare, Clock } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Clock, Plus, Heart } from 'lucide-react';
 
 const ForumKategoriPage = () => {
   const { kategori } = useParams();
@@ -173,6 +173,10 @@ const ForumKategoriPage = () => {
                       <span className="flex items-center space-x-1">
                         <MessageSquare size={14} />
                         <span>{topic.cevap_sayisi} cevap</span>
+                      </span>
+                      <span className="flex items-center space-x-1">
+                        <Heart size={14} />
+                        <span>{topic.begenenler?.length || 0} beğeni</span>
                       </span>
                     </div>
                   </div>

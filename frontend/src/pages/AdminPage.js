@@ -13,6 +13,8 @@ const AdminPage = () => {
   const [themes, setThemes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [siteAmbiance, setSiteAmbiance] = useState('yok');
+  const [ambianceList, setAmbianceList] = useState([]);
+  const [newAmbiance, setNewAmbiance] = useState({ isim: '', id: '', tip: 'yok' });
   const [gallery, setGallery] = useState([]);
   const [forumTopics, setForumTopics] = useState([]);
 
@@ -51,7 +53,26 @@ const AdminPage = () => {
     try {
       const res = await axios.get(`${API}/settings`);
       setSiteAmbiance(res.data.site_ambiyans || 'yok');
+      const amb = await axios.get(`${API}/ambiances`);
+      setAmbianceList(amb.data || []);
     } catch(e) {}
+  };
+
+  const handleCreateAmbiance = async () => {
+    if (!newAmbiance.isim || !newAmbiance.id) return;
+    try {
+      await axios.post(`${API}/admin/ambiances`, newAmbiance, { headers });
+      setNewAmbiance({ isim: '', id: '', tip: 'yok' });
+      fetchSettings();
+    } catch(e) { alert('Ambiyans eklenemedi'); }
+  };
+
+  const handleDeleteAmbiance = async (id) => {
+    if (!window.confirm('Bu ambiyansı silmek istediğinize emin misiniz?')) return;
+    try {
+      await axios.delete(`${API}/admin/ambiances/${id}`, { headers });
+      fetchSettings();
+    } catch(e) { alert('Ambiyans silinemedi'); }
   };
 
   const handleSaveSettings = async () => {
@@ -425,12 +446,40 @@ const AdminPage = () => {
                     <div>
                       <label className="block text-sm font-medium text-zinc-400 mb-2">Site Ambiyans Efekti (Profil hariç tüm sayfalarda)</label>
                       <select className={inputCls} value={siteAmbiance} onChange={(e) => setSiteAmbiance(e.target.value)}>
-                        <option value="yok">Yok</option>
-                        <option value="kar">Kar (Kış)</option>
-                        <option value="ilkbahar">Çiçek/Yaprak (İlkbahar)</option>
+                        {ambianceList.map(a => (
+                          <option key={a.id} value={a.id}>{a.isim}</option>
+                        ))}
                       </select>
                     </div>
                     <button onClick={handleSaveSettings} className="bg-[#FDD500] text-black font-bold uppercase tracking-wide px-6 py-3 rounded-lg hover:bg-[#E6C200] transition-all btn-3d w-full">Ayarları Kaydet</button>
+                  </div>
+
+                  <div className="mt-12 border-t border-zinc-800 pt-6">
+                    <h3 className="text-xl font-bold text-white mb-4">Ambiyans Yönetimi</h3>
+                    <div className="flex flex-col gap-4 mb-6">
+                      <div className="flex items-center gap-2">
+                        <input type="text" placeholder="ID (örn: yaz)" className={inputCls} value={newAmbiance.id} onChange={e => setNewAmbiance({...newAmbiance, id: e.target.value})} />
+                        <input type="text" placeholder="İsim (örn: Güneşli Yaz)" className={inputCls} value={newAmbiance.isim} onChange={e => setNewAmbiance({...newAmbiance, isim: e.target.value})} />
+                        <select className={inputCls} value={newAmbiance.tip} onChange={e => setNewAmbiance({...newAmbiance, tip: e.target.value})}>
+                          <option value="yok">Yok</option>
+                          <option value="kar">Kar Efekti</option>
+                          <option value="ilkbahar">Yaprak Efekti</option>
+                        </select>
+                        <button onClick={handleCreateAmbiance} className="bg-[#FDD500] text-black font-bold px-6 py-3 rounded-lg btn-3d whitespace-nowrap">Ekle</button>
+                      </div>
+                      <div className="space-y-2 mt-4">
+                        {ambianceList.map(a => (
+                          <div key={a.id} className="flex justify-between items-center bg-[#2A2A2A] p-3 rounded">
+                            <div>
+                              <p className="text-white font-bold">{a.isim} <span className="text-xs text-zinc-500">({a.id} - {a.tip})</span></p>
+                            </div>
+                            {a.id !== 'yok' && (
+                              <button onClick={() => handleDeleteAmbiance(a.id)} className="text-red-500 hover:text-red-400"><Trash2 size={16} /></button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -623,9 +672,9 @@ const AdminPage = () => {
       <div>
         <label className="block text-sm font-medium text-zinc-400 mb-2">Ambiyans Efekti</label>
         <select className={inputCls} value={editTheme.ambiyans || 'yok'} onChange={(e) => setEditTheme({...editTheme, ambiyans: e.target.value})}>
-          <option value="yok">Yok</option>
-          <option value="kar">Kar (Kış)</option>
-          <option value="ilkbahar">Çiçek/Yaprak (İlkbahar)</option>
+          {ambianceList && ambianceList.map(a => (
+            <option key={a.id} value={a.id}>{a.isim}</option>
+          ))}
         </select>
       </div>
               <div className="flex space-x-4">

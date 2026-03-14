@@ -134,14 +134,56 @@ const CuzdanPage = () => {
               ))
             ) : (
               <div className="p-12 text-center">
-                <Wallet className="mx-auto text-zinc-600 mb-4" size={48} />
-                <p className="text-zinc-400">Henüz işlem geçmişi yok</p>
+                <Clock className="mx-auto text-zinc-600 mb-4" size={48} />
+                <p className="text-zinc-400">Henüz bir bakiye yükleme işlemi bulunmuyor.</p>
                 <button
                   onClick={() => setShowLoadModal(true)}
                   className="mt-4 text-[#FDD500] hover:text-[#E6C200] font-medium"
                 >
                   İlk yüklemeyi yap
                 </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Purchase History */}
+        <div className="bg-[#1E1E1E] border border-zinc-800 rounded-xl overflow-hidden">
+          <div className="p-6 border-b border-zinc-800 flex items-center justify-between">
+            <h3 className="text-2xl font-bold uppercase text-white flex items-center space-x-3">
+              <Package size={24} className="text-[#FDD500]" />
+              <span>Satın Alma Geçmişi</span>
+            </h3>
+          </div>
+          <div className="divide-y divide-zinc-800">
+            {transactions.filter(t => t.tip === 'harcama').length > 0 ? (
+              transactions.filter(t => t.tip === 'harcama').map((transaction, index) => (
+                <div
+                  key={index}
+                  className="p-6 hover:bg-[#2A2A2A] transition-colors"
+                  data-testid="purchase-item"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-red-500/10">
+                        <CreditCard className="text-red-500" size={24} />
+                      </div>
+                      <div>
+                        <p className="text-white font-bold">{transaction.urun_adi || 'Satın Alma'}</p>
+                        <p className="text-sm text-zinc-500">{formatDate(transaction.tarih)}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xl font-bold text-red-500">-{transaction.tutar} Kredi</p>
+                      <p className="text-xs text-zinc-500 uppercase">Tamamlandı</p>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="p-12 text-center">
+                <Package className="mx-auto text-zinc-600 mb-4" size={48} />
+                <p className="text-zinc-400">Henüz bir satın alma işlemi bulunmuyor.</p>
               </div>
             )}
           </div>

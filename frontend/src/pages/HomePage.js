@@ -195,7 +195,7 @@ const HomePage = () => {
                 else if (index === 2) { rankClass = "bg-orange-600/20 border border-orange-600/50"; rankTextClass = "text-orange-500"; }
 
                 return (
-                  <div key={index} className={`mt-2 flex items-center justify-between p-3 rounded transition-colors ${rankClass}`}>
+                  <Link to={`/profil/${island.ada_lideri}`} key={index} className={`mt-2 flex items-center justify-between p-3 rounded transition-colors cursor-pointer hover:bg-[#333333] ${rankClass}`}>
                     <div className="flex items-center space-x-3">
                       <span className={`font-bold w-6 ${rankTextClass}`}>#{island.sira}</span>
                       <img src={`https://mc-heads.net/avatar/${island.ada_lideri}`} alt={island.ada_lideri} className="w-8 h-8 rounded" />
@@ -205,7 +205,7 @@ const HomePage = () => {
                       </div>
                     </div>
                     <span className={`font-bold ${rankTextClass}`}>{island.ada_seviyesi} Seviye</span>
-                  </div>
+                  </Link>
                 )
               }) : <p className="text-zinc-500 text-sm">Veri bulunamadı</p>}
             </div>
@@ -226,14 +226,14 @@ const HomePage = () => {
                 else if (index === 2) { rankClass = "bg-orange-600/20 border border-orange-600/50"; rankTextClass = "text-orange-500"; }
 
                 return (
-                  <div key={index} className={`mt-2 flex items-center justify-between p-3 rounded transition-colors ${rankClass}`}>
+                  <Link to={`/profil/${user.oyuncu}`} key={index} className={`mt-2 flex items-center justify-between p-3 rounded transition-colors cursor-pointer hover:bg-[#333333] ${rankClass}`}>
                     <div className="flex items-center space-x-3">
                       <span className={`font-bold w-6 ${rankTextClass}`}>#{user.sira}</span>
                       <img src={`https://mc-heads.net/avatar/${user.oyuncu}`} alt={user.oyuncu} className="w-8 h-8 rounded" />
                       <span className="text-white font-medium">{user.oyuncu}</span>
                     </div>
                     <span className={`font-bold ${rankTextClass}`}>{user.dinar} Dinar</span>
-                  </div>
+                  </Link>
                 )
               }) : <p className="text-zinc-500 text-sm">Veri bulunamadı</p>}
             </div>
