@@ -141,7 +141,13 @@ const ForumKonuPage = () => {
               </div>
             </Link>
           </div>
-          <div className="text-zinc-300 leading-relaxed whitespace-pre-wrap">{konu.icerik}</div>
+          <div className="text-zinc-300 leading-relaxed whitespace-pre-wrap mb-6">{konu.icerik}</div>
+          <div className="flex items-center justify-end border-t border-zinc-800 pt-4">
+            <button onClick={handleLike} className={`flex items-center space-x-2 transition-colors ${user && konu.begenenler?.includes(user.id) ? 'text-pink-500' : 'text-zinc-400 hover:text-pink-500'}`}>
+              <Heart size={20} className={user && konu.begenenler?.includes(user.id) ? 'fill-current' : ''} />
+              <span className="font-bold">{konu.begenenler?.length || 0} Beğeni</span>
+            </button>
+          </div>
         </div>
 
         {/* Replies */}

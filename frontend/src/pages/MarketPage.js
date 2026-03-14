@@ -153,20 +153,18 @@ const MarketPage = () => {
         </div>
 
         {/* Sort Button */}
-        {selectedCategory === 'Tümü' && (
-          <div className="mb-6 flex justify-end">
-            <select
-              className="bg-[#1E1E1E] border border-zinc-800 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-[#FDD500]"
-              value={sortOption}
-              onChange={(e) => setSortOption(e.target.value)}
-            >
-              <option value="varsayilan">Varsayılan Sıralama</option>
-              <option value="fiyat_azalan">En Yüksek Fiyat</option>
-              <option value="fiyat_artan">En Düşük Fiyat</option>
-              <option value="indirim">En Çok İndirim</option>
-            </select>
-          </div>
-        )}
+        <div className="mb-6 flex justify-end">
+          <select
+            className="bg-[#1E1E1E] border border-zinc-800 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-[#FDD500]"
+            value={sortOption}
+            onChange={(e) => setSortOption(e.target.value)}
+          >
+            <option value="varsayilan">Varsayılan Sıralama</option>
+            <option value="fiyat_azalan">En Yüksek Fiyat</option>
+            <option value="fiyat_artan">En Düşük Fiyat</option>
+            <option value="indirim">En Çok İndirim</option>
+          </select>
+        </div>
 
         {/* Items Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">

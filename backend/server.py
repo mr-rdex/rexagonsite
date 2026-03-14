@@ -116,6 +116,11 @@ class ThemeCreate(BaseModel):
     fiyat: float = 0
     ambiyans: Optional[str] = "yok"
 
+class AmbianceCreate(BaseModel):
+    id: str
+    isim: str
+    tip: str
+
 class SiteSettings(BaseModel):
     site_ambiyans: str
 
@@ -181,7 +186,30 @@ async def get_admin_user(current_user: dict = Depends(get_current_user)):
 async def root():
     return {"message": "Rexagon API", "status": "online"}
 
-# ============ SETTINGS ROUTES ============
+# ============ SETTINGS & AMBIANCE ROUTES ============
+
+@api_router.get("/ambiances")
+async def get_ambiances():
+    ambiances = await db.ambiances.find({}, {"_id": 0}).to_list(100)
+    if not ambiances:
+        # Default ambiances
+        return [
+            {"id": "yok", "isim": "Yok", "tip": "yok"},
+            {"id": "kar", "isim": "Kar (Kış)", "tip": "kar"},
+            {"id": "ilkbahar", "isim": "Çiçek/Yaprak (İlkbahar)", "tip": "ilkbahar"}
+        ]
+    return ambiances
+
+@api_router.post("/admin/ambiances")
+async def create_ambiance(amb: AmbianceCreate, admin: dict = Depends(get_admin_user)):
+    doc = {"id": amb.id, "isim": amb.isim, "tip": amb.tip}
+    await db.ambiances.insert_one(doc)
+    return {"message": "Ambiyans eklendi"}
+
+@api_router.delete("/admin/ambiances/{amb_id}")
+async def delete_ambiance(amb_id: str, admin: dict = Depends(get_admin_user)):
+    await db.ambiances.delete_one({"id": amb_id})
+    return {"message": "Ambiyans silindi"}
 
 @api_router.get("/settings")
 async def get_settings():
@@ -211,6 +239,17 @@ async def get_gallery(admin: dict = Depends(get_admin_user)):
             images.append(f"/images/{file.name}")
 
     return images
+
+@api_router.delete("/admin/gallery/{filename}")
+async def delete_gallery_image(filename: str, admin: dict = Depends(get_admin_user)):
+    images_dir = ROOT_DIR.parent / "frontend" / "public" / "images"
+    file_path = images_dir / filename
+
+    if file_path.exists() and file_path.is_file():
+        file_path.unlink()
+        return {"message": "Görsel silindi"}
+    else:
+        raise HTTPException(status_code=404, detail="Görsel bulunamadı")
 
 # ============ AUTH ROUTES ============
 
@@ -273,6 +312,16 @@ async def giris_yap(user: UserLogin):
 
 @api_router.get("/auth/me", response_model=UserResponse)
 async def get_me(current_user: dict = Depends(get_current_user)):
+    acilan_konu_sayisi = await db.forum_topics.count_documents({"yazar_id": current_user["id"]})
+    gonderilen_mesaj_sayisi = await db.forum_replies.count_documents({"yazar_id": current_user["id"]})
+    current_user["acilan_konu_sayisi"] = acilan_konu_sayisi
+    current_user["gonderilen_mesaj_sayisi"] = gonderilen_mesaj_sayisi
+
+    toplam_harcama = 0.0
+    purchases = await db.purchases.find({"kullanici_id": current_user["id"]}).to_list(1000)
+    for p in purchases:
+        toplam_harcama += float(p.get("toplam_fiyat", 0))
+    current_user["toplam_harcama"] = toplam_harcama
     return current_user
 
 # ============ USER ROUTES ============
@@ -731,13 +780,28 @@ async def get_news(limit: int = 10):
 
 @api_router.get("/haber/{haber_id}")
 async def get_news_detail(haber_id: str):
-    news = await db.news.find_one({"id": haber_id}, {"_id": 0})
+    news = await db.news.aggregate([
+        {"$match": {"id": haber_id}},
+        {"$lookup": {
+            "from": "users",
+            "localField": "yazar_id",
+            "foreignField": "id",
+            "as": "yazar"
+        }},
+        {"$unwind": {"path": "$yazar", "preserveNullAndEmptyArrays": True}}
+    ]).to_list(1)
+
     if not news:
         raise HTTPException(status_code=404, detail="Haber bulunamadı")
 
+    news_item = news[0]
+    news_item["yazar_adi"] = news_item.get("yazar", {}).get("kullanici_adi", "Bilinmeyen")
+    if "_id" in news_item: del news_item["_id"]
+    if "yazar" in news_item: del news_item["yazar"]
+
     await db.news.update_one({"id": haber_id}, {"$inc": {"goruntulenme": 1}})
-    news["goruntulenme"] = news.get("goruntulenme", 0) + 1
-    return news
+    news_item["goruntulenme"] = news_item.get("goruntulenme", 0) + 1
+    return news_item
 
 # ============ ADMIN ROUTES ============
 
@@ -1074,6 +1138,15 @@ async def startup_event():
         }
         await db.users.insert_one(admin_doc)
         logger.info("Admin kullanıcı oluşturuldu: admin / admin123")
+
+    # Default ambiyanslari ekle
+    amb_count = await db.ambiances.count_documents({})
+    if amb_count == 0:
+        await db.ambiances.insert_many([
+            {"id": "yok", "isim": "Yok", "tip": "yok"},
+            {"id": "kar", "isim": "Kar (Kış)", "tip": "kar"},
+            {"id": "ilkbahar", "isim": "Çiçek/Yaprak (İlkbahar)", "tip": "ilkbahar"}
+        ])
     
     # Örnek Kış Teması Ekle
     kis_temasi = await db.themes.find_one({"isim": "Kış Teması"})

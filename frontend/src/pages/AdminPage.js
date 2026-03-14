@@ -70,6 +70,17 @@ const AdminPage = () => {
     } catch(e) {}
   };
 
+  const handleDeleteGalleryImage = async (imgUrl) => {
+    if (!window.confirm('Bu görseli silmek istediğinize emin misiniz?')) return;
+    const filename = imgUrl.split('/').pop();
+    try {
+      await axios.delete(`${API}/admin/gallery/${filename}`, { headers });
+      fetchGallery();
+    } catch (e) {
+      alert('Görsel silinemedi.');
+    }
+  };
+
   const fetchUsers = async () => { setLoading(true); try { const r = await axios.get(`${API}/admin/kullanicilar`, { headers }); setUsers(r.data); } catch(e) {} finally { setLoading(false); } };
   const fetchMarketItems = async () => { setLoading(true); try { const r = await axios.get(`${API}/market/urunler`); setMarketItems(r.data); const cat = await axios.get(`${API}/market/kategoriler`); setMarketCategories(cat.data); } catch(e) {} finally { setLoading(false); } };
   const fetchNews = async () => { setLoading(true); try { const r = await axios.get(`${API}/haberler?limit=50`); setNews(r.data); } catch(e) {} finally { setLoading(false); } };
@@ -476,7 +487,10 @@ const AdminPage = () => {
                 ) : (
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {gallery.map((imgUrl, idx) => (
-                      <div key={idx} className="bg-[#1E1E1E] border border-zinc-800 rounded-lg overflow-hidden group">
+                      <div key={idx} className="bg-[#1E1E1E] border border-zinc-800 rounded-lg overflow-hidden group relative">
+                        <button onClick={() => handleDeleteGalleryImage(imgUrl)} className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10 hover:bg-red-600">
+                          <Trash2 size={16} />
+                        </button>
                         <div className="aspect-square bg-cover bg-center bg-[#2A2A2A]" style={{ backgroundImage: `url(${imgUrl})` }} />
                         <div className="p-3 text-center">
                           <p className="text-xs text-zinc-400 truncate mb-2" title={imgUrl}>{imgUrl}</p>
@@ -499,7 +513,7 @@ const AdminPage = () => {
                     <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, null, null)} />
                   </label>
                 </div>
-                {showNewTheme && <ThemeForm theme={newTheme} setTheme={setNewTheme} onSubmit={handleCreateTheme} onCancel={() => setShowNewTheme(false)} inputCls={inputCls} title="Yeni Tema Ekle" />}
+                {showNewTheme && <ThemeForm ambianceList={ambianceList} theme={newTheme} setTheme={setNewTheme} onSubmit={handleCreateTheme} onCancel={() => setShowNewTheme(false)} inputCls={inputCls} title="Yeni Tema Ekle" handleFileUpload={handleFileUpload} />}
                 {themes.length === 0 ? (
                   <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-8 text-center"><Palette className="mx-auto text-zinc-600 mb-4" size={48} /><p className="text-zinc-400">Henüz tema eklenmemiş</p></div>
                 ) : (

@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../App';
-import { Trophy, Clock, ShoppingBag, Coins, Copy, Check, Eye } from 'lucide-react';
+import { Trophy, Clock, ShoppingBag, Coins, Copy, Check, Eye, Mountain, CircleDollarSign } from 'lucide-react';
 
 const HomePage = () => {
   const { API } = useAuth();
   const [topKredi, setTopKredi] = useState([]);
+  const [topIslands, setTopIslands] = useState([]);
+  const [topDinar, setTopDinar] = useState([]);
   const [sonKayitlar, setSonKayitlar] = useState([]);
   const [sonAlisverisler, setSonAlisverisler] = useState([]);
   const [sonKrediYuklemeler, setSonKrediYuklemeler] = useState([]);
@@ -24,8 +26,10 @@ const HomePage = () => {
   useEffect(() => {
   const fetchData = async () => {
     try {
-      const [krediRes, kayitRes, alisverisRes, yukleRes, haberRes, statsRes, mcRes] = await Promise.all([
+      const [krediRes, islandRes, dinarRes, kayitRes, alisverisRes, yukleRes, haberRes, statsRes, mcRes] = await Promise.all([
         axios.get(`${API}/leaderboard/kredi`).catch(() => ({ data: [] })),
+        axios.get(`${API}/leaderboard/ada-seviyesi`).catch(() => ({ data: [] })),
+        axios.get(`${API}/leaderboard/dinar`).catch(() => ({ data: [] })),
         axios.get(`${API}/leaderboard/son-kayitlar`).catch(() => ({ data: [] })),
         axios.get(`${API}/leaderboard/son-alisverisler`).catch(() => ({ data: [] })),
         axios.get(`${API}/leaderboard/son-kredi-yuklemeler`).catch(() => ({ data: [] })),
@@ -36,6 +40,8 @@ const HomePage = () => {
       ]);
 
         setTopKredi(Array.isArray(krediRes.data) ? krediRes.data.slice(0, 5) : []);
+        setTopIslands(Array.isArray(islandRes.data) ? islandRes.data.slice(0, 5) : []);
+        setTopDinar(Array.isArray(dinarRes.data) ? dinarRes.data.slice(0, 5) : []);
         setSonKayitlar(Array.isArray(kayitRes.data) ? kayitRes.data.slice(0, 5) : []);
         setSonAlisverisler(Array.isArray(alisverisRes.data) ? alisverisRes.data.slice(0, 5) : []);
         setSonKrediYuklemeler(Array.isArray(yukleRes.data) ? yukleRes.data.slice(0, 5) : []);
@@ -173,6 +179,67 @@ const HomePage = () => {
         )}
 
         {/* Leaderboards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          {/* En Çok Ada Seviyesi */}
+          <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6" data-testid="top-islands">
+            <div className="flex items-center space-x-3 mb-6">
+              <Mountain className="text-[#FDD500]" size={28} />
+              <h3 className="text-2xl font-bold uppercase text-white">En Çok Ada Seviyesi</h3>
+            </div>
+            <div className="space-y-3">
+              {topIslands.length > 0 ? topIslands.map((island, index) => {
+                let rankClass = "bg-[#2A2A2A]";
+                let rankTextClass = "text-[#FDD500]";
+                if (index === 0) { rankClass = "bg-yellow-500/20 border border-yellow-500/50"; rankTextClass = "text-yellow-500"; }
+                else if (index === 1) { rankClass = "bg-gray-400/20 border border-gray-400/50"; rankTextClass = "text-gray-400"; }
+                else if (index === 2) { rankClass = "bg-orange-600/20 border border-orange-600/50"; rankTextClass = "text-orange-500"; }
+
+                return (
+                  <div key={index} className={`mt-2 flex items-center justify-between p-3 rounded transition-colors ${rankClass}`}>
+                    <div className="flex items-center space-x-3">
+                      <span className={`font-bold w-6 ${rankTextClass}`}>#{island.sira}</span>
+                      <img src={`https://mc-heads.net/avatar/${island.ada_lideri}`} alt={island.ada_lideri} className="w-8 h-8 rounded" />
+                      <div className="flex flex-col">
+                        <span className="text-white font-medium">{island.ada_adi}</span>
+                        <span className="text-xs text-zinc-500 truncate max-w-[120px]">{island.uyeler}</span>
+                      </div>
+                    </div>
+                    <span className={`font-bold ${rankTextClass}`}>{island.ada_seviyesi} Seviye</span>
+                  </div>
+                )
+              }) : <p className="text-zinc-500 text-sm">Veri bulunamadı</p>}
+            </div>
+          </div>
+
+          {/* En Çok Dinar */}
+          <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6" data-testid="top-dinar">
+            <div className="flex items-center space-x-3 mb-6">
+              <CircleDollarSign className="text-[#FDD500]" size={28} />
+              <h3 className="text-2xl font-bold uppercase text-white">En Çok Dinar</h3>
+            </div>
+            <div className="space-y-3">
+              {topDinar.length > 0 ? topDinar.map((user, index) => {
+                let rankClass = "bg-[#2A2A2A]";
+                let rankTextClass = "text-[#FDD500]";
+                if (index === 0) { rankClass = "bg-yellow-500/20 border border-yellow-500/50"; rankTextClass = "text-yellow-500"; }
+                else if (index === 1) { rankClass = "bg-gray-400/20 border border-gray-400/50"; rankTextClass = "text-gray-400"; }
+                else if (index === 2) { rankClass = "bg-orange-600/20 border border-orange-600/50"; rankTextClass = "text-orange-500"; }
+
+                return (
+                  <div key={index} className={`mt-2 flex items-center justify-between p-3 rounded transition-colors ${rankClass}`}>
+                    <div className="flex items-center space-x-3">
+                      <span className={`font-bold w-6 ${rankTextClass}`}>#{user.sira}</span>
+                      <img src={`https://mc-heads.net/avatar/${user.oyuncu}`} alt={user.oyuncu} className="w-8 h-8 rounded" />
+                      <span className="text-white font-medium">{user.oyuncu}</span>
+                    </div>
+                    <span className={`font-bold ${rankTextClass}`}>{user.dinar} Dinar</span>
+                  </div>
+                )
+              }) : <p className="text-zinc-500 text-sm">Veri bulunamadı</p>}
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* En Çok Kredi */}
           <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6" data-testid="top-credits">

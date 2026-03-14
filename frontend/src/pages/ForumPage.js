@@ -64,6 +64,12 @@ const ForumPage = () => {
                   <p className="text-sm text-zinc-400">Tüm kategorilerdeki konuları gör</p>
                 </div>
               </div>
+              <div className="flex flex-col items-end justify-center h-full">
+                <span className="text-[#FDD500] font-bold text-xl">
+                  {categories.reduce((acc, cat) => acc + (cat.konu_sayisi || 0), 0)}
+                </span>
+                <span className="text-zinc-500 text-xs uppercase tracking-wider">Konu</span>
+              </div>
             </div>
           </Link>
           {categories.map((category) => (

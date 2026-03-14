@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../App';
-import { Wallet, Plus, Clock, TrendingUp, CreditCard } from 'lucide-react';
+import { Wallet, Plus, Clock, TrendingUp, CreditCard, Package } from 'lucide-react';
 
 const CuzdanPage = () => {
   const { API, user } = useAuth();
@@ -99,17 +99,17 @@ const CuzdanPage = () => {
           </div>
         </div>
 
-        {/* Transaction History */}
-        <div className="bg-[#1E1E1E] border border-zinc-800 rounded-xl overflow-hidden">
-          <div className="p-6 border-b border-zinc-800">
+        {/* Transaction History - Tabs */}
+        <div className="bg-[#1E1E1E] border border-zinc-800 rounded-xl overflow-hidden mb-8">
+          <div className="p-6 border-b border-zinc-800 flex items-center justify-between">
             <h3 className="text-2xl font-bold uppercase text-white flex items-center space-x-3">
               <Clock size={24} className="text-[#FDD500]" />
-              <span>İşlem Geçmişi</span>
+              <span>İşlem Geçmişi (Yüklemeler)</span>
             </h3>
           </div>
           <div className="divide-y divide-zinc-800">
-            {transactions.length > 0 ? (
-              transactions.map((transaction, index) => (
+            {transactions.filter(t => t.tip === 'yukleme').length > 0 ? (
+              transactions.filter(t => t.tip === 'yukleme').map((transaction, index) => (
                 <div
                   key={index}
                   className="p-6 hover:bg-[#2A2A2A] transition-colors"
@@ -117,31 +117,17 @@ const CuzdanPage = () => {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
-                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                        transaction.tip === 'yukleme' ? 'bg-green-500/10' : 'bg-red-500/10'
-                      }`}>
-                        {transaction.tip === 'yukleme' ? (
-                          <TrendingUp className="text-green-500" size={24} />
-                        ) : (
-                          <CreditCard className="text-red-500" size={24} />
-                        )}
+                      <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-green-500/10">
+                        <TrendingUp className="text-green-500" size={24} />
                       </div>
                       <div>
-                        <p className="text-white font-bold">
-                          {transaction.tip === 'yukleme' ? 'Bakiye Yükleme' : (transaction.urun_adi || 'Satın Alma')}
-                        </p>
+                        <p className="text-white font-bold">Bakiye Yükleme</p>
                         <p className="text-sm text-zinc-500">{formatDate(transaction.tarih)}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className={`text-xl font-bold ${
-                        transaction.tip === 'yukleme' ? 'text-green-500' : 'text-red-500'
-                      }`}>
-                        {transaction.tip === 'yukleme' ? '+' : '-'}{transaction.tutar} {transaction.tip === 'yukleme' ? '₺' : 'Kredi'}
-                      </p>
-                      <p className="text-xs text-zinc-500 uppercase">
-                        {transaction.durum || 'Tamamlandı'}
-                      </p>
+                      <p className="text-xl font-bold text-green-500">+{transaction.tutar} ₺</p>
+                      <p className="text-xs text-zinc-500 uppercase">{transaction.durum || 'Tamamlandı'}</p>
                     </div>
                   </div>
                 </div>
