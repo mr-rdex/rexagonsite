@@ -36,6 +36,7 @@ const KayitPage = () => {
 
   return (
     <div className="min-h-screen pt-24 pb-16 px-4" data-testid="register-page">
+      <div className='kayitgiris-mc'></div>
       <div className="container mx-auto max-w-md">
         <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-8">
           <div className="text-center mb-8">

@@ -61,6 +61,7 @@ const HaberDetayPage = () => {
 
   return (
     <div className="min-h-screen pt-24 pb-16 px-4" data-testid="haber-detay-page">
+      <div className='haber-mc'></div>
       <div className="container mx-auto max-w-4xl">
         <Link to="/" className="inline-flex items-center text-zinc-400 hover:text-[#FDD500] mb-8 transition-colors group">
           <ArrowLeft size={20} className="mr-2 group-hover:-translate-x-1 transition-transform" />

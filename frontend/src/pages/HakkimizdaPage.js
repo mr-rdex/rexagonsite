@@ -86,6 +86,7 @@ const HakkimizdaPage = () => {
 
   return (
     <div className="min-h-screen pt-24 pb-16 px-4" data-testid="about-page">
+      <div className='hakkimizda-mc'></div>
       <div className="container mx-auto max-w-7xl">
         {/* Header */}
         <div className="text-center mb-16">

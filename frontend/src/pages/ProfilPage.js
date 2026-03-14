@@ -88,6 +88,7 @@ const ProfilPage = () => {
 
   return (
     <div className="min-h-screen" data-testid="profile-page">
+      <div className='profil-mc'></div>
       {profileUser.aktif_tema_ambiyans === 'kar' && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, pointerEvents: 'none' }}>
           <Snowfall snowflakeCount={150} style={{ width: '100%', height: '100%', position: 'absolute' }} />
@@ -115,7 +116,7 @@ const ProfilPage = () => {
           minHeight: '500px'
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-[#222222]"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-[#222222]"></div>
         <div className="relative container mx-auto max-w-7xl px-4 flex items-end pb-2" style={{ minHeight: '600px' }}>
           <div className="flex items-center space-x-5">
             <img

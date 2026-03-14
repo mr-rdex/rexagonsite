@@ -84,6 +84,7 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen" data-testid="home-page">
+      <div className='anasayfa-mc'></div>
       {/* Hero Section */}
       <div className="relative mb-16 overflow-hidden rounded-xl" style={{
         backgroundImage: 'url(/images/manzara.jpg)',
