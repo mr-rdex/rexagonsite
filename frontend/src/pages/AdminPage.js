@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../App';
-import { Users, Package, Newspaper, Trash2, Edit, Plus, AlertCircle, Palette, X, Settings, Image as ImageIcon, MessageSquare, Lock, Unlock, CheckCircle } from 'lucide-react';
+import { Users, Package, Newspaper, Trash2, Edit, Plus, AlertCircle, Palette, X, Settings, Image as ImageIcon, MessageSquare, Lock, Unlock, CheckCircle, Terminal } from 'lucide-react';
 
 const AdminPage = () => {
   const { API } = useAuth();
@@ -17,6 +17,8 @@ const AdminPage = () => {
   const [newAmbiance, setNewAmbiance] = useState({ isim: '', id: '', tip: 'yok' });
   const [gallery, setGallery] = useState([]);
   const [forumTopics, setForumTopics] = useState([]);
+  const [rconCommand, setRconCommand] = useState('');
+  const [rconResponse, setRconResponse] = useState('');
 
   // Create forms
   const [showNewItem, setShowNewItem] = useState(false);
@@ -25,7 +27,7 @@ const AdminPage = () => {
   const [marketCategories, setMarketCategories] = useState([]);
   const [showNewNews, setShowNewNews] = useState(false);
   const [showNewTheme, setShowNewTheme] = useState(false);
-  const [newItem, setNewItem] = useState({ isim: '', aciklama: '', detayli_bilgi: '', fiyat: 0, kategori: "VIP'ler", stok: 100, gorsel: '', indirim: 0 });
+  const [newItem, setNewItem] = useState({ isim: '', aciklama: '', detayli_bilgi: '', fiyat: 0, kategori: "VIP'ler", stok: 100, gorsel: '', indirim: 0, satin_alim_komutu: '' });
   const [newNews, setNewNews] = useState({ baslik: '', icerik: '', gorsel_url: '' });
   const [newTheme, setNewTheme] = useState({ isim: '', gorsel_url: '', fiyat: 0, ambiyans: 'yok' });
 
@@ -167,7 +169,7 @@ const AdminPage = () => {
   };
   const handleCreateItem = async (e) => {
     e.preventDefault();
-    try { await axios.post(`${API}/admin/market/urun`, newItem, { headers }); setShowNewItem(false); setNewItem({ isim: '', aciklama: '', detayli_bilgi: '', fiyat: 0, kategori: marketCategories[0]?.isim || "VIP'ler", stok: 100, gorsel: '', indirim: 0 }); fetchMarketItems(); } catch(e) { alert('Ürün oluşturulamadı'); }
+    try { await axios.post(`${API}/admin/market/urun`, newItem, { headers }); setShowNewItem(false); setNewItem({ isim: '', aciklama: '', detayli_bilgi: '', fiyat: 0, kategori: marketCategories[0]?.isim || "VIP'ler", stok: 100, gorsel: '', indirim: 0, satin_alim_komutu: '' }); fetchMarketItems(); } catch(e) { alert('Ürün oluşturulamadı'); }
   };
   const handleUpdateItem = async (e) => {
     e.preventDefault();
@@ -199,6 +201,17 @@ const AdminPage = () => {
       }
     } catch (err) {
       alert('Görsel yüklenirken hata oluştu');
+    }
+  };
+
+  const handleSendRcon = async (e) => {
+    e.preventDefault();
+    if (!rconCommand.trim()) return;
+    try {
+      const response = await axios.post(`${API}/admin/rcon/send`, { command: rconCommand }, { headers });
+      setRconResponse(response.data.response || 'Komut gönderildi, ancak yanıt boş.');
+    } catch (error) {
+      setRconResponse(error.response?.data?.detail || 'Komut gönderilirken hata oluştu.');
     }
   };
 
@@ -249,7 +262,8 @@ const AdminPage = () => {
     { id: 'themes', label: 'Temalar', icon: Palette },
     { id: 'settings', label: 'Site Ayarları', icon: Settings },
     { id: 'gallery', label: 'Galeri', icon: ImageIcon },
-    { id: 'forum', label: 'Forum', icon: MessageSquare }
+    { id: 'forum', label: 'Forum', icon: MessageSquare },
+    { id: 'rcon', label: 'RCON Konsolu', icon: Terminal }
   ];
 
   const inputCls = "w-full bg-[#2A2A2A] border border-zinc-700 text-white rounded-md px-4 py-3 focus:outline-none focus:border-[#FDD500] focus:ring-1 focus:ring-[#FDD500] transition-all";
@@ -481,6 +495,42 @@ const AdminPage = () => {
                       </div>
                     </div>
                   </div>
+                </div>
+              </div>
+            )}
+
+                        {/* ===== RCON TAB ===== */}
+            {activeTab === 'rcon' && (
+              <div data-testid="rcon-section">
+                <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6">
+                  <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                    <Terminal size={24} className="text-[#FDD500]" />
+                    Sunucuya Komut Gönder
+                  </h3>
+                  <form onSubmit={handleSendRcon} className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-zinc-400 mb-2">Minecraft RCON Komutu</label>
+                      <input
+                        type="text"
+                        className={inputCls}
+                        value={rconCommand}
+                        onChange={(e) => setRconCommand(e.target.value)}
+                        placeholder="Örn: say Merhaba Dünya veya give Notch diamond 64"
+                        required
+                      />
+                    </div>
+                    <button type="submit" className="bg-[#FDD500] text-black font-bold uppercase tracking-wide px-6 py-3 rounded-lg hover:bg-[#E6C200] transition-all btn-3d flex items-center gap-2">
+                      <Terminal size={20} />
+                      Gönder
+                    </button>
+                  </form>
+
+                  {rconResponse && (
+                    <div className="mt-6 p-4 bg-black border border-zinc-700 rounded-lg">
+                      <h4 className="text-sm font-bold text-zinc-400 mb-2">Sunucu Yanıtı:</h4>
+                      <pre className="text-green-400 font-mono whitespace-pre-wrap">{rconResponse}</pre>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -728,6 +778,7 @@ const ItemForm = ({ item, setItem, onSubmit, onCancel, inputCls, title, categori
       <div><label className="block text-sm font-medium text-zinc-400 mb-2">İndirim (%)</label><input type="number" min="0" max="100" className={inputCls} value={item.indirim} onChange={(e) => setItem({...item, indirim: parseInt(e.target.value) || 0})} /></div>
       <div className="md:col-span-2"><label className="block text-sm font-medium text-zinc-400 mb-2">Kısa Açıklama</label><textarea required rows={2} className={inputCls} value={item.aciklama} onChange={(e) => setItem({...item, aciklama: e.target.value})} /></div>
       <div className="md:col-span-2"><label className="block text-sm font-medium text-zinc-400 mb-2">Detaylı Bilgi</label><textarea rows={4} className={inputCls} value={item.detayli_bilgi || ''} onChange={(e) => setItem({...item, detayli_bilgi: e.target.value})} /></div>
+      <div className="md:col-span-2"><label className="block text-sm font-medium text-zinc-400 mb-2">Satın Alım Komutu</label><input type="text" className={inputCls} value={item.satin_alim_komutu || ''} onChange={(e) => setItem({...item, satin_alim_komutu: e.target.value})} placeholder="Örn: give {username} diamond 64" /><p className="text-xs text-zinc-500 mt-1">Bu ürün satın alındığında Minecraft sunucusunda çalıştırılacak komut. Oyuncu adı için {'{username}'} kullanın.</p></div>
       <div className="md:col-span-2"><label className="block text-sm font-medium text-zinc-400 mb-2">Görsel URL (Opsiyonel)</label><input type="url" className={inputCls} value={item.gorsel || ''} onChange={(e) => setItem({...item, gorsel: e.target.value})} placeholder="https://example.com/image.png" /><p className="text-xs text-zinc-500 mt-1">Önerilen boyut: 300x300 piksel</p></div>
       <div className="md:col-span-2 flex space-x-4">
         <button type="submit" className="bg-[#FDD500] text-black font-bold uppercase tracking-wide px-6 py-3 rounded-lg hover:bg-[#E6C200] transition-all btn-3d">Kaydet</button>

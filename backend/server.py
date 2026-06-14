@@ -6,6 +6,8 @@ from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
+import asyncio
+from rcon.source import rcon
 from pydantic import BaseModel, Field, ConfigDict, EmailStr
 from typing import List, Optional
 from datetime import datetime, timezone, timedelta
@@ -21,14 +23,34 @@ ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
 # MongoDB connection
-mongo_url = os.environ['MONGO_URL']
+mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
 client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+db = client[os.environ.get('DB_NAME', 'minecraft_server')]
 
 # JWT Configuration
 SECRET_KEY = os.getenv("JWT_SECRET_KEY", "minecraft-server-secret-key-change-in-production")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 10080  # 7 days
+
+# RCON Ayarları
+RCON_HOST = os.getenv("RCON_HOST", "127.0.0.1")
+RCON_PORT = int(os.getenv("RCON_PORT", 25575))
+RCON_PASSWORD = os.getenv("RCON_PASSWORD", "password") # Provide default or empty
+
+async def send_rcon_command(command: str):
+    """Minecraft sunucusuna RCON üzerinden komut gönderir."""
+    try:
+        response = await rcon(
+            command,
+            host=RCON_HOST,
+            port=RCON_PORT,
+            passwd=RCON_PASSWORD
+        )
+        logging.info(f"RCON Command executed: '{command}'. Response: {response}")
+        return response
+    except Exception as e:
+        logging.error(f"RCON Error executing '{command}': {e}")
+        return str(e)
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__ident="2b")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/giris")
@@ -67,6 +89,7 @@ class UserResponse(BaseModel):
     acik_temalar: List[str] = []
     aktif_tema_id: Optional[str] = None
     aktif_tema_gorsel: Optional[str] = None
+    aktif_tema_ambiyans: Optional[str] = "yok"
     biyografi: Optional[str] = None
     discord: Optional[str] = None
     instagram: Optional[str] = None
@@ -96,6 +119,7 @@ class MarketUrun(BaseModel):
     gorsel: Optional[str] = None
     indirim: Optional[float] = 0
     detayli_bilgi: Optional[str] = None
+    satin_alim_komutu: Optional[str] = None
 
 class Haber(BaseModel):
     baslik: str
@@ -128,6 +152,9 @@ class SiteSettings(BaseModel):
 class SifreDegistir(BaseModel):
     eski_sifre: str
     yeni_sifre: str
+
+class RconCommand(BaseModel):
+    command: str
 
 class BiyografiGuncelle(BaseModel):
     biyografi: Optional[str] = None
@@ -193,7 +220,6 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     user.setdefault("acik_temalar", [])
     user.setdefault("aktif_tema_id", None)
     user.setdefault("aktif_tema_gorsel", None)
-    user.setdefault("aktif_tema_ambiyans", "yok")
     user.setdefault("aktif_tema_ambiyans", "yok")
     user.setdefault("biyografi", None)
     user.setdefault("ada_seviyesi", 0)
@@ -376,6 +402,7 @@ async def get_user_profile(kullanici_adi: str):
     user.setdefault("acik_temalar", [])
     user.setdefault("aktif_tema_id", None)
     user.setdefault("aktif_tema_gorsel", None)
+    user.setdefault("aktif_tema_ambiyans", "yok")
     user.setdefault("biyografi", None)
     user.setdefault("ada_seviyesi", 0)
     user.setdefault("dinar", 0)
@@ -766,14 +793,19 @@ async def purchase_item(urun_id: str, current_user: dict = Depends(get_current_u
     }
     await db.purchases.insert_one(purchase_doc)
     
-    # TODO: Send command to Minecraft server
-    # minecraft_command = f"give {current_user['kullanici_adi']} {item['isim']}"
-    # send_to_minecraft_server(minecraft_command)
-    
+    minecraft_command = None
+    if item.get("satin_alim_komutu"):
+        raw_command = item["satin_alim_komutu"]
+        # '{username}' değişkenini kullanıcının adıyla değiştir
+        minecraft_command = raw_command.replace("{username}", current_user["kullanici_adi"])
+
+        # RCON üzerinden sunucuya gönder
+        asyncio.create_task(send_rcon_command(minecraft_command))
+
     return {
         "message": "Satın alma başarılı",
         "yeni_kredi": current_user["kredi"] - item["fiyat"],
-        "minecraft_command": f"give {current_user['kullanici_adi']} minecraft:diamond 1"  # Placeholder
+        "minecraft_command": minecraft_command or "Komut ayarlanmamış"
     }
 
 # ============ NEWS ROUTES ============
@@ -933,10 +965,16 @@ async def create_market_item(urun: MarketUrun, admin: dict = Depends(get_admin_u
         "gorsel": urun.gorsel,
         "indirim": urun.indirim if urun.indirim else 0,
         "detayli_bilgi": urun.detayli_bilgi,
+        "satin_alim_komutu": urun.satin_alim_komutu,
         "olusturulma_tarihi": datetime.now(timezone.utc).isoformat()
     }
     await db.market_items.insert_one(urun_doc)
     return {"message": "Ürün oluşturuldu", "id": urun_id}
+
+@api_router.post("/admin/rcon/send")
+async def admin_send_rcon(rcon_data: RconCommand, admin: dict = Depends(get_admin_user)):
+    response = await send_rcon_command(rcon_data.command)
+    return {"message": "Komut gönderildi", "response": response}
 
 @api_router.put("/admin/market/urun/{urun_id}")
 async def update_market_item(urun_id: str, urun: MarketUrun, admin: dict = Depends(get_admin_user)):
