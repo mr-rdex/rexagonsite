@@ -186,7 +186,7 @@ const Navigation = () => {
               <>
                 <Link
                   to="/giris"
-                  className="text-zinc-400 px-5 hover:text-white font-medium transition-colors uppercase tracking-wider text-sm shadow-lg"
+                  className="text-zinc-400 px-5 hover:text-white font-medium transition-colors uppercase tracking-wider text-sm"
                   data-testid="login-link"
                 >
                   Giriş Yap

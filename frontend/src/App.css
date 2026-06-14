@@ -142,7 +142,7 @@
     width: 100%;
     height: 100%;
     z-index: -2; /* Diğer her şeyin en arkasında olması için */
-    background-image: url(''); 
+    background-image: url('https://minecraft.wiki/images/BlockSprite_yellow-wool.png?33fc5'); 
     background-repeat: repeat;
     background-size: 64px;
     image-rendering: pixelated;

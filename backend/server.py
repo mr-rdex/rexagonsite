@@ -14,6 +14,7 @@ from passlib.context import CryptContext
 import uuid
 import sqlite3
 import shutil
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import UploadFile, File
 
 ROOT_DIR = Path(__file__).parent
@@ -29,7 +30,7 @@ SECRET_KEY = os.getenv("JWT_SECRET_KEY", "minecraft-server-secret-key-change-in-
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 10080  # 7 days
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__ident="2b")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/giris")
 
 # Create the main app
@@ -56,7 +57,7 @@ class Token(BaseModel):
 class UserResponse(BaseModel):
     id: str
     kullanici_adi: str
-    email: str
+    email: Optional[str]
     kredi: float
     profil_arka_plani: Optional[str] = None
     rol: str
@@ -135,8 +136,32 @@ class BiyografiGuncelle(BaseModel):
 
 # ============ AUTH HELPERS ============
 
+import hashlib
+
 def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
+    # 1. Minecraft AuthMe Formatı Kontrolü ($SHA$salt$hash)
+    if hashed_password.startswith("$SHA$"):
+        try:
+            parts = hashed_password.split("$")
+            if len(parts) != 4: return False
+            
+            salt = parts[2]
+            db_hash = parts[3]
+            
+            # AuthMe Algoritması: SHA256( SHA256(şifre) + salt )
+            first_hash = hashlib.sha256(plain_password.encode()).hexdigest()
+            final_hash = hashlib.sha256((first_hash + salt).encode()).hexdigest()
+            
+            return final_hash == db_hash
+        except Exception as e:
+            print(f"Minecraft şifre çözme hatası: {e}")
+            return False
+
+    # 2. Eğer Minecraft formatı değilse (Bcrypt vb.), normal kütüphaneyi kullan
+    try:
+        return pwd_context.verify(plain_password, hashed_password)
+    except Exception:
+        return False
 
 def get_password_hash(password):
     return pwd_context.hash(password)
@@ -1079,7 +1104,6 @@ async def get_all_market_items():
     return items
 
 # Include router
-app.include_router(api_router)
 
 @app.get("/")
 async def root():
@@ -1191,3 +1215,6 @@ async def get_top_island_level():
         if "sira" not in island:
             island["sira"] = 0
     return islands
+
+    
+app.include_router(api_router)
