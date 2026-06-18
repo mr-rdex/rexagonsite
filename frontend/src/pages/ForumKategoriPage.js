@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../App';
-import { ArrowLeft, MessageSquare, Clock, Plus, Heart } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Clock, Plus, Heart, Image as ImageIcon } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const ForumKategoriPage = () => {
   const { kategori } = useParams();
@@ -45,8 +46,40 @@ const ForumKategoriPage = () => {
       setNewTopic({ baslik: '', icerik: '' });
       setShowNewTopic(false);
       fetchTopics();
+      toast.success("Konu başarıyla oluşturuldu.");
     } catch (error) {
-      console.error('Konu oluşturulamadı:', error);
+      toast.error('Konu oluşturulamadı.');
+    }
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 3 * 1024 * 1024) {
+      toast.error("Dosya boyutu 3MB'dan büyük olamaz!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const token = localStorage.getItem('token');
+    const toastId = toast.loading('Resim yükleniyor...');
+
+    try {
+      const response = await axios.post(`${API}/forum/upload-image`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      const imageUrl = response.data.gorsel_url;
+      const imageMarkdown = `![Resim](${imageUrl})`;
+      setNewTopic(prev => ({ ...prev, icerik: prev.icerik ? prev.icerik + '\n' + imageMarkdown : imageMarkdown }));
+      toast.success('Resim yüklendi', { id: toastId });
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Resim yüklenemedi', { id: toastId });
     }
   };
 
@@ -111,12 +144,19 @@ const ForumKategoriPage = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-zinc-400 mb-2">İçerik</label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-zinc-400">İçerik</label>
+                  <label className="text-sm font-medium text-[#FDD500] cursor-pointer hover:text-[#E6C200] transition-colors flex items-center space-x-1">
+                    <ImageIcon size={16} />
+                    <span>Resim Ekle (Max 3MB)</span>
+                    <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                  </label>
+                </div>
                 <textarea
                   required
                   rows={6}
                   className="w-full bg-[#2A2A2A] border border-zinc-700 text-white rounded-md px-4 py-3 focus:outline-none focus:border-[#FDD500] focus:ring-1 focus:ring-[#FDD500] transition-all"
-                  placeholder="Konu içeriği..."
+                  placeholder="Konu içeriği... Resim eklemek için 'Resim Ekle' butonunu kullanabilirsiniz."
                   value={newTopic.icerik}
                   onChange={(e) => setNewTopic({ ...newTopic, icerik: e.target.value })}
                   data-testid="topic-content-input"

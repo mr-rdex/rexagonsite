@@ -18,6 +18,8 @@ import sqlite3
 import shutil
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import UploadFile, File
+from PIL import Image
+import io
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -161,6 +163,11 @@ class BiyografiGuncelle(BaseModel):
     discord: Optional[str] = None
     instagram: Optional[str] = None
 
+class WikiPageCreate(BaseModel):
+    slug: str
+    baslik: str
+    icerik: str
+
 # ============ AUTH HELPERS ============
 
 import hashlib
@@ -277,6 +284,39 @@ async def update_settings(settings: SiteSettings, admin: dict = Depends(get_admi
         upsert=True
     )
     return {"message": "Site ayarları güncellendi"}
+
+# ============ WIKI ROUTES ============
+
+@api_router.get("/wiki/{slug}")
+async def get_wiki_page(slug: str):
+    page = await db.wiki_pages.find_one({"slug": slug}, {"_id": 0})
+    if not page:
+        raise HTTPException(status_code=404, detail="Wiki sayfası bulunamadı")
+    return page
+
+@api_router.get("/admin/wiki")
+async def get_all_wiki_pages(admin: dict = Depends(get_admin_user)):
+    pages = await db.wiki_pages.find({}, {"_id": 0}).to_list(1000)
+    return pages
+
+@api_router.post("/admin/wiki")
+async def create_or_update_wiki_page(page_data: WikiPageCreate, admin: dict = Depends(get_admin_user)):
+    doc = {
+        "slug": page_data.slug,
+        "baslik": page_data.baslik,
+        "icerik": page_data.icerik,
+        "son_guncelleme": datetime.now(timezone.utc).isoformat(),
+        "guncelleyen": admin["kullanici_adi"]
+    }
+    await db.wiki_pages.update_one({"slug": page_data.slug}, {"$set": doc}, upsert=True)
+    return {"message": "Wiki sayfası kaydedildi", "slug": page_data.slug}
+
+@api_router.delete("/admin/wiki/{slug}")
+async def delete_wiki_page(slug: str, admin: dict = Depends(get_admin_user)):
+    result = await db.wiki_pages.delete_one({"slug": slug})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Sayfa bulunamadı")
+    return {"message": "Wiki sayfası silindi"}
 
 @api_router.get("/admin/gallery")
 async def get_gallery(admin: dict = Depends(get_admin_user)):
@@ -615,6 +655,43 @@ async def get_forum_topic(konu_id: str):
     
     return {"konu": topic[0], "cevaplar": replies}
 
+@api_router.post("/forum/upload-image")
+async def upload_forum_image(file: UploadFile = File(...), current_user: dict = Depends(get_current_user)):
+    # Yüklenen dosya boyutu kontrolü (3MB)
+    file.file.seek(0, 2)
+    file_size = file.file.tell()
+    file.file.seek(0)
+
+    if file_size > 3 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="Dosya boyutu 3MB'dan büyük olamaz")
+
+    # Resim Sıkıştırma (Pillow)
+    try:
+        img = Image.open(file.file)
+        if img.mode in ("RGBA", "P"):
+            img = img.convert("RGB")
+
+        # Max resolution restriction to save space
+        img.thumbnail((1280, 1280), Image.Resampling.LANCZOS)
+
+        output = io.BytesBytesIO() if False else io.BytesIO()
+        img.save(output, format="JPEG", quality=80, optimize=True)
+        compressed_data = output.getvalue()
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Geçersiz resim formatı: {e}")
+
+    # Dizin oluşturma
+    forum_images_dir = ROOT_DIR.parent / "frontend" / "public" / "images" / "forum"
+    forum_images_dir.mkdir(parents=True, exist_ok=True)
+
+    unique_filename = f"{uuid.uuid4().hex}.jpg"
+    file_path = forum_images_dir / unique_filename
+
+    with open(file_path, "wb") as f:
+        f.write(compressed_data)
+
+    return {"gorsel_url": f"/images/forum/{unique_filename}"}
+
 @api_router.post("/forum/konu")
 async def create_forum_topic(konu: ForumKonu, current_user: dict = Depends(get_current_user)):
     konu_id = str(uuid.uuid4())
@@ -661,10 +738,31 @@ async def create_forum_reply(konu_id: str, cevap: ForumCevap, current_user: dict
         "konu_id": konu_id,
         "icerik": cevap.icerik,
         "yazar_id": current_user["id"],
-        "tarih": datetime.now(timezone.utc).isoformat()
+        "tarih": datetime.now(timezone.utc).isoformat(),
+        "begenenler": []
     }
     await db.forum_replies.insert_one(cevap_doc)
     return {"message": "Cevap eklendi", "id": cevap_id}
+
+@api_router.post("/forum/cevap/{cevap_id}/begen")
+async def like_forum_reply(cevap_id: str, current_user: dict = Depends(get_current_user)):
+    reply = await db.forum_replies.find_one({"id": cevap_id})
+    if not reply:
+        raise HTTPException(status_code=404, detail="Cevap bulunamadı")
+
+    begenenler = reply.get("begenenler", [])
+    if current_user["id"] in begenenler:
+        begenenler.remove(current_user["id"])
+        action = "unliked"
+    else:
+        begenenler.append(current_user["id"])
+        action = "liked"
+
+    await db.forum_replies.update_one(
+        {"id": cevap_id},
+        {"$set": {"begenenler": begenenler}}
+    )
+    return {"message": "İşlem başarılı", "action": action, "likes": len(begenenler)}
 
 @api_router.get("/stats")
 async def get_server_stats():

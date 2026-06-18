@@ -17,6 +17,7 @@ import AdminPage from './pages/AdminPage';
 import CuzdanPage from './pages/CuzdanPage';
 import HakkimizdaPage from './pages/HakkimizdaPage';
 import HaberDetayPage from './pages/HaberDetayPage';
+import WikiPage from './pages/WikiPage';
 import Snowfall from 'react-snowfall';
 import { useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
@@ -128,6 +129,7 @@ function App() {
             <Route path="/siralama" element={<SiralamaPage />} />
             <Route path="/hakkimizda" element={<HakkimizdaPage />} />
             <Route path="/haber/:id" element={<HaberDetayPage />} />
+            <Route path="/wiki/:slug" element={<WikiPage />} />
             <Route path="/admin" element={user?.rol === 'admin' ? <AdminPage /> : <Navigate to="/" />} />
           </Routes>
           <Footer />

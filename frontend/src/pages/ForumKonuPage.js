@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../App';
-import { ArrowLeft, Send, Clock, Lock, CheckCircle, Trash2, Heart } from 'lucide-react';
+import { ArrowLeft, Send, Clock, Lock, CheckCircle, Trash2, Heart, Image as ImageIcon } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const ForumKonuPage = () => {
   const { id } = useParams();
@@ -43,8 +44,40 @@ const ForumKonuPage = () => {
       );
       setNewReply('');
       fetchTopic();
+      toast.success("Yanıt eklendi.");
     } catch (error) {
-      console.error('Cevap eklenemedi:', error);
+      toast.error('Cevap eklenemedi.');
+    }
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 3 * 1024 * 1024) {
+      toast.error("Dosya boyutu 3MB'dan büyük olamaz!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const token = localStorage.getItem('token');
+    const toastId = toast.loading('Resim yükleniyor...');
+
+    try {
+      const response = await axios.post(`${API}/forum/upload-image`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      const imageUrl = response.data.gorsel_url;
+      const imageMarkdown = `![Resim](${imageUrl})`;
+      setNewReply(prev => prev ? prev + '\n' + imageMarkdown : imageMarkdown);
+      toast.success('Resim yüklendi', { id: toastId });
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Resim yüklenemedi', { id: toastId });
     }
   };
 
@@ -75,6 +108,27 @@ const ForumKonuPage = () => {
     } catch (error) {
       console.error('Beğeni işlemi başarısız', error);
     }
+  };
+
+  const handleReplyLike = async (cevapId) => {
+    if (!user) {
+      navigate('/giris');
+      return;
+    }
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(`${API}/forum/cevap/${cevapId}/begen`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      fetchTopic();
+    } catch (error) {
+      console.error('Beğeni işlemi başarısız', error);
+    }
+  };
+
+  const handleQuote = (yazarAdi, icerik) => {
+    setNewReply(`> ${yazarAdi} dedi ki:\n> ${icerik}\n\n`);
+    document.getElementById('reply-textarea')?.focus();
   };
 
   const formatDate = (dateString) => {
@@ -187,6 +241,21 @@ const ForumKonuPage = () => {
                     </div>
                   </div>
                   <div className="text-zinc-300 leading-relaxed whitespace-pre-wrap">{cevap.icerik}</div>
+                  <div className="flex items-center space-x-4 mt-4 text-sm">
+                    <button
+                      onClick={() => handleReplyLike(cevap.id)}
+                      className={`flex items-center space-x-1 ${user && (cevap.begenenler || []).includes(user.id) ? 'text-red-500' : 'text-zinc-400 hover:text-red-400'}`}
+                    >
+                      <Heart size={16} className={user && (cevap.begenenler || []).includes(user.id) ? 'fill-current' : ''} />
+                      <span>{(cevap.begenenler || []).length}</span>
+                    </button>
+                    {!konu.kapali && (
+                      <button onClick={() => handleQuote(cevap.yazar_adi, cevap.icerik)} className="text-zinc-400 hover:text-[#FDD500] flex items-center space-x-1">
+                        <MessageSquare size={16} />
+                        <span>Alıntıla</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -201,13 +270,21 @@ const ForumKonuPage = () => {
           </div>
         ) : user ? (
           <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6" data-testid="reply-form">
-            <h3 className="text-xl font-bold text-white mb-4">Cevap Yaz</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-white">Cevap Yaz</h3>
+              <label className="text-sm font-medium text-[#FDD500] cursor-pointer hover:text-[#E6C200] transition-colors flex items-center space-x-1">
+                <ImageIcon size={16} />
+                <span>Resim Ekle (Max 3MB)</span>
+                <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+              </label>
+            </div>
             <form onSubmit={handleReply} className="space-y-4">
               <textarea
+                id="reply-textarea"
                 required
                 rows={4}
                 className="w-full bg-[#2A2A2A] border border-zinc-700 text-white rounded-md px-4 py-3 focus:outline-none focus:border-[#FDD500] focus:ring-1 focus:ring-[#FDD500] transition-all"
-                placeholder="Cevabınızı yazın..."
+                placeholder="Cevabınızı yazın... Resim eklemek için 'Resim Ekle' butonunu kullanabilirsiniz."
                 value={newReply}
                 onChange={(e) => setNewReply(e.target.value)}
                 data-testid="reply-input"
