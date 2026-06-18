@@ -1,35 +1,32 @@
 import React from 'react';
-import { Shield, Wrench, Users, Zap, Database, Lock, MessageCircle, ShoppingBag } from 'lucide-react';
+import { 
+  Shield, Wrench, Users, Zap, Database, Lock, MessageCircle, ShoppingBag, 
+  PackagePlus, Swords, Bot, Dices, Sparkles, Flame, Landmark, FlaskConical, 
+  Hexagon, VenetianMask, Hammer, Fish 
+} from 'lucide-react';
 
 const HakkimizdaPage = () => {
   const yetkililer = [
     {
       isim: 'rdex',
       yetki: 'Yönetici',
-      gorev: 'Sunucu Sahibi & Genel Yönetim',
+      gorev: 'Teknik Yönetim',
       avatar: 'byrdex_',
       renk: 'from-red-500 to-orange-500'
     },
     {
       isim: 'Nesh',
       yetki: 'Yönetici',
-      gorev: 'Teknik Yönetim & Geliştirme',
+      gorev: 'Teknik Geliştirme',
       avatar: 'NeshxD_',
       renk: 'from-red-500 to-orange-500'
     },
     {
-      isim: 'SupportHero',
+      isim: 'qwzoen',
       yetki: 'Moderatör',
       gorev: 'Forum & Destek Yönetimi',
-      avatar: 'SupportHero',
+      avatar: 'qwzoen',
       renk: 'from-purple-500 to-pink-500'
-    },
-    {
-      isim: 'HelperPro',
-      yetki: 'Moderatör',
-      gorev: 'Moderasyon & Oyuncu Desteği',
-      avatar: 'HelperPro',
-      renk: 'from-blue-500 to-cyan-500'
     }
   ];
 
@@ -39,18 +36,6 @@ const HakkimizdaPage = () => {
       baslik: 'Anti-Cheat Sistemi',
       aciklama: 'Gelişmiş anti-cheat sistemi ile hilecilere karşı 7/24 koruma.',
       renk: 'text-red-500'
-    },
-    {
-      icon: Wrench,
-      baslik: 'Özel Plugin Sistemi',
-      aciklama: 'Sunucumuza özel geliştirilen unique pluginler ve sistemler.',
-      renk: 'text-[#FDD500]'
-    },
-    {
-      icon: Users,
-      baslik: 'Topluluk Sistemi',
-      aciklama: 'Forum, clan sistemi ve sosyal etkileşim özellikleri.',
-      renk: 'text-blue-500'
     },
     {
       icon: Zap,
@@ -65,22 +50,82 @@ const HakkimizdaPage = () => {
       renk: 'text-green-500'
     },
     {
-      icon: Lock,
-      baslik: 'Hesap Güvenliği',
-      aciklama: '2FA ve gelişmiş güvenlik önlemleri ile hesap koruması.',
-      renk: 'text-orange-500'
-    },
-    {
       icon: MessageCircle,
       baslik: 'Destek Sistemi',
       aciklama: '7/24 aktif destek ekibi ve ticket sistemi.',
       renk: 'text-cyan-500'
     },
     {
-      icon: ShoppingBag,
-      baslik: 'Market Sistemi',
-      aciklama: 'Güvenli ve kolay kullanımlı market sistemi.',
-      renk: 'text-pink-500'
+      icon: PackagePlus,
+      baslik: 'Sipariş Sistemi',
+      aciklama: 'İhtiyacın olan eşyaları kolayca sipariş verebileceğin sistem.',
+      renk: 'text-emerald-400'
+    },
+    {
+      icon: Swords,
+      baslik: 'Epik Bosslar',
+      aciklama: 'Alışılmışın dışında, zorlu ve benzersiz boss savaşları.',
+      renk: 'text-red-600'
+    },
+    {
+      icon: Bot,
+      baslik: 'Minyonlar',
+      aciklama: 'Senin yerine çalışan ve kaynak toplayan sadık yardımcılar.',
+      renk: 'text-amber-500'
+    },
+    {
+      icon: Dices,
+      baslik: 'Şanslı Tüccar',
+      aciklama: 'Para karşılığı çark çevirerek özel büyüler ve zırh süslemeleri kazan.',
+      renk: 'text-fuchsia-500'
+    },
+    {
+      icon: Sparkles,
+      baslik: 'Özel Büyüler',
+      aciklama: 'Oyunun orijinalinde bulunmayan sıradışı ve güçlü büyüler.',
+      renk: 'text-violet-400'
+    },
+    {
+      icon: Flame,
+      baslik: 'Sıradışı Etkinlikler',
+      aciklama: 'Nether, End ve Balıkçılık gibi düzenli ve heyecanlı etkinlikler.',
+      renk: 'text-orange-400'
+    },
+    {
+      icon: Landmark,
+      baslik: 'Banka Sistemi',
+      aciklama: 'Faiz kazanabileceğin ve hesap seviyeni yükseltebileceğin bankacılık.',
+      renk: 'text-emerald-500'
+    },
+    {
+      icon: FlaskConical,
+      baslik: 'Cadı Sistemi',
+      aciklama: 'Tecrübe puanlarını şişeleme ve paralarını çek defterine dönüştürme.',
+      renk: 'text-purple-400'
+    },
+    {
+      icon: Hexagon,
+      baslik: 'Arıcılık Sistemi',
+      aciklama: 'Özel panel üzerinden kolayca yönetilebilir, toplanabilir arıcılık.',
+      renk: 'text-yellow-400'
+    },
+    {
+      icon: VenetianMask,
+      baslik: 'Karaborsa',
+      aciklama: 'Belirli zamanlarda gelen sınırlı stoklarla nadir eşyalar satan tüccar.',
+      renk: 'text-zinc-400'
+    },
+    {
+      icon: Hammer,
+      baslik: 'Demirci Sistemi',
+      aciklama: 'Kitap, para ve tecrübe puanı ile eşyalarını bir üst seviyeye yükselt.',
+      renk: 'text-stone-400'
+    },
+    {
+      icon: Fish,
+      baslik: 'Gelişmiş Balıkçılık',
+      aciklama: 'Farklı nadirlik, tür ve uzunluklarda balıklar tutabileceğin gelişmiş sistem.',
+      renk: 'text-blue-400'
     }
   ];
 
@@ -122,7 +167,7 @@ const HakkimizdaPage = () => {
           <h2 className="minecraft-font text-4xl md:text-5xl font-black uppercase text-white mb-12 text-center">
             Yetkili Kadromuz
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {yetkililer.map((yetkili, index) => (
               <div
                 key={index}
@@ -172,15 +217,11 @@ const HakkimizdaPage = () => {
         </div>
 
         {/* İstatistikler */}
-        <div className="bg-gradient-to-r from-[#FDD500]/10 to-transparent border border-[#FDD500]/30 rounded-xl p-12">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+        <div className="bg-gradient-to-r from-[#FDD500]/15 to-transparent border border-[#FDD500]/30 rounded-xl p-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
             <div>
               <p className="text-5xl font-black text-[#FDD500] mb-2">4+</p>
               <p className="text-zinc-400 uppercase tracking-wider text-sm">Yıl Tecrübe</p>
-            </div>
-            <div>
-              <p className="text-5xl font-black text-[#FDD500] mb-2">50K+</p>
-              <p className="text-zinc-400 uppercase tracking-wider text-sm">Kayıtlı Üye</p>
             </div>
             <div>
               <p className="text-5xl font-black text-[#FDD500] mb-2">7/24</p>

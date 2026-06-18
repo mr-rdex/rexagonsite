@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import axios from 'axios';
 import { useAuth } from '../App';
 import { FaDiscord, FaInstagram, FaYoutube } from 'react-icons/fa';
-import { FaEnvelope } from 'react-icons/fa6'; // Yeni X logosu burada
 
 const Footer = () => {
   const { API, user } = useAuth();
   const [showPrivacy, setShowPrivacy] = useState(false);
+  const [showSelling, setShowSelling] = useState(false);
+  const [showRefund, setShowRefund] = useState(false); // YENİ STATE EKLENDİ
   const [showReport, setShowReport] = useState(false);
   const [report, setReport] = useState({ baslik: '', aciklama: '', konu: 'Genel' });
   const [submitting, setSubmitting] = useState(false);
@@ -121,6 +122,25 @@ const Footer = () => {
                     Gizlilik Politikası
                   </button>
                 </li>
+                <li>
+                  <button
+                    onClick={() => setShowSelling(true)}
+                    className="text-zinc-400 hover:text-[#FDD500] transition-colors text-sm"
+                    data-testid="privacy-selling-button"
+                  >
+                    Mesafeli Satış Sözleşmesi
+                  </button>
+                </li>
+                <li>
+                  {/* İade ve İptal Koşulları Butonu */}
+                  <button
+                    onClick={() => setShowRefund(true)}
+                    className="text-zinc-400 hover:text-[#FDD500] transition-colors text-sm"
+                    data-testid="privacy-refund-button"
+                  >
+                    İade ve İptal Koşulları
+                  </button>
+                </li>
               </ul>
             </div>
 
@@ -128,11 +148,9 @@ const Footer = () => {
             <div>
               <h3 className="text-white font-bold uppercase tracking-wider mb-4 text-sm">Sosyal Medya</h3>
               <div className="flex space-x-4 mb-4">
-                {/* Instagram */}
                 <a href="https://instagram.com/rexagon.com.tr" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-[#2A2A2A] rounded-lg flex items-center justify-center text-zinc-400 hover:text-[#E4405F] hover:bg-[#E4405F]/10 transition-all duration-300">
                   <FaInstagram size={20} />
                 </a>
-                {/* Discord */}
                 <a href="https://discord.gg/d8huURNrfT" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-[#2A2A2A] rounded-lg flex items-center justify-center text-zinc-400 hover:text-[#5865F2] hover:bg-[#5865F2]/10 transition-all duration-300">
                   <FaDiscord size={22} />
                 </a>
@@ -178,6 +196,56 @@ const Footer = () => {
                 Hesabınızı istediğiniz zaman silebilir ve verilerinizin kaldırılmasını talep edebilirsiniz.</p>
               <p><strong className="text-white">6. İletişim</strong><br />
                 Gizlilik politikası hakkında sorularınız için destek@rexagon.com.tr adresinden bize ulaşabilirsiniz.</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Selling Policy Modal */}
+      {showSelling && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" data-testid="selling-modal">
+          <div className="bg-[#1E1E1E] border border-zinc-800 rounded-xl p-8 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold text-white">Mesafeli Satış Sözleşmesi</h3>
+              <button onClick={() => setShowSelling(false)} className="text-zinc-400 hover:text-white transition-colors" data-testid="close-selling-modal">
+                <X size={24} />
+              </button>
+            </div>
+            <div className="text-zinc-400 text-sm space-y-4">
+              <p><strong className="text-white">1. Madde - Taraflar</strong><br />
+                Satıcı: Rexagon <br/>
+                Adres: Adalet Mahallesi 15. Zafer Sk. No:30<br/>
+                E-posta: rexagonkingdoms@gmail.com <br/>
+                Alıcı: rexagon.com.tr üzerinden alışveriş yapan kullanıcı.
+              </p>
+              <p><strong className="text-white">2. Madde - Konu</strong><br />
+                İşbu sözleşmenin konusu, Alıcı'nın Satıcı'ya ait internet sitesinden elektronik ortamda siparişini yaptığı ürün/hizmetin satışı ve teslimi ile ilgili olarak 6502 sayılı Tüketicinin Korunması Hakkında Kanun hükümleri gereğince tarafların hak ve yükümlülüklerinin saptanmasıdır.</p>
+              <p><strong className="text-white">3. Madde - Ürün ve Teslimat</strong><br />
+                Satın alınan dijital ürünler veya hizmetler, ödeme onaylandıktan sonra otomatik olarak Alıcı'nın hesabına tanımlanır veya belirtilen iletişim kanalıyla teslim edilir.</p>
+              <p><strong className="text-white">4. Madde - Cayma Hakkı</strong><br />
+               Elektronik ortamda anında ifa edilen hizmetler ve tüketiciye anında teslim edilen gayrimaddi mallar (oyun içi eşya, dijital kod, sanal bakiye vb.) cayma hakkının istisnaları kapsamındadır. Bu nedenle, teslimatı gerçekleşmiş dijital ürünlerde cayma hakkı kullanılamaz.</p>
+              <p><strong className="text-white">5. Madde - Uyuşmazlıkların Çözümü</strong><br />
+                İşbu sözleşmeden doğan uyuşmazlıklarda, T.C. Ticaret Bakanlığı'nca ilan edilen değere kadar Tüketici Hakem Heyetleri, aşan durumlarda Tüketici Mahkemeleri yetkilidir.</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* İade ve İptal Koşulları Modalı */}
+      {showRefund && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" data-testid="refund-modal">
+          <div className="bg-[#1E1E1E] border border-zinc-800 rounded-xl p-8 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold text-white">İade ve İptal Koşulları</h3>
+              <button onClick={() => setShowRefund(false)} className="text-zinc-400 hover:text-white transition-colors" data-testid="close-refund-modal">
+                <X size={24} />
+              </button>
+            </div>
+            <div className="text-zinc-400 text-sm space-y-4">
+              <p><strong className="text-white">İade Koşulları:</strong><br />
+                Sitemiz üzerinden satışı yapılan ürünler dijital içerik olduğundan, ürünün kullanıcı hesabına tanımlanması veya kodun iletilmesi ile birlikte işlem tamamlanmış sayılır. 6502 sayılı Tüketicinin Korunması Hakkında Kanun uyarınca "elektronik ortamda anında ifa edilen hizmetler", cayma hakkı kapsamı dışındadır. Bu sebeple teslim edilen dijital ürünlerin iadesi yapılamaz. Ancak ürünün sistemsel bir hata nedeniyle hiç teslim edilememesi durumunda tam ücret iadesi sağlanır.</p>
+              <p><strong className="text-white">İptal Koşulları:</strong><br />
+                Siparişinizi oluşturduktan sonra, ürün henüz hesabınıza tanımlanmamış veya tarafınıza iletilmemişse iptal talebinde bulunabilirsiniz. İptal işlemleri için vakit kaybetmeden "rexagonkingdoms@gmail.com" adresi üzerinden bizimle iletişime geçmelisiniz. İptal işlemi onaylandıktan sonra, ödeme tutarı kullandığınız ödeme yöntemine bağlı olarak bankanızın işlem süresine göre (genellikle 3-7 iş günü) iade edilir.</p>
             </div>
           </div>
         </div>

@@ -275,17 +275,33 @@ const AdminPage = () => {
   };
 
   const tabs = [
-    { id: 'users', label: 'Kullanıcılar', icon: Users },
-    { id: 'market', label: 'Market', icon: Package },
-    { id: 'news', label: 'Haberler', icon: Newspaper },
-    { id: 'reports', label: 'Raporlar', icon: AlertCircle },
-    { id: 'themes', label: 'Temalar', icon: Palette },
-    { id: 'settings', label: 'Site Ayarları', icon: Settings },
-    { id: 'gallery', label: 'Galeri', icon: ImageIcon },
-    { id: 'forum', label: 'Forum', icon: MessageSquare },
-    { id: 'wiki', label: 'Wiki', icon: BookOpen },
-    { id: 'rcon', label: 'RCON Konsolu', icon: Terminal }
+    { id: 'users', label: 'Kullanıcılar' },
+    { id: 'market', label: 'Market' },
+    { id: 'news', label: 'Haberler' },
+    { id: 'reports', label: 'Raporlar' },
+    { id: 'themes', label: 'Temalar' },
+    { id: 'settings', label: 'Site Ayarları' },
+    { id: 'gallery', label: 'Galeri' },
+    { id: 'forum', label: 'Forum' },
+    { id: 'wiki', label: 'Wiki' },
+    { id: 'rcon', label: 'RCON Konsolu' }
   ];
+
+  const getTabIcon = (id) => {
+    switch (id) {
+      case 'users': return <Users size={18} />;
+      case 'market': return <Package size={18} />;
+      case 'news': return <Newspaper size={18} />;
+      case 'reports': return <AlertCircle size={18} />;
+      case 'themes': return <Palette size={18} />;
+      case 'settings': return <Settings size={18} />;
+      case 'gallery': return <ImageIcon size={18} />;
+      case 'forum': return <MessageSquare size={18} />;
+      case 'wiki': return <BookOpen size={18} />;
+      case 'rcon': return <Terminal size={18} />;
+      default: return null;
+    }
+  };
 
   const inputCls = "w-full bg-[#2A2A2A] border border-zinc-700 text-white rounded-md px-4 py-3 focus:outline-none focus:border-[#FDD500] focus:ring-1 focus:ring-[#FDD500] transition-all";
 
@@ -299,14 +315,12 @@ const AdminPage = () => {
 
         {/* Tabs */}
         <div className="flex flex-wrap gap-3 mb-8">
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            return (
-              <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex items-center space-x-2 px-5 py-3 rounded-lg font-bold uppercase tracking-wide text-sm transition-all ${activeTab === tab.id ? 'bg-[#FDD500] text-black btn-3d' : 'bg-[#1E1E1E] border border-zinc-800 text-zinc-400 hover:border-[#FDD500]/50'}`} data-testid={`admin-tab-${tab.id}`}>
-                <Icon size={18} /><span className="hidden sm:inline">{tab.label}</span>
-              </button>
-            );
-          })}
+          {tabs.map((tab) => (
+            <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex items-center space-x-2 px-5 py-3 rounded-lg font-bold uppercase tracking-wide text-sm transition-all ${activeTab === tab.id ? 'bg-[#FDD500] text-black btn-3d' : 'bg-[#1E1E1E] border border-zinc-800 text-zinc-400 hover:border-[#FDD500]/50'}`} data-testid={`admin-tab-${tab.id}`}>
+              {getTabIcon(tab.id)}
+              <span className="hidden sm:inline">{tab.label}</span>
+            </button>
+          ))}
         </div>
 
         {loading ? <div className="text-center text-zinc-400">Yükleniyor...</div> : (
@@ -551,7 +565,7 @@ const AdminPage = () => {
               </div>
             )}
 
-                        {/* ===== RCON TAB ===== */}
+            {/* ===== RCON TAB ===== */}
             {activeTab === 'rcon' && (
               <div data-testid="rcon-section">
                 <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6">
@@ -823,7 +837,10 @@ const ItemForm = ({ item, setItem, onSubmit, onCancel, inputCls, title, categori
       <div><label className="block text-sm font-medium text-zinc-400 mb-2">Fiyat</label><input type="number" required min="0" step="0.01" className={inputCls} value={item.fiyat} onChange={(e) => setItem({...item, fiyat: parseFloat(e.target.value)})} /></div>
       <div><label className="block text-sm font-medium text-zinc-400 mb-2">Kategori</label>
         <select className={inputCls} value={item.kategori} onChange={(e) => setItem({...item, kategori: e.target.value})}>
-          {categories && categories.length > 0 ? categories.map(c => <option key={c.id} value={c.isim}>{c.isim}</option>) : <option value="VIP'ler">VIP'ler</option>}
+          {Array.isArray(categories) && categories.length > 0 
+            ? categories.map(c => <option key={c.id || c.isim} value={c.isim}>{c.isim}</option>) 
+            : <option value="VIP'ler">VIP'ler</option>
+          }
         </select>
       </div>
       <div><label className="block text-sm font-medium text-zinc-400 mb-2">Stok</label><input type="number" required min="0" className={inputCls} value={item.stok} onChange={(e) => setItem({...item, stok: parseInt(e.target.value)})} /></div>
