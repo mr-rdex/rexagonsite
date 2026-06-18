@@ -196,7 +196,7 @@ const HomePage = () => {
                 else if (index === 2) { rankClass = "bg-orange-600/20 border border-orange-600/50"; rankTextClass = "text-orange-500"; }
 
                 return (
-                  <Link to={`/profil/${island.ada_lideri}`} key={index} className={`mt-2 flex items-center justify-between p-3 rounded transition-colors cursor-pointer hover:bg-[#333333] ${rankClass} h-16`}>
+                  <Link to={`/profil/${island.ada_lideri.toLowerCase()}`} key={index} className={`mt-2 flex items-center justify-between p-3 rounded transition-colors cursor-pointer hover:bg-[#333333] ${rankClass} h-16`}>
                     <div className="flex items-center space-x-3 overflow-hidden flex-1">
                       <span className={`font-bold w-6 shrink-0 ${rankTextClass}`}>#{island.sira}</span>
                       <img src={`https://mc-heads.net/avatar/${island.ada_lideri}`} alt={island.ada_lideri} className="w-8 h-8 rounded shrink-0" />
@@ -227,7 +227,7 @@ const HomePage = () => {
                 else if (index === 2) { rankClass = "bg-orange-600/20 border border-orange-600/50"; rankTextClass = "text-orange-500"; }
 
                 return (
-                  <Link to={`/profil/${user.oyuncu}`} key={index} className={`mt-2 flex items-center justify-between p-3 rounded transition-colors cursor-pointer hover:bg-[#333333] ${rankClass} h-16`}>
+                  <Link to={`/profil/${user.oyuncu.toLowerCase()}`} key={index} className={`mt-2 flex items-center justify-between p-3 rounded transition-colors cursor-pointer hover:bg-[#333333] ${rankClass} h-16`}>
                     <div className="flex items-center space-x-3 overflow-hidden flex-1">
                       <span className={`font-bold w-6 shrink-0 ${rankTextClass}`}>#{user.sira}</span>
                       <img src={`https://mc-heads.net/avatar/${user.oyuncu}`} alt={user.oyuncu} className="w-8 h-8 rounded shrink-0" />
@@ -266,7 +266,7 @@ const HomePage = () => {
                 return (
                 <Link
                   key={user.id}
-                  to={`/profil/${user.kullanici_adi}`}
+                  to={`/profil/${user.kullanici_adi.toLowerCase()}`}
                   className={`mt-2 flex items-center justify-between p-3 rounded transition-colors ${rankClass} h-16`}
                 >
                   <div className="flex items-center space-x-3 overflow-hidden flex-1">
@@ -294,7 +294,7 @@ const HomePage = () => {
               {sonKayitlar.map((user) => (
                 <Link
                   key={user.id}
-                  to={`/profil/${user.kullanici_adi}`}
+                  to={`/profil/${user.kullanici_adi.toLowerCase()}`}
                   className="mt-2 flex items-center justify-between p-3 bg-[#2A2A2A] rounded hover:bg-[#333333] transition-colors h-16"
                 >
                   <div className="flex items-center space-x-3 overflow-hidden flex-1">
@@ -320,7 +320,7 @@ const HomePage = () => {
             <div className="space-y-3">
               {sonAlisverisler.length > 0 ? (
                 sonAlisverisler.map((purchase, index) => (
-                  <Link key={index} to={`/profil/${purchase.kullanici_adi}`} className="mt-2 flex items-center justify-between p-3 bg-[#2A2A2A] rounded hover:bg-[#333333] transition-colors cursor-pointer h-16">
+                  <Link key={index} to={`/profil/${purchase.kullanici_adi.toLowerCase()}`} className="mt-2 flex items-center justify-between p-3 bg-[#2A2A2A] rounded hover:bg-[#333333] transition-colors cursor-pointer h-16">
                     <div className="flex items-center overflow-hidden flex-1">
                         <img
                             src={`https://mc-heads.net/avatar/${purchase.kullanici_adi}`}
@@ -350,7 +350,7 @@ const HomePage = () => {
             <div className="space-y-3">
               {sonKrediYuklemeler.length > 0 ? (
                 sonKrediYuklemeler.map((transaction, index) => (
-                  <Link key={index} to={`/profil/${transaction.kullanici_adi}`} className="mt-2 flex items-center justify-between p-3 bg-[#2A2A2A] rounded hover:bg-[#333333] transition-colors cursor-pointer h-16">
+                  <Link key={index} to={`/profil/${transaction.kullanici_adi.toLowerCase()}`} className="mt-2 flex items-center justify-between p-3 bg-[#2A2A2A] rounded hover:bg-[#333333] transition-colors cursor-pointer h-16">
                     <div className="flex items-center space-x-3 overflow-hidden flex-1">
                         <img
                             src={`https://mc-heads.net/avatar/${transaction.kullanici_adi}`}
