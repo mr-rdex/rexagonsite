@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../App';
 import axios from 'axios';
-import { Menu, X as XIcon, User, LogOut, Shield, Wallet, Settings, Copy, Check } from 'lucide-react';
+import { Menu, X as XIcon, User, LogOut, Shield, Wallet, Settings, Copy, Check, Home, ShoppingCart, MessageSquare, Trophy, Info } from 'lucide-react';
 
 const Navigation = () => {
   const { user, logout, API } = useAuth();
@@ -52,11 +52,11 @@ const Navigation = () => {
   };
 
   const navLinks = [
-    { to: '/', label: 'Ana Sayfa' },
-    { to: '/market', label: 'Market' },
-    { to: '/forum', label: 'Forum' },
-    { to: '/siralama', label: 'Sıralama' },
-    { to: '/hakkimizda', label: 'Hakkımızda' }
+    { to: '/', label: 'Ana Sayfa', icon: <Home size={20} /> },
+    { to: '/market', label: 'Market', icon: <ShoppingCart size={20} /> },
+    { to: '/forum', label: 'Forum', icon: <MessageSquare size={20} /> },
+    { to: '/siralama', label: 'Sıralama', icon: <Trophy size={20} /> },
+    { to: '/hakkimizda', label: 'Hakkımızda', icon: <Info size={20} /> }
   ];
 
   return (
@@ -202,98 +202,57 @@ const Navigation = () => {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden p-2 text-white"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            data-testid="mobile-menu-button"
-          >
-            {mobileMenuOpen ? <XIcon size={24} /> : <Menu size={24} />}
-          </button>
         </div>
-
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden px-3 py-4 border-t border-white/5">
-            {navLinks.map(link => {
-              const isActive = link.to === '/' ? location.pathname === '/' : location.pathname.startsWith(link.to);
-              return (
-              <Link
-                key={link.to}
-                to={link.to}
-                className={`block py-3 font-medium transition-colors uppercase tracking-wider text-sm ${isActive ? 'text-[#FDD500]' : 'text-zinc-400 hover:text-[#FDD500]'}`}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {link.label}
-              </Link>
-            )})}
-            <div className="border-t border-white/5 mt-4 pt-4">
-              {user ? (
-                <>
-                  <div className="flex items-center space-x-3 mb-4">
-                    <img
-                      src={`https://mc-heads.net/avatar/${user.kullanici_adi}`}
-                      alt={user.kullanici_adi}
-                      className="w-8 h-8 rounded"
-                    />
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium text-white">{user.kullanici_adi}</span>
-                      <span className="text-xs text-[#FDD500] font-bold">{user.kredi.toFixed(0)} ₺</span>
-                    </div>
-                  </div>
-                  <Link
-                    to="/profil"
-                    className="block py-2 text-zinc-400 hover:text-[#FDD500]"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Profil
-                  </Link>
-                  <Link
-                    to="/cuzdan"
-                    className="block py-2 text-zinc-400 hover:text-[#FDD500]"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Cüzdan
-                  </Link>
-                  {user.rol === 'admin' && (
-                    <Link
-                      to="/admin"
-                      className="block py-2 text-zinc-400 hover:text-[#FDD500]"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      Admin Panel
-                    </Link>
-                  )}
-                  <button
-                    onClick={handleLogout}
-                    className="block w-full text-left py-2 text-zinc-400 hover:text-red-500"
-                  >
-                    Çıkış Yap
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link
-                    to="/giris"
-                    className="block py-2 text-zinc-400 hover:text-[#FDD500]"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Giriş Yap
-                  </Link>
-                  <Link
-                    to="/kayit"
-                    className="block py-2 text-[#FDD500] hover:text-[#E6C200] font-bold"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Kayıt Ol
-                  </Link>
-                </>
-              )}
-            </div>
-          </div>
-        )}
       </div>
     </nav>
+
+    {/* Modern Mobile Bottom Navbar */}
+    <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-[#1A1A1A]/90 backdrop-blur-xl border-t border-white/10 z-50 px-2 pb-safe pt-2">
+      <div className="flex justify-around items-center">
+        {navLinks.map(link => {
+          const isActive = link.to === '/' ? location.pathname === '/' : location.pathname.startsWith(link.to);
+          return (
+            <Link
+              key={link.to}
+              to={link.to}
+              className={`flex flex-col items-center p-2 rounded-xl transition-all duration-300 ${isActive ? 'text-[#FDD500]' : 'text-zinc-500 hover:text-zinc-300'}`}
+            >
+              <div className={`mb-1 transition-transform duration-300 ${isActive ? '-translate-y-1' : ''}`}>
+                {link.icon}
+              </div>
+              <span className="text-[10px] font-semibold tracking-wider">
+                {link.label}
+              </span>
+            </Link>
+          );
+        })}
+        {user ? (
+          <Link
+            to="/profil"
+            className={`flex flex-col items-center p-2 rounded-xl transition-all duration-300 ${location.pathname.startsWith('/profil') ? 'text-[#FDD500]' : 'text-zinc-500 hover:text-zinc-300'}`}
+          >
+            <div className={`mb-1 transition-transform duration-300 ${location.pathname.startsWith('/profil') ? '-translate-y-1' : ''}`}>
+              <User size={20} />
+            </div>
+            <span className="text-[10px] font-semibold tracking-wider">
+              Profil
+            </span>
+          </Link>
+        ) : (
+          <Link
+            to="/giris"
+            className={`flex flex-col items-center p-2 rounded-xl transition-all duration-300 ${location.pathname === '/giris' ? 'text-[#FDD500]' : 'text-zinc-500 hover:text-zinc-300'}`}
+          >
+            <div className={`mb-1 transition-transform duration-300 ${location.pathname === '/giris' ? '-translate-y-1' : ''}`}>
+              <User size={20} />
+            </div>
+            <span className="text-[10px] font-semibold tracking-wider">
+              Giriş
+            </span>
+          </Link>
+        )}
+      </div>
+    </div>
 
     {/* Profile Settings Modal */}
     {showSettings && (
