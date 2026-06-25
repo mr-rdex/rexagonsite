@@ -239,14 +239,11 @@ const HomePage = () => {
               }) : <p className="text-zinc-500 text-sm">Veri bulunamadı</p>}
             </div>
           </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* En Çok Kredi */}
           <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6" data-testid="top-credits">
             <div className="flex items-center space-x-3 mb-6">
               <Trophy className="text-[#FDD500]" size={28} />
-              <h3 className="text-2xl font-bold uppercase text-white">En Çok Kredi Yükleyenler</h3>
+              <h3 className="text-2xl font-bold uppercase text-white">En Çok Kredi</h3>
             </div>
             <div className="space-y-3">
               {topKredi.map((user, index) => {
@@ -283,6 +280,10 @@ const HomePage = () => {
               )})}
             </div>
           </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          
 
           {/* Son Kayıtlar */}
           <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6" data-testid="latest-users">

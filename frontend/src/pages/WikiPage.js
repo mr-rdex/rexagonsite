@@ -41,7 +41,7 @@ const WikiPage = () => {
 
   return (
     <div className="min-h-screen pt-24 pb-16 px-4" data-testid="wiki-page">
-      <div className="container mx-auto max-w-4xl">
+      <div className="container mx-auto max-w-8xl">
         <div className="bg-[#1E1E1E] border border-zinc-800 rounded-xl p-8 shadow-2xl">
           <div className="flex items-center space-x-4 mb-8 pb-6 border-b border-zinc-800">
             <BookOpen className="text-[#FDD500]" size={36} />

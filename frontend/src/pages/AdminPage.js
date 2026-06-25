@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../App';
-import { Users, Package, Newspaper, Trash2, Edit, Plus, AlertCircle, Palette, X, Settings, Image as ImageIcon, MessageSquare, Lock, Unlock, CheckCircle, Terminal, BookOpen } from 'lucide-react';
+import { Users, Package, Newspaper, Trash2, Edit, Plus, AlertCircle, Palette, X, Settings, Image as ImageIcon, MessageSquare, Lock, Unlock, CheckCircle, Terminal } from 'lucide-react';
 
 const AdminPage = () => {
   const { API } = useAuth();
@@ -19,10 +19,6 @@ const AdminPage = () => {
   const [forumTopics, setForumTopics] = useState([]);
   const [rconCommand, setRconCommand] = useState('');
   const [rconResponse, setRconResponse] = useState('');
-  const [wikiPages, setWikiPages] = useState([]);
-  const [newWikiPage, setNewWikiPage] = useState({ slug: '', baslik: '', icerik: '' });
-  const [showNewWiki, setShowNewWiki] = useState(false);
-  const [editWiki, setEditWiki] = useState(null);
 
   // Create forms
   const [showNewItem, setShowNewItem] = useState(false);
@@ -53,10 +49,7 @@ const AdminPage = () => {
     if (activeTab === 'settings') fetchSettings();
     if (activeTab === 'gallery') fetchGallery();
     if (activeTab === 'forum') fetchForumTopics();
-    if (activeTab === 'wiki') fetchWikiPages();
   }, [activeTab]);
-
-  const fetchWikiPages = async () => { setLoading(true); try { const r = await axios.get(`${API}/admin/wiki`, { headers }); setWikiPages(r.data); } catch(e) {} finally { setLoading(false); } };
 
   const fetchSettings = async () => {
     try {
@@ -222,19 +215,6 @@ const AdminPage = () => {
     }
   };
 
-  const handleCreateWiki = async (e) => {
-    e.preventDefault();
-    try { await axios.post(`${API}/admin/wiki`, newWikiPage, { headers }); setShowNewWiki(false); setNewWikiPage({ slug: '', baslik: '', icerik: '' }); fetchWikiPages(); } catch(e) { alert('Wiki sayfası oluşturulamadı'); }
-  };
-  const handleUpdateWiki = async (e) => {
-    e.preventDefault();
-    try { await axios.post(`${API}/admin/wiki`, editWiki, { headers }); setEditWiki(null); fetchWikiPages(); } catch(e) { alert('Wiki sayfası güncellenemedi'); }
-  };
-  const handleDeleteWiki = async (slug) => {
-    if (!window.confirm('Bu wiki sayfasını silmek istediğinize emin misiniz?')) return;
-    try { await axios.delete(`${API}/admin/wiki/${slug}`, { headers }); fetchWikiPages(); } catch(e) { alert('Wiki silinemedi'); }
-  };
-
   const handleCreateNews = async (e) => {
     e.preventDefault();
     try { await axios.post(`${API}/admin/haber`, newNews, { headers }); setShowNewNews(false); setNewNews({ baslik: '', icerik: '', gorsel_url: '' }); fetchNews(); } catch(e) { alert('Haber oluşturulamadı'); }
@@ -283,7 +263,6 @@ const AdminPage = () => {
     { id: 'settings', label: 'Site Ayarları', icon: Settings },
     { id: 'gallery', label: 'Galeri', icon: ImageIcon },
     { id: 'forum', label: 'Forum', icon: MessageSquare },
-    { id: 'wiki', label: 'Wiki', icon: BookOpen },
     { id: 'rcon', label: 'RCON Konsolu', icon: Terminal }
   ];
 
@@ -517,37 +496,6 @@ const AdminPage = () => {
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
-
-            {/* ===== WIKI TAB ===== */}
-            {activeTab === 'wiki' && (
-              <div data-testid="wiki-section">
-                <div className="mb-6 flex gap-4">
-                  <button onClick={() => setShowNewWiki(!showNewWiki)} className="bg-[#FDD500] text-black font-bold uppercase tracking-wide px-6 py-3 rounded-lg hover:bg-[#E6C200] transition-all btn-3d flex items-center space-x-2"><Plus size={20} /><span>Yeni Wiki Sayfası</span></button>
-                </div>
-                {showNewWiki && <WikiForm page={newWikiPage} setPage={setNewWikiPage} onSubmit={handleCreateWiki} onCancel={() => setShowNewWiki(false)} inputCls={inputCls} title="Yeni Wiki Ekle" />}
-                {editWiki && <WikiForm page={editWiki} setPage={setEditWiki} onSubmit={handleUpdateWiki} onCancel={() => setEditWiki(null)} inputCls={inputCls} title="Wiki Düzenle" />}
-
-                {wikiPages.length === 0 ? (
-                  <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-8 text-center"><BookOpen className="mx-auto text-zinc-600 mb-4" size={48} /><p className="text-zinc-400">Henüz wiki sayfası eklenmemiş.</p></div>
-                ) : (
-                  <div className="grid grid-cols-1 gap-4">
-                    {wikiPages.map((page) => (
-                      <div key={page.slug} className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6 flex items-center justify-between">
-                        <div>
-                          <h3 className="text-xl font-bold text-white mb-2">{page.baslik}</h3>
-                          <p className="text-zinc-400 text-sm mb-1">Slug: /{page.slug}</p>
-                          <p className="text-zinc-500 text-xs">Son Güncelleme: {new Date(page.son_guncelleme).toLocaleDateString('tr-TR')} - {page.guncelleyen}</p>
-                        </div>
-                        <div className="flex space-x-2">
-                          <button onClick={() => setEditWiki(page)} className="p-3 bg-zinc-800 text-blue-400 rounded-lg hover:bg-zinc-700 transition-colors"><Edit size={18} /></button>
-                          <button onClick={() => handleDeleteWiki(page.slug)} className="p-3 bg-zinc-800 text-red-400 rounded-lg hover:bg-zinc-700 transition-colors"><Trash2 size={18} /></button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
             )}
 
@@ -841,7 +789,7 @@ const ItemForm = ({ item, setItem, onSubmit, onCancel, inputCls, title, categori
 );
 
 // Reusable Theme Form
-const ThemeForm = ({ theme, setTheme, onSubmit, onCancel, inputCls, title, handleFileUpload }) => (
+const ThemeForm = ({ theme, setTheme, onSubmit, onCancel, inputCls, title, handleFileUpload, ambianceList }) => (
   <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6 mb-6">
     <h3 className="text-xl font-bold text-white mb-4">{title}</h3>
     <form onSubmit={onSubmit} className="space-y-4">
@@ -860,28 +808,13 @@ const ThemeForm = ({ theme, setTheme, onSubmit, onCancel, inputCls, title, handl
       <div>
         <label className="block text-sm font-medium text-zinc-400 mb-2">Ambiyans Efekti</label>
         <select className={inputCls} value={theme.ambiyans || 'yok'} onChange={(e) => setTheme({...theme, ambiyans: e.target.value})}>
-          <option value="yok">Yok</option>
-          <option value="kar">Kar (Kış)</option>
-          <option value="ilkbahar">Çiçek/Yaprak (İlkbahar)</option>
+          {ambianceList && ambianceList.map(a => (
+            <option key={a.id} value={a.id}>{a.isim}</option>
+          ))}
         </select>
       </div>
       <div className="flex space-x-4">
         <button type="submit" className="bg-[#FDD500] text-black font-bold uppercase tracking-wide px-6 py-3 rounded-lg hover:bg-[#E6C200] transition-all btn-3d">Oluştur</button>
-        <button type="button" onClick={onCancel} className="bg-transparent border-2 border-zinc-700 text-zinc-400 font-bold uppercase px-6 py-3 rounded-lg hover:border-zinc-600 transition-all">İptal</button>
-      </div>
-    </form>
-  </div>
-);
-
-const WikiForm = ({ page, setPage, onSubmit, onCancel, inputCls, title }) => (
-  <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6 mb-6">
-    <h3 className="text-xl font-bold text-white mb-4">{title}</h3>
-    <form onSubmit={onSubmit} className="space-y-4">
-      <div><label className="block text-sm font-medium text-zinc-400 mb-2">Başlık</label><input type="text" required className={inputCls} value={page.baslik} onChange={(e) => setPage({...page, baslik: e.target.value})} placeholder="Örn: Ekonomi Sistemi" /></div>
-      <div><label className="block text-sm font-medium text-zinc-400 mb-2">URL (Slug)</label><input type="text" required className={inputCls} value={page.slug} onChange={(e) => setPage({...page, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-')})} placeholder="Örn: rexaeco" /><p className="text-xs text-zinc-500 mt-1">Sadece küçük harfler, sayılar ve tire. Örn: site.com/wiki/rexaeco</p></div>
-      <div><label className="block text-sm font-medium text-zinc-400 mb-2">İçerik (HTML destekler)</label><textarea required rows={10} className={inputCls} value={page.icerik} onChange={(e) => setPage({...page, icerik: e.target.value})} placeholder="<h1>Ana Başlık</h1><p>İçerik burada...</p>" /></div>
-      <div className="flex space-x-4">
-        <button type="submit" className="bg-[#FDD500] text-black font-bold uppercase tracking-wide px-6 py-3 rounded-lg hover:bg-[#E6C200] transition-all btn-3d">Kaydet</button>
         <button type="button" onClick={onCancel} className="bg-transparent border-2 border-zinc-700 text-zinc-400 font-bold uppercase px-6 py-3 rounded-lg hover:border-zinc-600 transition-all">İptal</button>
       </div>
     </form>

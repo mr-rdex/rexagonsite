@@ -15,7 +15,6 @@ const Navigation = () => {
   const [bio, setBio] = useState('');
   const [discordHandle, setDiscordHandle] = useState('');
   const [instagramHandle, setInstagramHandle] = useState('');
-  const [steamLink, setSteamLink] = useState('');
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [saving, setSaving] = useState(false);
@@ -135,7 +134,6 @@ const Navigation = () => {
                         setBio(user?.biyografi || '');
                         setDiscordHandle(user?.discord || '');
                         setInstagramHandle(user?.instagram || '');
-                        setSteamLink(user?.steam || '');
                         setShowSettings(true);
                         setSettingsTab('bio');
                       }}
@@ -275,7 +273,7 @@ const Navigation = () => {
               setSaving(true);
               try {
                 const token = localStorage.getItem('token');
-                await axios.put(`${API}/users/biyografi`, { biyografi: bio, discord: discordHandle, instagram: instagramHandle, steam: steamLink }, { headers: { Authorization: `Bearer ${token}` } });
+                await axios.put(`${API}/users/biyografi`, { biyografi: bio, discord: discordHandle, instagram: instagramHandle }, { headers: { Authorization: `Bearer ${token}` } });
                 alert('Profil bilgileri güncellendi!');
                 setShowSettings(false);
                 window.location.reload();
@@ -292,10 +290,6 @@ const Navigation = () => {
               <div>
                 <label className="block text-sm font-medium text-zinc-400 mb-2">Instagram Kullanıcı Adı</label>
                 <input type="text" className="w-full bg-[#2A2A2A] border border-zinc-700 text-white rounded-md px-4 py-2 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition-all" value={instagramHandle} onChange={(e) => setInstagramHandle(e.target.value)} placeholder="Örn: kullaniciadi" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-zinc-400 mb-2">Steam Profil Linki</label>
-                <input type="url" className="w-full bg-[#2A2A2A] border border-zinc-700 text-white rounded-md px-4 py-2 focus:outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-500 transition-all" value={steamLink} onChange={(e) => setSteamLink(e.target.value)} placeholder="Örn: https://steamcommunity.com/id/kullanici" />
               </div>
               <button type="submit" disabled={saving} className="w-full bg-[#FDD500] text-black font-bold uppercase tracking-wide px-6 py-3 mt-4 rounded-lg hover:bg-[#E6C200] transition-all btn-3d disabled:opacity-50" data-testid="save-bio-button">{saving ? 'Kaydediliyor...' : 'Kaydet'}</button>
             </form>

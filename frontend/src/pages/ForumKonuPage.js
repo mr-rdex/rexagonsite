@@ -5,6 +5,7 @@ import { useAuth } from '../App';
 import { ArrowLeft, Send, Clock, Lock, CheckCircle, Trash2, Heart, Image as ImageIcon, Bold, Italic, Link as LinkIcon, List, Heading1 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import ReactMarkdown from 'react-markdown';
+import { MessageSquare, Users } from 'lucide-react';
 import remarkGfm from 'remark-gfm';
 
 const ForumKonuPage = () => {
@@ -277,9 +278,9 @@ const ForumKonuPage = () => {
                       <span>{(cevap.begenenler || []).length}</span>
                     </button>
                     {!konu.kapali && (
-                      <button onClick={() => handleQuote(cevap.yazar_adi, cevap.icerik)} className="text-zinc-400 hover:text-[#FDD500] flex items-center space-x-1">
+                      <button onClick={() => handleQuote(cevap.yazar_adi, cevap.icerik)} className="text-zinc-400 pl-2 hover:text-[#FDD500] flex items-center space-x-1">
                         <MessageSquare size={16} />
-                        <span>Alıntıla</span>
+                        <span>Alıntı yap</span>
                       </button>
                     )}
                   </div>
