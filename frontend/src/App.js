@@ -1,3 +1,5 @@
+import Particles, { initParticlesEngine } from '@tsparticles/react';
+import { loadSlim } from '@tsparticles/slim';
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import axios from 'axios';
@@ -31,6 +33,16 @@ export const useAuth = () => useContext(AuthContext);
 
 const GlobalAmbiance = ({ siteAmbiance }) => {
   const location = useLocation();
+  const [particlesInit, setParticlesInit] = useState(false);
+
+  useEffect(() => {
+    initParticlesEngine(async (engine) => {
+      await loadSlim(engine);
+    }).then(() => {
+      setParticlesInit(true);
+    });
+  }, []);
+
   if (location.pathname.startsWith('/profil')) return null;
 
   if (siteAmbiance === 'kar') {
@@ -48,6 +60,44 @@ const GlobalAmbiance = ({ siteAmbiance }) => {
           color="#ffb7c5"
           radius={[5, 12]}
           style={{ width: '100%', height: '100%', position: 'absolute' }}
+        />
+      </div>
+    );
+  }
+  if (siteAmbiance === 'yaz' && particlesInit) {
+    return (
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9998, pointerEvents: 'none' }}>
+        <Particles
+          id="tsparticles-fireflies"
+          options={{
+            fullScreen: { enable: false, zIndex: 9998 },
+            particles: {
+              number: { value: 30, density: { enable: true, area: 800 } },
+              color: { value: ["#fadb5f", "#f7b733", "#fc4a1a"] },
+              shape: { type: "circle" },
+              opacity: { value: { min: 0.1, max: 0.8 }, animation: { enable: true, speed: 1, sync: false } },
+              size: { value: { min: 1, max: 3 }, animation: { enable: true, speed: 2, sync: false } },
+              move: { enable: true, speed: 0.5, direction: "top", random: true, straight: false, outModes: { default: "out" } }
+            },
+            interactivity: { events: { onHover: { enable: true, mode: "bubble" } }, modes: { bubble: { distance: 250, size: 4, duration: 2, opacity: 1 } } }
+          }}
+          style={{ position: 'absolute', width: '100%', height: '100%' }}
+        />
+        <Particles
+          id="tsparticles-leaves"
+          options={{
+            fullScreen: { enable: false, zIndex: 9998 },
+            particles: {
+              number: { value: 15, density: { enable: true, area: 800 } },
+              color: { value: ["#2e7d32", "#4caf50", "#81c784"] },
+              shape: { type: "polygon", polygon: { sides: 5 } },
+              opacity: { value: 0.6 },
+              size: { value: { min: 5, max: 10 } },
+              move: { enable: true, speed: 1.5, direction: "bottom", random: false, straight: false, outModes: { default: "out" }, wobble: { enable: true, distance: 10, speed: 10 } },
+              rotate: { value: { min: 0, max: 360 }, direction: "random", animation: { enable: true, speed: 5, sync: false } }
+            }
+          }}
+          style={{ position: 'absolute', width: '100%', height: '100%' }}
         />
       </div>
     );

@@ -1,3 +1,5 @@
+import Particles, { initParticlesEngine } from '@tsparticles/react';
+import { loadSlim } from '@tsparticles/slim';
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
@@ -15,6 +17,16 @@ const ProfilPage = () => {
   const [purchasing, setPurchasing] = useState(null);
 
   const isOwnProfile = !kullanici_adi || (currentUser && currentUser.kullanici_adi === kullanici_adi);
+
+  const [particlesInit, setParticlesInit] = useState(false);
+
+  useEffect(() => {
+    initParticlesEngine(async (engine) => {
+      await loadSlim(engine);
+    }).then(() => {
+      setParticlesInit(true);
+    });
+  }, []);
 
   useEffect(() => {
     fetchProfile();

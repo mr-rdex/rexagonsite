@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../App';
 import axios from 'axios';
-import { Menu, X as XIcon, User, LogOut, Shield, Wallet, Settings, Copy, Check, Home, ShoppingCart, MessageSquare, Trophy, Info } from 'lucide-react';
+import { Home, MessageSquare, ShoppingCart, Trophy, Info, User, LogOut, Shield, Settings, Check, Menu, X as XIcon, Wallet, Coins, Copy } from 'lucide-react';
 
 const Navigation = () => {
   const { user, logout, API } = useAuth();
@@ -50,18 +50,27 @@ const Navigation = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const navLinks = [
+  const desktopNavLinks = [
+    { to: '/', label: 'Ana Sayfa', icon: <Home size={18} /> },
+    { to: '/forum', label: 'Forum', icon: <MessageSquare size={18} /> },
+    { to: '/market', label: 'Market', icon: <ShoppingCart size={18} /> },
+    { to: '/siralama', label: 'Sıralama', icon: <Trophy size={18} /> },
+    { to: '/hakkimizda', label: 'Hakkımızda', icon: <Info size={18} /> }
+  ];
+
+  const mobileNavLinks = [
     { to: '/', label: 'Ana Sayfa', icon: <Home size={20} /> },
-    { to: '/market', label: 'Market', icon: <ShoppingCart size={20} /> },
     { to: '/forum', label: 'Forum', icon: <MessageSquare size={20} /> },
+    { to: '/market', label: 'Market', icon: <ShoppingCart size={20} /> },
+    { to: '/cuzdan', label: 'Cüzdan', icon: <Wallet size={20} /> },
     { to: '/siralama', label: 'Sıralama', icon: <Trophy size={20} /> },
-    { to: '/hakkimizda', label: 'Hakkımızda', icon: <Info size={20} /> }
   ];
 
   return (
     <>
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#222222]/20 backdrop-blur-md border-b border-white/5">
-      <div className="container mx-auto px-4 md:px-6 max-w-7xl">
+    {/* Desktop Top Navbar */}
+    <nav className="hidden lg:block fixed top-0 left-0 right-0 z-50 bg-[#222222]/20 backdrop-blur-md border-b border-white/5">
+      <div className="container mx-auto px-6 max-w-7xl">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center" data-testid="logo-link">
@@ -73,8 +82,8 @@ const Navigation = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center">
-            {navLinks.map(link => {
+          <div className="flex items-center">
+            {desktopNavLinks.map(link => {
               const isActive = link.to === '/' ? location.pathname === '/' : location.pathname.startsWith(link.to);
               return (
               <Link
@@ -204,10 +213,25 @@ const Navigation = () => {
       </div>
     </nav>
 
-    {/* Modern Mobile Bottom Navbar */}
+    {/* Mobile Top Navbar (Centered Logo with specific blur) */}
+    <nav className="lg:hidden fixed top-0 left-0 right-0 z-50 h-20 pointer-events-none flex items-center justify-center">
+      <div className="relative pointer-events-auto">
+        {/* Background Blur just for the logo */}
+        <div className="absolute inset-0 bg-[#222222]/30 backdrop-blur-md rounded-full -m-4"></div>
+        <Link to="/" className="relative flex items-center" data-testid="mobile-logo-link">
+          <img
+            src="/images/rexanewlogo.png"
+            alt="Rexagon"
+            className="h-10 w-auto object-contain transition-transform duration-300 active:scale-95"
+          />
+        </Link>
+      </div>
+    </nav>
+
+        {/* Modern Mobile Bottom Navbar */}
     <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-[#1A1A1A]/90 backdrop-blur-xl border-t border-white/10 z-50 px-2 pb-safe pt-2">
       <div className="flex justify-around items-center">
-        {navLinks.map(link => {
+        {mobileNavLinks.map(link => {
           const isActive = link.to === '/' ? location.pathname === '/' : location.pathname.startsWith(link.to);
           return (
             <Link
@@ -225,17 +249,68 @@ const Navigation = () => {
           );
         })}
         {user ? (
-          <Link
-            to="/profil"
-            className={`flex flex-col items-center p-2 rounded-xl transition-all duration-300 ${location.pathname.startsWith('/profil') ? 'text-[#FDD500]' : 'text-zinc-500 hover:text-zinc-300'}`}
-          >
-            <div className={`mb-1 transition-transform duration-300 ${location.pathname.startsWith('/profil') ? '-translate-y-1' : ''}`}>
-              <User size={20} />
-            </div>
-            <span className="text-[10px] font-semibold tracking-wider">
-              Profil
-            </span>
-          </Link>
+          <div className="relative flex flex-col items-center justify-center flex-1" ref={profileMenuRef}>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                if (location.pathname.startsWith('/profil')) {
+                  setShowProfileMenu(!showProfileMenu);
+                } else {
+                  navigate('/profil');
+                }
+              }}
+              className={`flex flex-col items-center p-2 rounded-xl transition-all duration-300 w-full h-full ${location.pathname.startsWith('/profil') ? 'text-[#FDD500]' : 'text-zinc-500 hover:text-zinc-300'}`}
+              data-testid="mobile-profile-button"
+            >
+              <div className={`mb-1 transition-transform duration-300 ${location.pathname.startsWith('/profil') ? '-translate-y-1' : ''}`}>
+                <User size={20} />
+              </div>
+              <span className="text-[10px] font-semibold tracking-wider">
+                Profil
+              </span>
+            </button>
+            {showProfileMenu && (
+              <div
+                className="absolute bottom-full mb-2 right-0 w-48 bg-[#1E1E1E] border border-zinc-800 rounded-xl shadow-lg overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300 z-50"
+              >
+                <button
+                  className="w-full flex items-center space-x-3 px-4 py-3 hover:bg-[#2A2A2A] transition-colors text-white text-sm"
+                  onClick={() => {
+                    setShowProfileMenu(false);
+                    setBio(user?.biyografi || '');
+                    setDiscordHandle(user?.discord || '');
+                    setInstagramHandle(user?.instagram || '');
+                    setShowSettings(true);
+                    setSettingsTab('bio');
+                  }}
+                >
+                  <Settings size={16} />
+                  <span>Profil Ayarları</span>
+                </button>
+                {user.rol === 'admin' && (
+                  <>
+                    <div className="border-t border-zinc-800"></div>
+                    <Link
+                      to="/admin"
+                      className="flex items-center space-x-3 px-4 py-3 hover:bg-[#2A2A2A] transition-colors text-[#FDD500] text-sm"
+                      onClick={() => setShowProfileMenu(false)}
+                    >
+                      <Shield size={16} />
+                      <span>Yönetim</span>
+                    </Link>
+                  </>
+                )}
+                <div className="border-t border-zinc-800"></div>
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center space-x-3 px-4 py-3 hover:bg-[#2A2A2A] transition-colors text-red-400 text-sm"
+                >
+                  <LogOut size={16} />
+                  <span>Çıkış Yap</span>
+                </button>
+              </div>
+            )}
+          </div>
         ) : (
           <Link
             to="/giris"
