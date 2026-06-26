@@ -1,5 +1,6 @@
-import Particles, { initParticlesEngine } from '@tsparticles/react';
-import { loadSlim } from '@tsparticles/slim';
+import Particles from "react-tsparticles";
+import { loadSlim } from "tsparticles-slim";
+import { useCallback } from "react";
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import axios from 'axios';
@@ -33,14 +34,9 @@ export const useAuth = () => useContext(AuthContext);
 
 const GlobalAmbiance = ({ siteAmbiance }) => {
   const location = useLocation();
-  const [particlesInit, setParticlesInit] = useState(false);
 
-  useEffect(() => {
-    initParticlesEngine(async (engine) => {
-      await loadSlim(engine);
-    }).then(() => {
-      setParticlesInit(true);
-    });
+  const particlesInit = useCallback(async (engine) => {
+    await loadSlim(engine);
   }, []);
 
   if (location.pathname.startsWith('/profil')) return null;
@@ -55,20 +51,51 @@ const GlobalAmbiance = ({ siteAmbiance }) => {
   if (siteAmbiance === 'ilkbahar') {
     return (
       <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9998, pointerEvents: 'none' }}>
-        <Snowfall
-          snowflakeCount={80}
-          color="#ffb7c5"
-          radius={[5, 12]}
-          style={{ width: '100%', height: '100%', position: 'absolute' }}
-        />
+        <Particles
+                    id="profil-tsparticles-ilkbahar"
+                    init={particlesInit} 
+                    options={{
+                      fullScreen: { enable: false, zIndex: 9998 },
+                      particles: {
+                        number: { value: 30, density: { enable: true, area: 800 } },
+                        shape: {
+                          type: "image",
+                          options: {
+                            image: [
+                              { src: "/images/sakuraleaf.png", width: 15, height: 15 },
+                              { src: "/images/sakuraleaf1.png", width: 15, height: 15 },
+                              { src: "/images/sakuraleaf2.png", width: 15, height: 15 },
+                              { src: "https://static.vecteezy.com/system/resources/previews/027/191/073/non_2x/pixel-art-sakura-flower-icon-png.png", width: 15, height: 15 }
+                            ]
+                          }
+                        },
+                        opacity: { value: 0.8 },
+                        size: { value: { min: 5, max: 15 } },
+                        move: {
+                          enable: true,
+                          speed: 2,
+                          direction: "bottom",
+                          outModes: { default: "out" },
+                          wobble: { enable: true, distance: 20, speed: 1.5 } // Daha doğal süzülme için bunu da ekledim
+                        },
+                        rotate: {
+                          value: { min: 0, max: 360 },
+                          direction: "random",
+                          animation: { enable: true, speed: { min: 2, max: 5 }, sync: false }
+                        }
+                      }
+                    }}
+                    style={{ position: 'absolute', width: '100%', height: '100%' }}
+                  />
       </div>
     );
   }
-  if (siteAmbiance === 'yaz' && particlesInit) {
+  if (siteAmbiance === 'yaz') {
     return (
       <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9998, pointerEvents: 'none' }}>
         <Particles
           id="tsparticles-fireflies"
+          init={particlesInit}
           options={{
             fullScreen: { enable: false, zIndex: 9998 },
             particles: {
@@ -77,28 +104,57 @@ const GlobalAmbiance = ({ siteAmbiance }) => {
               shape: { type: "circle" },
               opacity: { value: { min: 0.1, max: 0.8 }, animation: { enable: true, speed: 1, sync: false } },
               size: { value: { min: 1, max: 3 }, animation: { enable: true, speed: 2, sync: false } },
-              move: { enable: true, speed: 0.5, direction: "top", random: true, straight: false, outModes: { default: "out" } }
+              move: { enable: true, speed: 1, direction: "top", random: true, straight: false, outModes: { default: "out" } }
             },
             interactivity: { events: { onHover: { enable: true, mode: "bubble" } }, modes: { bubble: { distance: 250, size: 4, duration: 2, opacity: 1 } } }
           }}
           style={{ position: 'absolute', width: '100%', height: '100%' }}
         />
         <Particles
-          id="tsparticles-leaves"
-          options={{
-            fullScreen: { enable: false, zIndex: 9998 },
-            particles: {
-              number: { value: 15, density: { enable: true, area: 800 } },
-              color: { value: ["#2e7d32", "#4caf50", "#81c784"] },
-              shape: { type: "polygon", polygon: { sides: 5 } },
-              opacity: { value: 0.6 },
-              size: { value: { min: 5, max: 10 } },
-              move: { enable: true, speed: 1.5, direction: "bottom", random: false, straight: false, outModes: { default: "out" }, wobble: { enable: true, distance: 10, speed: 10 } },
-              rotate: { value: { min: 0, max: 360 }, direction: "random", animation: { enable: true, speed: 5, sync: false } }
-            }
-          }}
-          style={{ position: 'absolute', width: '100%', height: '100%' }}
-        />
+                          id="tsparticles-leaves"
+                          init={particlesInit}
+                          options={{
+                            fullScreen: { enable: false, zIndex: 9998 },
+                            particles: {
+                              number: { value: 15, density: { enable: true, area: 800 } },
+                              
+                              // Gerçekçilik için "image" kullanıyoruz.
+                              // Projendeki /public/images/ klasörüne leaf1.png, leaf2.png gibi arka planı saydam görseller eklemelisin.
+                              // Eğer görselle uğraşmak istemezsen şunu kullan:
+                              // type: "char", options: { char: { value: ["🍃", "🌿", "🍂"] } }
+                              shape: {
+                                type: "image",
+                                options: {
+                                  image: [
+                                    { src: "https://static.vecteezy.com/system/resources/thumbnails/071/881/121/small/cute-pixel-art-green-tea-matcha-leaf-icon-illustration-png.png", width: 32, height: 32 }
+                                  ]
+                                }
+                              },
+                              
+                              opacity: { value: { min: 0.5, max: 0.8 }, animation: { enable: true, speed: 0.5, sync: false } },
+                              size: { value: { min: 10, max: 15 } }, // Görsellerin ekrandaki boyutu
+                              
+                              move: {
+                                enable: true,
+                                speed: 1.5, // Hızı sabitledik (min-max kaldırdık)
+                                direction: "bottom",
+                                random: false,
+                                straight: false,
+                                outModes: { default: "out" },
+                                gravity: { enable: false, acceleration: 0 }, // Hızlanmaya sebep olan ivmeyi kapattık
+                                wobble: { enable: true, distance: 20, speed: 1.5 }, // Dalgalanmayı daha tutarlı hale getirdik
+                                drift: 0 // Sağa sola kayarak hızlanmayı önlemek için sıfırladık
+                              },
+                              
+                              rotate: {
+                                value: { min: 0, max: 360 },
+                                direction: "random",
+                                animation: { enable: true, speed: { min: 2, max: 5 }, sync: false } // Kendi etrafında doğal dönüş
+                              }
+                            }
+                          }}
+                          style={{ position: 'absolute', width: '100%', height: '100%' }}
+                        />
       </div>
     );
   }

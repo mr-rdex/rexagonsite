@@ -1,5 +1,3 @@
-import Particles, { initParticlesEngine } from '@tsparticles/react';
-import { loadSlim } from '@tsparticles/slim';
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
@@ -7,6 +5,9 @@ import { useAuth } from '../App';
 import { Calendar, Coins, Shield, Lock, Check, User as UserIcon } from 'lucide-react';
 import Snowfall from 'react-snowfall';
 import { FaDiscord, FaInstagram } from 'react-icons/fa';
+import { useCallback } from "react";
+import Particles from "react-tsparticles";
+import { loadSlim } from "tsparticles-slim";
 
 const ProfilPage = () => {
   const { kullanici_adi } = useParams();
@@ -15,23 +16,33 @@ const ProfilPage = () => {
   const [loading, setLoading] = useState(true);
   const [themes, setThemes] = useState([]);
   const [purchasing, setPurchasing] = useState(null);
+  const [fireflies, setFireflies] = useState([]);
+
+  const particlesInit = useCallback(async (engine) => {
+      await loadSlim(engine);
+    }, []);
 
   const isOwnProfile = !kullanici_adi || (currentUser && currentUser.kullanici_adi === kullanici_adi);
 
-  const [particlesInit, setParticlesInit] = useState(false);
-
   useEffect(() => {
-    initParticlesEngine(async (engine) => {
-      await loadSlim(engine);
-    }).then(() => {
-      setParticlesInit(true);
-    });
+    const particleCount = 35; 
+    const particles = Array.from({ length: particleCount }).map((_, i) => ({
+      id: i,
+      left: `${Math.random() * 100}vw`,
+      size: `${Math.random() * 3 + 2}px`,
+      duration: `${Math.random() * 15 + 10}s`,
+      delay: `${Math.random() * 5}s`,
+      blinkDuration: `${Math.random() * 2 + 2}s`
+    }));
+    
+    setFireflies(particles);
   }, []);
 
   useEffect(() => {
     fetchProfile();
     fetchThemes();
-  }, [kullanici_adi, currentUser, API]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [kullanici_adi, currentUser, API])
 
   const fetchProfile = async () => {
     try {
@@ -101,20 +112,120 @@ const ProfilPage = () => {
   return (
     <div className="min-h-screen" data-testid="profile-page">
       <div className='profil-mc'></div>
+      {/* Mevcut kar efekti */}
       {profileUser.aktif_tema_ambiyans === 'kar' && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, pointerEvents: 'none' }}>
           <Snowfall snowflakeCount={150} style={{ width: '100%', height: '100%', position: 'absolute' }} />
         </div>
       )}
-      {profileUser.aktif_tema_ambiyans === 'ilkbahar' && (
+
+      {/* Mevcut ilkbahar efekti */}
+      {profileUser.aktif_tema_ambiyans && profileUser.aktif_tema_ambiyans.toLowerCase().includes('ilkbahar') && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, pointerEvents: 'none' }}>
-          <Snowfall
-            snowflakeCount={80}
-            color="#ffb7c5"
-            radius={[5, 12]}
-            style={{ width: '100%', height: '100%', position: 'absolute' }}
+          <Particles
+            id="profil-tsparticles-ilkbahar"
+            init={particlesInit} 
+            options={{
+              fullScreen: { enable: false, zIndex: 9998 },
+              particles: {
+                number: { value: 30, density: { enable: true, area: 800 } },
+                shape: {
+                  type: "image",
+                  options: {
+                    image: [
+                      { src: "/images/sakuraleaf.png", width: 15, height: 15 },
+                      { src: "/images/sakuraleaf1.png", width: 15, height: 15 },
+                      { src: "/images/sakuraleaf2.png", width: 15, height: 15 },
+                    ]
+                  }
+                },
+                opacity: { value: 0.8 },
+                size: { value: { min: 5, max: 15 } },
+                move: {
+                  enable: true,
+                  speed: 2,
+                  direction: "bottom",
+                  outModes: { default: "out" },
+                  wobble: { enable: true, distance: 20, speed: 1.5 } // Daha doğal süzülme için bunu da ekledim
+                },
+                rotate: {
+                  value: { min: 0, max: 360 },
+                  direction: "random",
+                  animation: { enable: true, speed: { min: 2, max: 5 }, sync: false }
+                }
+              }
+            }}
+            style={{ position: 'absolute', width: '100%', height: '100%' }}
           />
         </div>
+      )}
+
+      {/* YENİ: Yaz (Ateş Böceği) Efekti */}
+      {profileUser.aktif_tema_ambiyans === 'yaz' && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9998, pointerEvents: 'none' }}>
+                <Particles
+                          id="tsparticles-fireflies"
+                          init={particlesInit}
+                          options={{
+                            fullScreen: { enable: false, zIndex: 9998 },
+                            particles: {
+                              number: { value: 30, density: { enable: true, area: 800 } },
+                              color: { value: ["#fadb5f", "#f7b733", "#fc4a1a"] },
+                              shape: { type: "circle" },
+                              opacity: { value: { min: 0.1, max: 0.8 }, animation: { enable: true, speed: 1, sync: false } },
+                              size: { value: { min: 1, max: 3 }, animation: { enable: true, speed: 2, sync: false } },
+                              move: { enable: true, speed: 1, direction: "top", random: true, straight: false, outModes: { default: "out" } }
+                            },
+                            interactivity: { events: { onHover: { enable: true, mode: "bubble" } }, modes: { bubble: { distance: 250, size: 4, duration: 2, opacity: 1 } } }
+                          }}
+                          style={{ position: 'absolute', width: '100%', height: '100%' }}
+                        />
+                <Particles
+                                          id="tsparticles-leaves"
+                                          init={particlesInit}
+                                          options={{
+                                            fullScreen: { enable: false, zIndex: 9998 },
+                                            particles: {
+                                              number: { value: 15, density: { enable: true, area: 800 } },
+                                              
+                                              // Gerçekçilik için "image" kullanıyoruz.
+                                              // Projendeki /public/images/ klasörüne leaf1.png, leaf2.png gibi arka planı saydam görseller eklemelisin.
+                                              // Eğer görselle uğraşmak istemezsen şunu kullan:
+                                              // type: "char", options: { char: { value: ["🍃", "🌿", "🍂"] } }
+                                              shape: {
+                                                type: "image",
+                                                options: {
+                                                  image: [
+                                                    { src: "https://static.vecteezy.com/system/resources/thumbnails/071/881/121/small/cute-pixel-art-green-tea-matcha-leaf-icon-illustration-png.png", width: 32, height: 32 }
+                                                  ]
+                                                }
+                                              },
+                                              
+                                              opacity: { value: { min: 0.5, max: 0.8 }, animation: { enable: true, speed: 0.5, sync: false } },
+                                              size: { value: { min: 10, max: 15 } }, // Görsellerin ekrandaki boyutu
+                                              
+                                              move: {
+                                                enable: true,
+                                                speed: 1.5, // Hızı sabitledik (min-max kaldırdık)
+                                                direction: "bottom",
+                                                random: false,
+                                                straight: false,
+                                                outModes: { default: "out" },
+                                                gravity: { enable: false, acceleration: 0 }, // Hızlanmaya sebep olan ivmeyi kapattık
+                                                wobble: { enable: true, distance: 20, speed: 1.5 }, // Dalgalanmayı daha tutarlı hale getirdik
+                                                drift: 0 // Sağa sola kayarak hızlanmayı önlemek için sıfırladık
+                                              },
+                                              
+                                              rotate: {
+                                                value: { min: 0, max: 360 },
+                                                direction: "random",
+                                                animation: { enable: true, speed: { min: 2, max: 5 }, sync: false } // Kendi etrafında doğal dönüş
+                                              }
+                                            }
+                                          }}
+                                          style={{ position: 'absolute', width: '100%', height: '100%' }}
+                                        />
+              </div>
       )}
       {/* Full-width Hero Banner - Taller */}
       <div

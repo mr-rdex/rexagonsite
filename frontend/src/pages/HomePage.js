@@ -14,8 +14,12 @@ const HomePage = () => {
   const [sonKrediYuklemeler, setSonKrediYuklemeler] = useState([]);
   const [haberler, setHaberler] = useState([]);
   const [stats, setStats] = useState({ kayitli_oyuncu: 0, aktif_oyuncu: 0 });
-  const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+
+  // Ayrı yükleme durumları
+  const [loadingStats, setLoadingStats] = useState(true);
+  const [loadingNews, setLoadingNews] = useState(true);
+  const [loadingBoards, setLoadingBoards] = useState(true);
 
   const handleCopyIP = () => {
     navigator.clipboard.writeText('play.rexagon.com.tr');
@@ -24,43 +28,63 @@ const HomePage = () => {
   };
 
   useEffect(() => {
-  const fetchData = async () => {
-    try {
-      const [krediRes, islandRes, dinarRes, kayitRes, alisverisRes, yukleRes, haberRes, statsRes, mcRes] = await Promise.all([
-        axios.get(`${API}/leaderboard/kredi`).catch(() => ({ data: [] })),
-        axios.get(`${API}/leaderboard/ada-seviyesi`).catch(() => ({ data: [] })),
-        axios.get(`${API}/leaderboard/dinar`).catch(() => ({ data: [] })),
-        axios.get(`${API}/leaderboard/son-kayitlar`).catch(() => ({ data: [] })),
-        axios.get(`${API}/leaderboard/son-alisverisler`).catch(() => ({ data: [] })),
-        axios.get(`${API}/leaderboard/son-kredi-yuklemeler`).catch(() => ({ data: [] })),
-        axios.get(`${API}/haberler?limit=3`).catch(() => ({ data: [] })),
-        axios.get(`${API}/stats`).catch(() => ({ data: { kayitli_oyuncu: 0, aktif_oyuncu: 0 } })),
-        // Minecraft API isteği (Ücretsiz ve güvenilir bir servistir)
-        axios.get("https://api.mcsrvstat.us/3/play.rexagon.com.tr").catch(() => ({ data: { online: false } }))
-      ]);
+    // 1. İstatistikleri bağımsız çek
+    const fetchStats = async () => {
+      try {
+        const [statsRes, mcRes] = await Promise.all([
+          axios.get(`${API}/stats`).catch(() => ({ data: { kayitli_oyuncu: 0 } })),
+          axios.get("https://api.mcsrvstat.us/3/play.rexagon.com.tr").catch(() => ({ data: { online: false } }))
+        ]);
+        setStats({
+          kayitli_oyuncu: statsRes.data.kayitli_oyuncu || 0,
+          aktif_oyuncu: mcRes.data.online ? mcRes.data.players.online : 0
+        });
+      } catch (error) {
+        console.error('Stats hatası:', error);
+      } finally {
+        setLoadingStats(false);
+      }
+    };
 
+    // 2. Haberleri bağımsız çek
+    const fetchNews = async () => {
+      try {
+        const haberRes = await axios.get(`${API}/haberler?limit=3`).catch(() => ({ data: [] }));
+        setHaberler(Array.isArray(haberRes.data) ? haberRes.data : []);
+      } catch (error) {
+        console.error('Haber hatası:', error);
+      } finally {
+        setLoadingNews(false);
+      }
+    };
+
+    // 3. Sıralamaları bağımsız çek
+    const fetchLeaderboards = async () => {
+      try {
+        const [krediRes, islandRes, dinarRes, kayitRes, alisverisRes, yukleRes] = await Promise.all([
+          axios.get(`${API}/leaderboard/kredi`).catch(() => ({ data: [] })),
+          axios.get(`${API}/leaderboard/ada-seviyesi`).catch(() => ({ data: [] })),
+          axios.get(`${API}/leaderboard/dinar`).catch(() => ({ data: [] })),
+          axios.get(`${API}/leaderboard/son-kayitlar`).catch(() => ({ data: [] })),
+          axios.get(`${API}/leaderboard/son-alisverisler`).catch(() => ({ data: [] })),
+          axios.get(`${API}/leaderboard/son-kredi-yuklemeler`).catch(() => ({ data: [] }))
+        ]);
         setTopKredi(Array.isArray(krediRes.data) ? krediRes.data.slice(0, 5) : []);
         setTopIslands(Array.isArray(islandRes.data) ? islandRes.data.slice(0, 5) : []);
         setTopDinar(Array.isArray(dinarRes.data) ? dinarRes.data.slice(0, 5) : []);
         setSonKayitlar(Array.isArray(kayitRes.data) ? kayitRes.data.slice(0, 5) : []);
         setSonAlisverisler(Array.isArray(alisverisRes.data) ? alisverisRes.data.slice(0, 5) : []);
         setSonKrediYuklemeler(Array.isArray(yukleRes.data) ? yukleRes.data.slice(0, 5) : []);
-        setHaberler(Array.isArray(haberRes.data) ? haberRes.data : []);
-        // Stats verisini düzenle
-      const realTimePlayers = mcRes.data.online ? mcRes.data.players.online : 0;
-      setStats({
-        kayitli_oyuncu: statsRes.data.kayitli_oyuncu || 0,
-        aktif_oyuncu: realTimePlayers // Burası artık Minecraft'tan geliyor
-      });
+      } catch (error) {
+        console.error('Sıralama hatası:', error);
+      } finally {
+        setLoadingBoards(false);
+      }
+    };
 
-    } catch (error) {
-      console.error('Veri yüklenemedi:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-    fetchData();
+    fetchStats();
+    fetchNews();
+    fetchLeaderboards();
   }, [API]);
 
   const formatDate = (dateString) => {
@@ -72,22 +96,12 @@ const HomePage = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen pt-24 pb-16 px-4">
-        <div className="container mx-auto max-w-7xl">
-          <div className="text-center text-zinc-400">Yükleniyor...</div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen" data-testid="home-page">
       <div className='anasayfa-mc'></div>
-      {/* Hero Section */}
+      {/* Hero Section (Anında Yüklenir) */}
       <div className="relative mb-16 overflow-hidden rounded-xl" style={{
-        backgroundImage: 'url(/images/manzara.jpg)',
+        backgroundImage: 'url(/images/manzara.webp)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         minHeight: '900px'
@@ -98,6 +112,7 @@ const HomePage = () => {
               src="/images/logo.png" 
               alt="Rexagon" 
               className="h-64 md:h-64 w-auto object-contain mx-auto block"
+              fetchpriority="high"
             />
           <p className="text-lg md:text-xl text-zinc-300 mb-12 max-w-2xl mx-auto">
             Türkiye'nin en büyük Minecraft sunucu topluluğuna katıl ve maceraya atıl!
@@ -105,41 +120,48 @@ const HomePage = () => {
 
           {/* Server Stats */}
           <div className="flex flex-col items-center gap-6">
-            <div className="flex flex-wrap justify-center gap-6">
-              <div className="bg-[#1E1E1E]/50 backdrop-blur-md border border-white/10 rounded-xl px-8 py-6 hover:shadow-[0_0_30px_rgba(255,213,0,0.3)] transition-all duration-300 w-72">
-                <div className="text-center">
-                  <p className="text-4xl font-black text-[#FDD500] mb-2">{stats.aktif_oyuncu}</p>
-                  <p className="text-sm text-zinc-400 uppercase tracking-wider">Aktif Oyuncu</p>
-                </div>
-              </div>
-              <div className="bg-[#1E1E1E]/50 backdrop-blur-md border border-white/10 rounded-xl px-8 py-6 hover:shadow-[0_0_30px_rgba(255,213,0,0.3)] transition-all duration-300 w-72">
-                <div className="text-center">
-                  <p className="text-4xl font-black text-[#FDD500] mb-2">{stats.kayitli_oyuncu}</p>
-                  <p className="text-sm text-zinc-400 uppercase tracking-wider">Kayıtlı Oyuncu</p>
-                </div>
-              </div>
-            </div>
             {/* IP Address */}
             <div className="w-full max-w-[39.5rem] px-4">
               <button
                 onClick={handleCopyIP}
-                className="w-full bg-[#1E1E1E]/50 backdrop-blur-md border-2 border-[#FDD500] rounded-xl px-8 py-4 hover:bg-[#FDD500]/10 hover:shadow-[0_0_30px_rgba(255,213,0,0.3)] transition-all duration-300 flex items-center justify-center space-x-3"
+                className="w-full bg-[#1E1E1E]/50 backdrop-blur-md border border-[#FDD500]/30 rounded-xl px-8 py-4 hover:bg-[#FDD500]/10 hover:shadow-[0_0_30px_rgba(255,213,0,0.3)] transition-all duration-300 flex items-center justify-center space-x-3"
                 data-testid="copy-ip-button"
               >
-                <span className="text-[#FDD500] font-bold text-lg md:text-xl">play.rexagon.com.tr</span>
+                <span className="text-[#FDD500] font-bold text-lg mr-4 md:text-xl">play.rexagon.com.tr</span>
                 {copied ? <Check className="text-[#FDD500]" size={24} /> : <Copy className="text-[#FDD500]" size={24} />}
               </button>
               {copied && (
                 <p className="text-center text-green-500 text-sm mt-2">IP adresi kopyalandı!</p>
               )}
             </div>
+            <div className="flex flex-wrap justify-center gap-6">
+              <div className="bg-[#1E1E1E]/50 backdrop-blur-md border border-white/10 rounded-xl px-8 py-6 hover:shadow-[0_0_30px_rgba(255,213,0,0.3)] transition-all duration-300 w-72">
+                <div className="text-center">
+                  <p className="text-4xl font-black text-[#FDD500] mb-2">{loadingStats ? '...' : stats.aktif_oyuncu}</p>
+                  <p className="text-sm text-zinc-400 uppercase tracking-wider">Aktif Oyuncu</p>
+                </div>
+              </div>
+              <div className="bg-[#1E1E1E]/50 backdrop-blur-md border border-white/10 rounded-xl px-8 py-6 hover:shadow-[0_0_30px_rgba(255,213,0,0.3)] transition-all duration-300 w-72">
+                <div className="text-center">
+                  <p className="text-4xl font-black text-[#FDD500] mb-2">{loadingStats ? '...' : stats.kayitli_oyuncu}</p>
+                  <p className="text-sm text-zinc-400 uppercase tracking-wider">Kayıtlı Oyuncu</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       <div className="container mx-auto max-w-7xl">
-        {/* Haberler */}
-        {haberler.length > 0 && (
+        {/* Haberler Section */}
+        {loadingNews ? (
+          <div className="mb-16">
+            <h2 className="text-4xl md:text-5xl pl-4 font-bold tracking-tight uppercase text-white mb-8">Son Haberler</h2>
+            <div className="text-zinc-500 text-center py-12 bg-[#1E1E1E] border border-zinc-800 rounded-xl">
+              Haberler yükleniyor...
+            </div>
+          </div>
+        ) : haberler.length > 0 ? (
           <div className="mb-16" data-testid="news-section">
             <h2 className="text-4xl md:text-5xl pl-4 font-bold tracking-tight uppercase text-white mb-8">Son Haberler</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -177,7 +199,7 @@ const HomePage = () => {
               ))}
             </div>
           </div>
-        )}
+        ) : null}
 
         {/* Leaderboards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
@@ -188,7 +210,9 @@ const HomePage = () => {
               <h3 className="text-2xl font-bold uppercase text-white">En Çok Ada Seviyesi</h3>
             </div>
             <div className="space-y-3">
-              {topIslands.length > 0 ? topIslands.map((island, index) => {
+              {loadingBoards ? (
+                <div className="text-zinc-500 text-sm py-4 text-center">Yükleniyor...</div>
+              ) : topIslands.length > 0 ? topIslands.map((island, index) => {
                 let rankClass = "bg-[#2A2A2A]";
                 let rankTextClass = "text-[#FDD500]";
                 if (index === 0) { rankClass = "bg-yellow-500/20 border border-yellow-500/50"; rankTextClass = "text-yellow-500"; }
@@ -219,7 +243,9 @@ const HomePage = () => {
               <h3 className="text-2xl font-bold uppercase text-white">En Çok Dinar</h3>
             </div>
             <div className="space-y-3">
-              {topDinar.length > 0 ? topDinar.map((user, index) => {
+              {loadingBoards ? (
+                <div className="text-zinc-500 text-sm py-4 text-center">Yükleniyor...</div>
+              ) : topDinar.length > 0 ? topDinar.map((user, index) => {
                 let rankClass = "bg-[#2A2A2A]";
                 let rankTextClass = "text-[#FDD500]";
                 if (index === 0) { rankClass = "bg-yellow-500/20 border border-yellow-500/50"; rankTextClass = "text-yellow-500"; }
@@ -239,6 +265,7 @@ const HomePage = () => {
               }) : <p className="text-zinc-500 text-sm">Veri bulunamadı</p>}
             </div>
           </div>
+
           {/* En Çok Kredi */}
           <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6" data-testid="top-credits">
             <div className="flex items-center space-x-3 mb-6">
@@ -246,7 +273,9 @@ const HomePage = () => {
               <h3 className="text-2xl font-bold uppercase text-white">En Çok Kredi</h3>
             </div>
             <div className="space-y-3">
-              {topKredi.map((user, index) => {
+              {loadingBoards ? (
+                <div className="text-zinc-500 text-sm py-4 text-center">Yükleniyor...</div>
+              ) : topKredi.length > 0 ? topKredi.map((user, index) => {
                 let rankClass = "bg-[#2A2A2A] hover:bg-[#333333]";
                 let rankTextClass = "text-[#FDD500]";
                 if (index === 0) {
@@ -277,14 +306,12 @@ const HomePage = () => {
                   </div>
                   <span className={`font-bold shrink-0 ml-2 ${rankTextClass}`}>{user.kredi.toFixed(0)} Kredi</span>
                 </Link>
-              )})}
+              )}) : <p className="text-zinc-500 text-sm">Veri bulunamadı</p>}
             </div>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          
-
           {/* Son Kayıtlar */}
           <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6" data-testid="latest-users">
             <div className="flex items-center space-x-3 mb-6">
@@ -292,7 +319,9 @@ const HomePage = () => {
               <h3 className="text-2xl font-bold uppercase text-white">Son Kayıtlar</h3>
             </div>
             <div className="space-y-3">
-              {sonKayitlar.map((user) => (
+              {loadingBoards ? (
+                <div className="text-zinc-500 text-sm py-4 text-center">Yükleniyor...</div>
+              ) : sonKayitlar.length > 0 ? sonKayitlar.map((user) => (
                 <Link
                   key={user.id}
                   to={`/profil/${user.kullanici_adi.toLowerCase()}`}
@@ -308,7 +337,7 @@ const HomePage = () => {
                   </div>
                   <span className="text-sm font-medium text-zinc-400 shrink-0 ml-2">{formatDate(user.kayit_tarihi)}</span>
                 </Link>
-              ))}
+              )) : <p className="text-zinc-500 text-sm">Veri bulunamadı</p>}
             </div>
           </div>
 
@@ -319,7 +348,9 @@ const HomePage = () => {
               <h3 className="text-2xl font-bold uppercase text-white">Son Alışverişler</h3>
             </div>
             <div className="space-y-3">
-              {sonAlisverisler.length > 0 ? (
+              {loadingBoards ? (
+                <div className="text-zinc-500 text-sm py-4 text-center">Yükleniyor...</div>
+              ) : sonAlisverisler.length > 0 ? (
                 sonAlisverisler.map((purchase, index) => (
                   <Link key={index} to={`/profil/${purchase.kullanici_adi.toLowerCase()}`} className="mt-2 flex items-center justify-between p-3 bg-[#2A2A2A] rounded hover:bg-[#333333] transition-colors cursor-pointer h-16">
                     <div className="flex items-center overflow-hidden flex-1">
@@ -349,7 +380,9 @@ const HomePage = () => {
               <h3 className="text-2xl font-bold uppercase text-white">Son Kredi Yüklemeler</h3>
             </div>
             <div className="space-y-3">
-              {sonKrediYuklemeler.length > 0 ? (
+              {loadingBoards ? (
+                <div className="text-zinc-500 text-sm py-4 text-center">Yükleniyor...</div>
+              ) : sonKrediYuklemeler.length > 0 ? (
                 sonKrediYuklemeler.map((transaction, index) => (
                   <Link key={index} to={`/profil/${transaction.kullanici_adi.toLowerCase()}`} className="mt-2 flex items-center justify-between p-3 bg-[#2A2A2A] rounded hover:bg-[#333333] transition-colors cursor-pointer h-16">
                     <div className="flex items-center space-x-3 overflow-hidden flex-1">

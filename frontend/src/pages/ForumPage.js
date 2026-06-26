@@ -38,11 +38,11 @@ const ForumPage = () => {
     <div className="min-h-screen pt-24 pb-16 px-4" data-testid="forum-page">
       <div className='forum-mc'></div>
       <div className="container mx-auto max-w-7xl">
-        <div className="mb-12">
+        <div className="mb-12 text-center">
           <h1 className="minecraft-font text-5xl md:text-7xl font-black tracking-tighter uppercase text-white mb-4">
             Forum
           </h1>
-          <p className="text-lg text-zinc-400">
+          <p className="text-lg text-zinc-200">
             Toplulukla iletişime geç, sorularını sor ve deneyimlerini paylaş
           </p>
         </div>

@@ -19,11 +19,15 @@ const Navigation = () => {
   const [newPassword, setNewPassword] = useState('');
   const [saving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
-  const profileMenuRef = useRef(null);
+  const desktopProfileMenuRef = useRef(null);
+  const mobileProfileMenuRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
+      const clickedOutsideDesktop = desktopProfileMenuRef.current && !desktopProfileMenuRef.current.contains(event.target);
+      const clickedOutsideMobile = mobileProfileMenuRef.current && !mobileProfileMenuRef.current.contains(event.target);
+
+      if (clickedOutsideDesktop && clickedOutsideMobile) {
         setShowProfileMenu(false);
       }
     };
@@ -52,18 +56,19 @@ const Navigation = () => {
 
   const desktopNavLinks = [
     { to: '/', label: 'Ana Sayfa', icon: <Home size={18} /> },
-    { to: '/forum', label: 'Forum', icon: <MessageSquare size={18} /> },
     { to: '/market', label: 'Market', icon: <ShoppingCart size={18} /> },
+    { to: '/forum', label: 'Forum', icon: <MessageSquare size={18} /> },
     { to: '/siralama', label: 'Sıralama', icon: <Trophy size={18} /> },
     { to: '/hakkimizda', label: 'Hakkımızda', icon: <Info size={18} /> }
   ];
 
   const mobileNavLinks = [
     { to: '/', label: 'Ana Sayfa', icon: <Home size={20} /> },
-    { to: '/forum', label: 'Forum', icon: <MessageSquare size={20} /> },
     { to: '/market', label: 'Market', icon: <ShoppingCart size={20} /> },
+    { to: '/forum', label: 'Forum', icon: <MessageSquare size={20} /> },
     { to: '/cuzdan', label: 'Cüzdan', icon: <Wallet size={20} /> },
     { to: '/siralama', label: 'Sıralama', icon: <Trophy size={20} /> },
+    { to: '/hakkimizda', label: 'Hakkımızda', icon: <Info size={20} /> }
   ];
 
   return (
@@ -106,7 +111,7 @@ const Navigation = () => {
           {/* User Actions */}
           <div className="hidden md:flex items-center space-x-4">
             {user ? (
-              <div className="relative" ref={profileMenuRef}>
+              <div className="relative" ref={desktopProfileMenuRef}>
                 <button
                   onClick={() => setShowProfileMenu(!showProfileMenu)}
                   className="flex items-center space-x-3 px-4 py-2 bg-[#1E1E1E] border border-zinc-800 rounded-xl hover:border-[#FDD500]/50 transition-all shadow-lg"
@@ -214,42 +219,30 @@ const Navigation = () => {
     </nav>
 
     {/* Mobile Top Navbar (Centered Logo with specific blur) */}
-    <nav className="lg:hidden fixed top-0 left-0 right-0 z-50 h-20 pointer-events-none flex items-center justify-center">
-      <div className="relative pointer-events-auto">
-        {/* Background Blur just for the logo */}
-        <div className="absolute inset-0 bg-[#222222]/30 backdrop-blur-md rounded-full -m-4"></div>
-        <Link to="/" className="relative flex items-center" data-testid="mobile-logo-link">
-          <img
-            src="/images/rexanewlogo.png"
-            alt="Rexagon"
-            className="h-10 w-auto object-contain transition-transform duration-300 active:scale-95"
-          />
-        </Link>
-      </div>
-    </nav>
+    
 
         {/* Modern Mobile Bottom Navbar */}
-    <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-[#1A1A1A]/90 backdrop-blur-xl border-t border-white/10 z-50 px-2 pb-safe pt-2">
-      <div className="flex justify-around items-center">
+    <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-[#1A1A1A]/90 backdrop-blur-xl border-t border-white/10 z-50 pb-safe">
+      <div className="flex w-full justify-between items-end px-0.5 pt-2 pb-2 sm:px-4 md:px-8">
         {mobileNavLinks.map(link => {
           const isActive = link.to === '/' ? location.pathname === '/' : location.pathname.startsWith(link.to);
           return (
             <Link
               key={link.to}
               to={link.to}
-              className={`flex flex-col items-center p-2 rounded-xl transition-all duration-300 ${isActive ? 'text-[#FDD500]' : 'text-zinc-500 hover:text-zinc-300'}`}
+              className={`flex-1 flex flex-col items-center px-0.5 py-1 sm:p-2 transition-all duration-300 min-w-0 ${isActive ? 'text-[#FDD500]' : 'text-zinc-500 hover:text-zinc-300'}`}
             >
-              <div className={`mb-1 transition-transform duration-300 ${isActive ? '-translate-y-1' : ''}`}>
+              <div className={`mb-1 scale-90 sm:scale-100 transition-transform duration-300 ${isActive ? '-translate-y-1' : ''}`}>
                 {link.icon}
               </div>
-              <span className="text-[10px] font-semibold tracking-wider">
+              <span className="text-[8px] sm:text-[10px] md:text-[11px] font-semibold tracking-tight sm:tracking-wider whitespace-nowrap truncate w-full text-center">
                 {link.label}
               </span>
             </Link>
           );
         })}
         {user ? (
-          <div className="relative flex flex-col items-center justify-center flex-1" ref={profileMenuRef}>
+          <div className="relative flex flex-1 flex-col items-center justify-center min-w-0" ref={mobileProfileMenuRef}>
             <button
               onClick={(e) => {
                 e.preventDefault();
@@ -259,19 +252,19 @@ const Navigation = () => {
                   navigate('/profil');
                 }
               }}
-              className={`flex flex-col items-center p-2 rounded-xl transition-all duration-300 w-full h-full ${location.pathname.startsWith('/profil') ? 'text-[#FDD500]' : 'text-zinc-500 hover:text-zinc-300'}`}
+              className={`w-full flex flex-col items-center px-0.5 py-1 sm:p-2 transition-all duration-300 ${location.pathname.startsWith('/profil') ? 'text-[#FDD500]' : 'text-zinc-500 hover:text-zinc-300'}`}
               data-testid="mobile-profile-button"
             >
-              <div className={`mb-1 transition-transform duration-300 ${location.pathname.startsWith('/profil') ? '-translate-y-1' : ''}`}>
+              <div className={`mb-1 scale-90 sm:scale-100 transition-transform duration-300 ${location.pathname.startsWith('/profil') ? '-translate-y-1' : ''}`}>
                 <User size={20} />
               </div>
-              <span className="text-[10px] font-semibold tracking-wider">
+              <span className="text-[8px] sm:text-[10px] md:text-[11px] font-semibold tracking-tight sm:tracking-wider truncate w-full text-center">
                 Profil
               </span>
             </button>
             {showProfileMenu && (
               <div
-                className="absolute bottom-full mb-2 right-0 w-48 bg-[#1E1E1E] border border-zinc-800 rounded-xl shadow-lg overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300 z-50"
+                className="absolute bottom-full mb-2 right-0 w-48 sm:w-56 bg-[#1E1E1E] border border-zinc-800 rounded-xl shadow-lg overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300 z-50"
               >
                 <button
                   className="w-full flex items-center space-x-3 px-4 py-3 hover:bg-[#2A2A2A] transition-colors text-white text-sm"
@@ -314,12 +307,12 @@ const Navigation = () => {
         ) : (
           <Link
             to="/giris"
-            className={`flex flex-col items-center p-2 rounded-xl transition-all duration-300 ${location.pathname === '/giris' ? 'text-[#FDD500]' : 'text-zinc-500 hover:text-zinc-300'}`}
+            className={`flex-1 flex flex-col items-center px-0.5 py-1 sm:p-2 transition-all duration-300 min-w-0 ${location.pathname === '/giris' ? 'text-[#FDD500]' : 'text-zinc-500 hover:text-zinc-300'}`}
           >
-            <div className={`mb-1 transition-transform duration-300 ${location.pathname === '/giris' ? '-translate-y-1' : ''}`}>
+            <div className={`mb-1 scale-90 sm:scale-100 transition-transform duration-300 ${location.pathname === '/giris' ? '-translate-y-1' : ''}`}>
               <User size={20} />
             </div>
-            <span className="text-[10px] font-semibold tracking-wider">
+            <span className="text-[8px] sm:text-[10px] md:text-[11px] font-semibold tracking-tight sm:tracking-wider truncate w-full text-center">
               Giriş
             </span>
           </Link>

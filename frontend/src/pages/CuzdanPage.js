@@ -65,12 +65,12 @@ const CuzdanPage = () => {
     <div className="min-h-screen pt-24 pb-16 px-4" data-testid="wallet-page">
       <div className='cuzdan-mc'></div>
       <div className="container mx-auto max-w-6xl">
-        <div className="mb-12">
+        <div className="mb-12 text-center">
           <h1 className="minecraft-font text-5xl md:text-7xl font-black tracking-tighter uppercase text-white mb-4">
             Cuzdan
           </h1>
-          <p className="text-lg text-zinc-400">
-            Bakiyeni yönet ve işlem geçmişini görüntüle
+          <p className="text-lg text-zinc-200">
+            Bakiye yükle ve işlem geçmişini görüntüle
           </p>
         </div>
 

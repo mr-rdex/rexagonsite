@@ -107,11 +107,11 @@ const MarketPage = () => {
     <div className="min-h-screen pt-24 pb-16 px-4" data-testid="market-page">
       <div className='market-mc'></div>
       <div className="container mx-auto max-w-7xl">
-        <div className="mb-12">
+        <div className="text-center mb-12">
           <h1 className="minecraft-font text-5xl md:text-7xl font-black tracking-tighter uppercase text-white mb-4">
             Market
           </h1>
-          <p className="text-lg text-zinc-400">
+          <p className="text-lg text-zinc-200">
             Kredilerinle harika öğeler satın al ve oyun deneyimini geliştir
           </p>
         </div>
