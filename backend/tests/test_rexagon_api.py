@@ -7,7 +7,7 @@ import requests
 import os
 import uuid
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://rexagon-staging.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://credit-system-89.preview.emergentagent.com')
 
 # Test credentials
 ADMIN_USERNAME = "rexagon_admin"
