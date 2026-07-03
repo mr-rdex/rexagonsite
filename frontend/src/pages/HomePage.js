@@ -180,7 +180,7 @@ const HomePage = () => {
         )}
 
         {/* Leaderboards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           {/* En Çok Ada Seviyesi */}
           <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6" data-testid="top-islands">
             <div className="flex items-center space-x-3 mb-6">
@@ -196,16 +196,16 @@ const HomePage = () => {
                 else if (index === 2) { rankClass = "bg-orange-600/20 border border-orange-600/50"; rankTextClass = "text-orange-500"; }
 
                 return (
-                  <Link to={`/profil/${island.ada_lideri}`} key={index} className={`mt-2 flex items-center justify-between p-3 rounded transition-colors cursor-pointer hover:bg-[#333333] ${rankClass}`}>
-                    <div className="flex items-center space-x-3">
-                      <span className={`font-bold w-6 ${rankTextClass}`}>#{island.sira}</span>
-                      <img src={`https://mc-heads.net/avatar/${island.ada_lideri}`} alt={island.ada_lideri} className="w-8 h-8 rounded" />
-                      <div className="flex flex-col">
-                        <span className="text-white font-medium">{island.ada_adi}</span>
-                        <span className="text-xs text-zinc-500 truncate max-w-[120px]">{island.uyeler}</span>
+                  <Link to={`/profil/${island.ada_lideri.toLowerCase()}`} key={index} className={`mt-2 flex items-center justify-between p-3 rounded transition-colors cursor-pointer hover:bg-[#333333] ${rankClass} h-16`}>
+                    <div className="flex items-center space-x-3 overflow-hidden flex-1">
+                      <span className={`font-bold w-6 shrink-0 ${rankTextClass}`}>#{island.sira}</span>
+                      <img src={`https://mc-heads.net/avatar/${island.ada_lideri}`} alt={island.ada_lideri} className="w-8 h-8 rounded shrink-0" />
+                      <div className="flex flex-col min-w-0 flex-1">
+                        <span className="text-white font-medium truncate">{island.ada_adi}</span>
+                        <span className="text-xs text-zinc-500 truncate">{island.uyeler}</span>
                       </div>
                     </div>
-                    <span className={`font-bold ${rankTextClass}`}>{island.ada_seviyesi} Seviye</span>
+                    <span className={`font-bold shrink-0 ml-2 ${rankTextClass}`}>{island.ada_seviyesi} Seviye</span>
                   </Link>
                 )
               }) : <p className="text-zinc-500 text-sm">Veri bulunamadı</p>}
@@ -227,13 +227,13 @@ const HomePage = () => {
                 else if (index === 2) { rankClass = "bg-orange-600/20 border border-orange-600/50"; rankTextClass = "text-orange-500"; }
 
                 return (
-                  <Link to={`/profil/${user.oyuncu}`} key={index} className={`mt-2 flex items-center justify-between p-3 rounded transition-colors cursor-pointer hover:bg-[#333333] ${rankClass}`}>
-                    <div className="flex items-center space-x-3">
-                      <span className={`font-bold w-6 ${rankTextClass}`}>#{user.sira}</span>
-                      <img src={`https://mc-heads.net/avatar/${user.oyuncu}`} alt={user.oyuncu} className="w-8 h-8 rounded" />
-                      <span className="text-white font-medium">{user.oyuncu}</span>
+                  <Link to={`/profil/${user.oyuncu.toLowerCase()}`} key={index} className={`mt-2 flex items-center justify-between p-3 rounded transition-colors cursor-pointer hover:bg-[#333333] ${rankClass} h-16`}>
+                    <div className="flex items-center space-x-3 overflow-hidden flex-1">
+                      <span className={`font-bold w-6 shrink-0 ${rankTextClass}`}>#{user.sira}</span>
+                      <img src={`https://mc-heads.net/avatar/${user.oyuncu}`} alt={user.oyuncu} className="w-8 h-8 rounded shrink-0" />
+                      <span className="text-white font-medium truncate">{user.oyuncu}</span>
                     </div>
-                    <span className={`font-bold ${rankTextClass}`}>{user.dinar} Dinar</span>
+                    <span className={`font-bold shrink-0 ml-2 ${rankTextClass}`}>{user.dinar} Dinar</span>
                   </Link>
                 )
               }) : <p className="text-zinc-500 text-sm">Veri bulunamadı</p>}
@@ -241,7 +241,7 @@ const HomePage = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* En Çok Kredi */}
           <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6" data-testid="top-credits">
             <div className="flex items-center space-x-3 mb-6">
@@ -266,19 +266,19 @@ const HomePage = () => {
                 return (
                 <Link
                   key={user.id}
-                  to={`/profil/${user.kullanici_adi}`}
-                  className={`mt-2 flex items-center justify-between p-3 rounded transition-colors ${rankClass}`}
+                  to={`/profil/${user.kullanici_adi.toLowerCase()}`}
+                  className={`mt-2 flex items-center justify-between p-3 rounded transition-colors ${rankClass} h-16`}
                 >
-                  <div className="flex items-center space-x-3">
-                    <span className={`font-bold w-6 ${rankTextClass}`}>#{index + 1}</span>
+                  <div className="flex items-center space-x-3 overflow-hidden flex-1">
+                    <span className={`font-bold w-6 shrink-0 ${rankTextClass}`}>#{index + 1}</span>
                     <img
                       src={`https://mc-heads.net/avatar/${user.kullanici_adi}`}
                       alt={user.kullanici_adi}
-                      className="w-8 h-8 rounded"
+                      className="w-8 h-8 rounded shrink-0"
                     />
-                    <span className="text-white font-medium">{user.kullanici_adi}</span>
+                    <span className="text-white font-medium truncate">{user.kullanici_adi}</span>
                   </div>
-                  <span className={`font-bold ${rankTextClass}`}>{user.kredi.toFixed(0)} Kredi</span>
+                  <span className={`font-bold shrink-0 ml-2 ${rankTextClass}`}>{user.kredi.toFixed(0)} Kredi</span>
                 </Link>
               )})}
             </div>
@@ -294,18 +294,18 @@ const HomePage = () => {
               {sonKayitlar.map((user) => (
                 <Link
                   key={user.id}
-                  to={`/profil/${user.kullanici_adi}`}
-                  className="mt-2 flex items-center justify-between p-3 bg-[#2A2A2A] rounded hover:bg-[#333333] transition-colors"
+                  to={`/profil/${user.kullanici_adi.toLowerCase()}`}
+                  className="mt-2 flex items-center justify-between p-3 bg-[#2A2A2A] rounded hover:bg-[#333333] transition-colors h-16"
                 >
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-3 overflow-hidden flex-1">
                     <img
                       src={`https://mc-heads.net/avatar/${user.kullanici_adi}`}
                       alt={user.kullanici_adi}
-                      className="w-8 h-8 rounded"
+                      className="w-8 h-8 rounded shrink-0"
                     />
-                    <span className="text-white font-medium">{user.kullanici_adi}</span>
+                    <span className="text-white font-medium truncate">{user.kullanici_adi}</span>
                   </div>
-                  <span className="text-sm font-medium text-zinc-400">{formatDate(user.kayit_tarihi)}</span>
+                  <span className="text-sm font-medium text-zinc-400 shrink-0 ml-2">{formatDate(user.kayit_tarihi)}</span>
                 </Link>
               ))}
             </div>
@@ -320,19 +320,19 @@ const HomePage = () => {
             <div className="space-y-3">
               {sonAlisverisler.length > 0 ? (
                 sonAlisverisler.map((purchase, index) => (
-                  <Link key={index} to={`/profil/${purchase.kullanici_adi}`} className="mt-2 flex items-center justify-between p-3 bg-[#2A2A2A] rounded hover:bg-[#333333] transition-colors cursor-pointer">
-                    <div className="flex items-center">
+                  <Link key={index} to={`/profil/${purchase.kullanici_adi.toLowerCase()}`} className="mt-2 flex items-center justify-between p-3 bg-[#2A2A2A] rounded hover:bg-[#333333] transition-colors cursor-pointer h-16">
+                    <div className="flex items-center overflow-hidden flex-1">
                         <img
                             src={`https://mc-heads.net/avatar/${purchase.kullanici_adi}`}
                             alt={purchase.kullanici_adi}
-                            className="w-8 h-8 rounded mr-3"
+                            className="w-8 h-8 rounded mr-3 shrink-0"
                         />
-                        <div className="flex flex-col">
-                          <span className="text-white font-medium">{purchase.kullanici_adi}</span>
-                          <span className="text-[#FDD500] font-bold text-xs">{purchase.toplam_fiyat} Kredi</span>
+                        <div className="flex flex-col min-w-0 flex-1">
+                          <span className="text-white font-medium truncate">{purchase.kullanici_adi}</span>
+                          <span className="text-[#FDD500] font-bold text-xs truncate">{purchase.toplam_fiyat} Kredi</span>
                         </div>
                     </div>
-                    <span className="text-zinc-500 text-sm font-medium">{purchase.urun_adi}</span>
+                    <span className="text-zinc-500 text-sm font-medium shrink-0 ml-2">{purchase.urun_adi}</span>
                   </Link>
                 ))
               ) : (
@@ -350,19 +350,19 @@ const HomePage = () => {
             <div className="space-y-3">
               {sonKrediYuklemeler.length > 0 ? (
                 sonKrediYuklemeler.map((transaction, index) => (
-                  <Link key={index} to={`/profil/${transaction.kullanici_adi}`} className="mt-2 flex items-center justify-between p-3 bg-[#2A2A2A] rounded hover:bg-[#333333] transition-colors cursor-pointer">
-                    <div className="flex items-center space-x-3">
+                  <Link key={index} to={`/profil/${transaction.kullanici_adi.toLowerCase()}`} className="mt-2 flex items-center justify-between p-3 bg-[#2A2A2A] rounded hover:bg-[#333333] transition-colors cursor-pointer h-16">
+                    <div className="flex items-center space-x-3 overflow-hidden flex-1">
                         <img
                             src={`https://mc-heads.net/avatar/${transaction.kullanici_adi}`}
                             alt={transaction.kullanici_adi}
-                            className="w-8 h-8 rounded"
+                            className="w-8 h-8 rounded shrink-0"
                         />
-                        <div className="flex flex-col">
-                          <span className="text-white font-medium">{transaction.kullanici_adi}</span>
-                          <span className="text-xs text-zinc-500">{formatDate(transaction.tarih)}</span>
+                        <div className="flex flex-col min-w-0 flex-1">
+                          <span className="text-white font-medium truncate">{transaction.kullanici_adi}</span>
+                          <span className="text-xs text-zinc-500 truncate">{formatDate(transaction.tarih)}</span>
                         </div>
                     </div>
-                    <span className="text-[#FDD500] font-bold">+{transaction.tutar} Kredi</span>
+                    <span className="text-[#FDD500] font-bold shrink-0 ml-2">+{transaction.tutar} Kredi</span>
                   </Link>
                 ))
               ) : (

@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../App';
-import { ArrowLeft, MessageSquare, Clock, Plus, Heart } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Clock, Plus, Heart, Image as ImageIcon, Bold, Italic, Link as LinkIcon, List, Heading1 } from 'lucide-react';
+import toast from 'react-hot-toast';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 const ForumKategoriPage = () => {
   const { kategori } = useParams();
@@ -28,6 +31,27 @@ const ForumKategoriPage = () => {
     }
   };
 
+  const insertMarkdown = (prefix, suffix = '') => {
+    const textarea = document.getElementById('topic-textarea');
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = newTopic.icerik || '';
+
+    const before = text.substring(0, start);
+    const selection = text.substring(start, end);
+    const after = text.substring(end);
+
+    const insertedText = prefix + selection + suffix;
+    setNewTopic(prev => ({ ...prev, icerik: before + insertedText + after }));
+
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(start + prefix.length, start + prefix.length + selection.length);
+    }, 0);
+  };
+
   const handleCreateTopic = async (e) => {
     e.preventDefault();
     if (!user) {
@@ -45,8 +69,40 @@ const ForumKategoriPage = () => {
       setNewTopic({ baslik: '', icerik: '' });
       setShowNewTopic(false);
       fetchTopics();
+      toast.success("Konu başarıyla oluşturuldu.");
     } catch (error) {
-      console.error('Konu oluşturulamadı:', error);
+      toast.error('Konu oluşturulamadı.');
+    }
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 3 * 1024 * 1024) {
+      toast.error("Dosya boyutu 3MB'dan büyük olamaz!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const token = localStorage.getItem('token');
+    const toastId = toast.loading('Resim yükleniyor...');
+
+    try {
+      const response = await axios.post(`${API}/forum/upload-image`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      const imageUrl = response.data.gorsel_url;
+      const imageMarkdown = `![Resim](${imageUrl})`;
+      setNewTopic(prev => ({ ...prev, icerik: prev.icerik ? prev.icerik + '\n' + imageMarkdown : imageMarkdown }));
+      toast.success('Resim yüklendi', { id: toastId });
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Resim yüklenemedi', { id: toastId });
     }
   };
 
@@ -111,16 +167,35 @@ const ForumKategoriPage = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-zinc-400 mb-2">İçerik</label>
-                <textarea
-                  required
-                  rows={6}
-                  className="w-full bg-[#2A2A2A] border border-zinc-700 text-white rounded-md px-4 py-3 focus:outline-none focus:border-[#FDD500] focus:ring-1 focus:ring-[#FDD500] transition-all"
-                  placeholder="Konu içeriği..."
-                  value={newTopic.icerik}
-                  onChange={(e) => setNewTopic({ ...newTopic, icerik: e.target.value })}
-                  data-testid="topic-content-input"
-                ></textarea>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-zinc-400">İçerik</label>
+                </div>
+                <div className="border border-zinc-700 rounded-md overflow-hidden bg-[#2A2A2A]">
+                  <div className="bg-[#1E1E1E] border-b border-zinc-700 p-2 flex items-center space-x-2">
+                    <button type="button" onClick={() => insertMarkdown('**', '**')} className="p-1.5 text-zinc-400 hover:text-white hover:bg-zinc-700 rounded transition-colors" title="Kalın"><Bold size={16} /></button>
+                    <button type="button" onClick={() => insertMarkdown('*', '*')} className="p-1.5 text-zinc-400 hover:text-white hover:bg-zinc-700 rounded transition-colors" title="İtalik"><Italic size={16} /></button>
+                    <button type="button" onClick={() => insertMarkdown('# ', '')} className="p-1.5 text-zinc-400 hover:text-white hover:bg-zinc-700 rounded transition-colors" title="Başlık"><Heading1 size={16} /></button>
+                    <div className="w-px h-5 bg-zinc-700 mx-1"></div>
+                    <button type="button" onClick={() => insertMarkdown('[', '](url)')} className="p-1.5 text-zinc-400 hover:text-white hover:bg-zinc-700 rounded transition-colors" title="Link Ekle"><LinkIcon size={16} /></button>
+                    <button type="button" onClick={() => insertMarkdown('- ', '')} className="p-1.5 text-zinc-400 hover:text-white hover:bg-zinc-700 rounded transition-colors" title="Liste"><List size={16} /></button>
+                    <div className="w-px h-5 bg-zinc-700 mx-1"></div>
+                    <label className="p-1.5 text-zinc-400 hover:text-white hover:bg-zinc-700 rounded transition-colors cursor-pointer flex items-center space-x-1" title="Resim Yükle (Max 3MB)">
+                      <ImageIcon size={16} />
+                      <span className="text-xs ml-1 hidden sm:inline">Resim Yükle</span>
+                      <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                    </label>
+                  </div>
+                  <textarea
+                    id="topic-textarea"
+                    required
+                    rows={6}
+                    className="w-full bg-[#2A2A2A] border-none text-white px-4 py-3 focus:outline-none focus:ring-0 resize-y"
+                    placeholder="Konu içeriği... Markdown desteklenir."
+                    value={newTopic.icerik}
+                    onChange={(e) => setNewTopic({ ...newTopic, icerik: e.target.value })}
+                    data-testid="topic-content-input"
+                  ></textarea>
+                </div>
               </div>
               <div className="flex space-x-4">
                 <button
@@ -156,7 +231,9 @@ const ForumKategoriPage = () => {
                     <h3 className="text-xl font-bold text-white group-hover:text-[#FDD500] transition-colors mb-2">
                       {topic.baslik}
                     </h3>
-                    <p className="text-sm text-zinc-400 line-clamp-2 mb-3">{topic.icerik}</p>
+                    <div className="text-sm text-zinc-400 line-clamp-2 mb-3 prose prose-invert max-w-none prose-sm">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{topic.icerik}</ReactMarkdown>
+                    </div>
                     <div className="flex items-center space-x-4 text-xs text-zinc-500">
                       <span className="flex items-center space-x-1">
                         <img

@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../App';
-import { ArrowLeft, Send, Clock, Lock, CheckCircle, Trash2, Heart } from 'lucide-react';
+import { ArrowLeft, Send, Clock, Lock, CheckCircle, Trash2, Heart, Image as ImageIcon, Bold, Italic, Link as LinkIcon, List, Heading1 } from 'lucide-react';
+import toast from 'react-hot-toast';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 const ForumKonuPage = () => {
   const { id } = useParams();
@@ -43,8 +46,40 @@ const ForumKonuPage = () => {
       );
       setNewReply('');
       fetchTopic();
+      toast.success("Yanıt eklendi.");
     } catch (error) {
-      console.error('Cevap eklenemedi:', error);
+      toast.error('Cevap eklenemedi.');
+    }
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 3 * 1024 * 1024) {
+      toast.error("Dosya boyutu 3MB'dan büyük olamaz!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const token = localStorage.getItem('token');
+    const toastId = toast.loading('Resim yükleniyor...');
+
+    try {
+      const response = await axios.post(`${API}/forum/upload-image`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      const imageUrl = response.data.gorsel_url;
+      const imageMarkdown = `![Resim](${imageUrl})`;
+      setNewReply(prev => prev ? prev + '\n' + imageMarkdown : imageMarkdown);
+      toast.success('Resim yüklendi', { id: toastId });
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Resim yüklenemedi', { id: toastId });
     }
   };
 
@@ -75,6 +110,48 @@ const ForumKonuPage = () => {
     } catch (error) {
       console.error('Beğeni işlemi başarısız', error);
     }
+  };
+
+  const handleReplyLike = async (cevapId) => {
+    if (!user) {
+      navigate('/giris');
+      return;
+    }
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(`${API}/forum/cevap/${cevapId}/begen`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      fetchTopic();
+    } catch (error) {
+      console.error('Beğeni işlemi başarısız', error);
+    }
+  };
+
+  const handleQuote = (yazarAdi, icerik) => {
+    setNewReply(`> ${yazarAdi} dedi ki:\n> ${icerik}\n\n`);
+    document.getElementById('reply-textarea')?.focus();
+  };
+
+  const insertMarkdown = (prefix, suffix = '') => {
+    const textarea = document.getElementById('reply-textarea');
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = newReply;
+
+    const before = text.substring(0, start);
+    const selection = text.substring(start, end);
+    const after = text.substring(end);
+
+    const insertedText = prefix + selection + suffix;
+    setNewReply(before + insertedText + after);
+
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(start + prefix.length, start + prefix.length + selection.length);
+    }, 0);
   };
 
   const formatDate = (dateString) => {
@@ -141,7 +218,9 @@ const ForumKonuPage = () => {
               </div>
             </Link>
           </div>
-          <div className="text-zinc-300 leading-relaxed whitespace-pre-wrap mb-6">{konu.icerik}</div>
+          <div className="text-zinc-300 leading-relaxed mb-6 prose prose-invert max-w-none prose-img:max-w-full prose-img:rounded-md">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{konu.icerik}</ReactMarkdown>
+          </div>
           <div className="flex items-center justify-end border-t border-zinc-800 pt-4">
             <button onClick={handleLike} className={`flex items-center space-x-2 transition-colors ${user && konu.begenenler?.includes(user.id) ? 'text-pink-500' : 'text-zinc-400 hover:text-pink-500'}`}>
               <Heart size={20} className={user && konu.begenenler?.includes(user.id) ? 'fill-current' : ''} />
@@ -186,7 +265,24 @@ const ForumKonuPage = () => {
                       )}
                     </div>
                   </div>
-                  <div className="text-zinc-300 leading-relaxed whitespace-pre-wrap">{cevap.icerik}</div>
+                  <div className="text-zinc-300 leading-relaxed prose prose-invert max-w-none prose-img:max-w-full prose-img:rounded-md">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{cevap.icerik}</ReactMarkdown>
+                  </div>
+                  <div className="flex items-center space-x-4 mt-4 text-sm">
+                    <button
+                      onClick={() => handleReplyLike(cevap.id)}
+                      className={`flex items-center space-x-1 ${user && (cevap.begenenler || []).includes(user.id) ? 'text-red-500' : 'text-zinc-400 hover:text-red-400'}`}
+                    >
+                      <Heart size={16} className={user && (cevap.begenenler || []).includes(user.id) ? 'fill-current' : ''} />
+                      <span>{(cevap.begenenler || []).length}</span>
+                    </button>
+                    {!konu.kapali && (
+                      <button onClick={() => handleQuote(cevap.yazar_adi, cevap.icerik)} className="text-zinc-400 hover:text-[#FDD500] flex items-center space-x-1">
+                        <MessageSquare size={16} />
+                        <span>Alıntıla</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -201,17 +297,36 @@ const ForumKonuPage = () => {
           </div>
         ) : user ? (
           <div className="bg-[#1E1E1E] border border-zinc-800 rounded-lg p-6" data-testid="reply-form">
-            <h3 className="text-xl font-bold text-white mb-4">Cevap Yaz</h3>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-xl font-bold text-white">Cevap Yaz</h3>
+            </div>
             <form onSubmit={handleReply} className="space-y-4">
+              <div className="border border-zinc-700 rounded-md overflow-hidden bg-[#2A2A2A]">
+                <div className="bg-[#1E1E1E] border-b border-zinc-700 p-2 flex items-center space-x-2">
+                  <button type="button" onClick={() => insertMarkdown('**', '**')} className="p-1.5 text-zinc-400 hover:text-white hover:bg-zinc-700 rounded transition-colors" title="Kalın"><Bold size={16} /></button>
+                  <button type="button" onClick={() => insertMarkdown('*', '*')} className="p-1.5 text-zinc-400 hover:text-white hover:bg-zinc-700 rounded transition-colors" title="İtalik"><Italic size={16} /></button>
+                  <button type="button" onClick={() => insertMarkdown('# ', '')} className="p-1.5 text-zinc-400 hover:text-white hover:bg-zinc-700 rounded transition-colors" title="Başlık"><Heading1 size={16} /></button>
+                  <div className="w-px h-5 bg-zinc-700 mx-1"></div>
+                  <button type="button" onClick={() => insertMarkdown('[', '](url)')} className="p-1.5 text-zinc-400 hover:text-white hover:bg-zinc-700 rounded transition-colors" title="Link Ekle"><LinkIcon size={16} /></button>
+                  <button type="button" onClick={() => insertMarkdown('- ', '')} className="p-1.5 text-zinc-400 hover:text-white hover:bg-zinc-700 rounded transition-colors" title="Liste"><List size={16} /></button>
+                  <div className="w-px h-5 bg-zinc-700 mx-1"></div>
+                  <label className="p-1.5 text-zinc-400 hover:text-white hover:bg-zinc-700 rounded transition-colors cursor-pointer flex items-center space-x-1" title="Resim Yükle (Max 3MB)">
+                    <ImageIcon size={16} />
+                    <span className="text-xs ml-1 hidden sm:inline">Resim Yükle</span>
+                    <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                  </label>
+                </div>
               <textarea
+                id="reply-textarea"
                 required
                 rows={4}
-                className="w-full bg-[#2A2A2A] border border-zinc-700 text-white rounded-md px-4 py-3 focus:outline-none focus:border-[#FDD500] focus:ring-1 focus:ring-[#FDD500] transition-all"
-                placeholder="Cevabınızı yazın..."
+                className="w-full bg-[#2A2A2A] border-none text-white px-4 py-3 focus:outline-none focus:ring-0 resize-y"
+                placeholder="Cevabınızı yazın... Markdown desteklenir."
                 value={newReply}
                 onChange={(e) => setNewReply(e.target.value)}
                 data-testid="reply-input"
               ></textarea>
+              </div>
               <button
                 type="submit"
                 className="bg-[#FDD500] text-black font-bold uppercase tracking-wide px-6 py-3 rounded-sm hover:bg-[#E6C200] transition-all btn-3d flex items-center space-x-2"

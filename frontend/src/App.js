@@ -17,8 +17,10 @@ import AdminPage from './pages/AdminPage';
 import CuzdanPage from './pages/CuzdanPage';
 import HakkimizdaPage from './pages/HakkimizdaPage';
 import HaberDetayPage from './pages/HaberDetayPage';
+import WikiPage from './pages/WikiPage';
 import Snowfall from 'react-snowfall';
 import { useLocation } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 
 const BACKEND_URL = process.env.REACT_APP_API_URL;
 const API = `${BACKEND_URL}/api`;
@@ -109,6 +111,7 @@ function App() {
     <AuthContext.Provider value={{ user, login, logout, API, BACKEND_URL }}>
       <BrowserRouter>
         <GlobalAmbiance siteAmbiance={siteAmbiance} />
+        <Toaster position="bottom-right" />
         <div className="App relative">
           <Navigation />
           <Routes>
@@ -126,6 +129,7 @@ function App() {
             <Route path="/siralama" element={<SiralamaPage />} />
             <Route path="/hakkimizda" element={<HakkimizdaPage />} />
             <Route path="/haber/:id" element={<HaberDetayPage />} />
+            <Route path="/wiki/:slug" element={<WikiPage />} />
             <Route path="/admin" element={user?.rol === 'admin' ? <AdminPage /> : <Navigate to="/" />} />
           </Routes>
           <Footer />

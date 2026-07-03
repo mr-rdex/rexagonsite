@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../App';
 import { Package, Coins, ShoppingCart, Filter } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const MarketPage = () => {
   const { kategori } = useParams();
@@ -62,7 +63,7 @@ const MarketPage = () => {
     }
 
     if (user.kredi < itemPrice) {
-      alert('Yetersiz kredi!');
+      toast.error('Yetersiz kredi!', { style: { background: '#ef4444', color: '#fff' }});
       return;
     }
 
@@ -74,12 +75,14 @@ const MarketPage = () => {
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      alert(`Satın alma başarılı! Minecraft komutu: ${response.data.minecraft_command}`);
+      toast.success('Satın alım başarılı! Güle güle kullanın.', { style: { background: '#22c55e', color: '#fff' }});
       setShowConfirmModal(false);
       setSelectedItem(null);
-      window.location.reload();
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
     } catch (error) {
-      alert(error.response?.data?.detail || 'Satın alma başarısız');
+      toast.error('Satın alım başarısız! Lütfen tekrar deneyin.', { style: { background: '#ef4444', color: '#fff' }});
     } finally {
       setPurchasing(null);
     }

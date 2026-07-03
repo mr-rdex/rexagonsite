@@ -6,6 +6,8 @@ from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
+import asyncio
+from rcon.source import rcon
 from pydantic import BaseModel, Field, ConfigDict, EmailStr
 from typing import List, Optional
 from datetime import datetime, timezone, timedelta
@@ -16,19 +18,41 @@ import sqlite3
 import shutil
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import UploadFile, File
+from PIL import Image
+import io
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
 # MongoDB connection
-mongo_url = os.environ['MONGO_URL']
+mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
 client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+db = client[os.environ.get('DB_NAME', 'minecraft_server')]
 
 # JWT Configuration
 SECRET_KEY = os.getenv("JWT_SECRET_KEY", "minecraft-server-secret-key-change-in-production")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 10080  # 7 days
+
+# RCON Ayarları
+RCON_HOST = os.getenv("RCON_HOST", "127.0.0.1")
+RCON_PORT = int(os.getenv("RCON_PORT", 25575))
+RCON_PASSWORD = os.getenv("RCON_PASSWORD", "password") # Provide default or empty
+
+async def send_rcon_command(command: str):
+    """Minecraft sunucusuna RCON üzerinden komut gönderir."""
+    try:
+        response = await rcon(
+            command,
+            host=RCON_HOST,
+            port=RCON_PORT,
+            passwd=RCON_PASSWORD
+        )
+        logging.info(f"RCON Command executed: '{command}'. Response: {response}")
+        return response
+    except Exception as e:
+        logging.error(f"RCON Error executing '{command}': {e}")
+        return str(e)
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__ident="2b")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/giris")
@@ -67,6 +91,7 @@ class UserResponse(BaseModel):
     acik_temalar: List[str] = []
     aktif_tema_id: Optional[str] = None
     aktif_tema_gorsel: Optional[str] = None
+    aktif_tema_ambiyans: Optional[str] = "yok"
     biyografi: Optional[str] = None
     discord: Optional[str] = None
     instagram: Optional[str] = None
@@ -96,6 +121,7 @@ class MarketUrun(BaseModel):
     gorsel: Optional[str] = None
     indirim: Optional[float] = 0
     detayli_bilgi: Optional[str] = None
+    satin_alim_komutu: Optional[str] = None
 
 class Haber(BaseModel):
     baslik: str
@@ -129,10 +155,18 @@ class SifreDegistir(BaseModel):
     eski_sifre: str
     yeni_sifre: str
 
+class RconCommand(BaseModel):
+    command: str
+
 class BiyografiGuncelle(BaseModel):
     biyografi: Optional[str] = None
     discord: Optional[str] = None
     instagram: Optional[str] = None
+
+class WikiPageCreate(BaseModel):
+    slug: str
+    baslik: str
+    icerik: str
 
 # ============ AUTH HELPERS ============
 
@@ -194,7 +228,6 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     user.setdefault("aktif_tema_id", None)
     user.setdefault("aktif_tema_gorsel", None)
     user.setdefault("aktif_tema_ambiyans", "yok")
-    user.setdefault("aktif_tema_ambiyans", "yok")
     user.setdefault("biyografi", None)
     user.setdefault("ada_seviyesi", 0)
     user.setdefault("dinar", 0)
@@ -251,6 +284,39 @@ async def update_settings(settings: SiteSettings, admin: dict = Depends(get_admi
         upsert=True
     )
     return {"message": "Site ayarları güncellendi"}
+
+# ============ WIKI ROUTES ============
+
+@api_router.get("/wiki/{slug}")
+async def get_wiki_page(slug: str):
+    page = await db.wiki_pages.find_one({"slug": slug}, {"_id": 0})
+    if not page:
+        raise HTTPException(status_code=404, detail="Wiki sayfası bulunamadı")
+    return page
+
+@api_router.get("/admin/wiki")
+async def get_all_wiki_pages(admin: dict = Depends(get_admin_user)):
+    pages = await db.wiki_pages.find({}, {"_id": 0}).to_list(1000)
+    return pages
+
+@api_router.post("/admin/wiki")
+async def create_or_update_wiki_page(page_data: WikiPageCreate, admin: dict = Depends(get_admin_user)):
+    doc = {
+        "slug": page_data.slug,
+        "baslik": page_data.baslik,
+        "icerik": page_data.icerik,
+        "son_guncelleme": datetime.now(timezone.utc).isoformat(),
+        "guncelleyen": admin["kullanici_adi"]
+    }
+    await db.wiki_pages.update_one({"slug": page_data.slug}, {"$set": doc}, upsert=True)
+    return {"message": "Wiki sayfası kaydedildi", "slug": page_data.slug}
+
+@api_router.delete("/admin/wiki/{slug}")
+async def delete_wiki_page(slug: str, admin: dict = Depends(get_admin_user)):
+    result = await db.wiki_pages.delete_one({"slug": slug})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Sayfa bulunamadı")
+    return {"message": "Wiki sayfası silindi"}
 
 @api_router.get("/admin/gallery")
 async def get_gallery(admin: dict = Depends(get_admin_user)):
@@ -376,6 +442,7 @@ async def get_user_profile(kullanici_adi: str):
     user.setdefault("acik_temalar", [])
     user.setdefault("aktif_tema_id", None)
     user.setdefault("aktif_tema_gorsel", None)
+    user.setdefault("aktif_tema_ambiyans", "yok")
     user.setdefault("biyografi", None)
     user.setdefault("ada_seviyesi", 0)
     user.setdefault("dinar", 0)
@@ -588,6 +655,43 @@ async def get_forum_topic(konu_id: str):
     
     return {"konu": topic[0], "cevaplar": replies}
 
+@api_router.post("/forum/upload-image")
+async def upload_forum_image(file: UploadFile = File(...), current_user: dict = Depends(get_current_user)):
+    # Yüklenen dosya boyutu kontrolü (3MB)
+    file.file.seek(0, 2)
+    file_size = file.file.tell()
+    file.file.seek(0)
+
+    if file_size > 3 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="Dosya boyutu 3MB'dan büyük olamaz")
+
+    # Resim Sıkıştırma (Pillow)
+    try:
+        img = Image.open(file.file)
+        if img.mode in ("RGBA", "P"):
+            img = img.convert("RGB")
+
+        # Max resolution restriction to save space
+        img.thumbnail((1280, 1280), Image.Resampling.LANCZOS)
+
+        output = io.BytesBytesIO() if False else io.BytesIO()
+        img.save(output, format="JPEG", quality=80, optimize=True)
+        compressed_data = output.getvalue()
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Geçersiz resim formatı: {e}")
+
+    # Dizin oluşturma
+    forum_images_dir = ROOT_DIR.parent / "frontend" / "public" / "images" / "forum"
+    forum_images_dir.mkdir(parents=True, exist_ok=True)
+
+    unique_filename = f"{uuid.uuid4().hex}.jpg"
+    file_path = forum_images_dir / unique_filename
+
+    with open(file_path, "wb") as f:
+        f.write(compressed_data)
+
+    return {"gorsel_url": f"/images/forum/{unique_filename}"}
+
 @api_router.post("/forum/konu")
 async def create_forum_topic(konu: ForumKonu, current_user: dict = Depends(get_current_user)):
     konu_id = str(uuid.uuid4())
@@ -634,10 +738,31 @@ async def create_forum_reply(konu_id: str, cevap: ForumCevap, current_user: dict
         "konu_id": konu_id,
         "icerik": cevap.icerik,
         "yazar_id": current_user["id"],
-        "tarih": datetime.now(timezone.utc).isoformat()
+        "tarih": datetime.now(timezone.utc).isoformat(),
+        "begenenler": []
     }
     await db.forum_replies.insert_one(cevap_doc)
     return {"message": "Cevap eklendi", "id": cevap_id}
+
+@api_router.post("/forum/cevap/{cevap_id}/begen")
+async def like_forum_reply(cevap_id: str, current_user: dict = Depends(get_current_user)):
+    reply = await db.forum_replies.find_one({"id": cevap_id})
+    if not reply:
+        raise HTTPException(status_code=404, detail="Cevap bulunamadı")
+
+    begenenler = reply.get("begenenler", [])
+    if current_user["id"] in begenenler:
+        begenenler.remove(current_user["id"])
+        action = "unliked"
+    else:
+        begenenler.append(current_user["id"])
+        action = "liked"
+
+    await db.forum_replies.update_one(
+        {"id": cevap_id},
+        {"$set": {"begenenler": begenenler}}
+    )
+    return {"message": "İşlem başarılı", "action": action, "likes": len(begenenler)}
 
 @api_router.get("/stats")
 async def get_server_stats():
@@ -766,14 +891,19 @@ async def purchase_item(urun_id: str, current_user: dict = Depends(get_current_u
     }
     await db.purchases.insert_one(purchase_doc)
     
-    # TODO: Send command to Minecraft server
-    # minecraft_command = f"give {current_user['kullanici_adi']} {item['isim']}"
-    # send_to_minecraft_server(minecraft_command)
-    
+    minecraft_command = None
+    if item.get("satin_alim_komutu"):
+        raw_command = item["satin_alim_komutu"]
+        # '{username}' değişkenini kullanıcının adıyla değiştir
+        minecraft_command = raw_command.replace("{username}", current_user["kullanici_adi"])
+
+        # RCON üzerinden sunucuya gönder
+        asyncio.create_task(send_rcon_command(minecraft_command))
+
     return {
         "message": "Satın alma başarılı",
         "yeni_kredi": current_user["kredi"] - item["fiyat"],
-        "minecraft_command": f"give {current_user['kullanici_adi']} minecraft:diamond 1"  # Placeholder
+        "minecraft_command": minecraft_command or "Komut ayarlanmamış"
     }
 
 # ============ NEWS ROUTES ============
@@ -933,10 +1063,16 @@ async def create_market_item(urun: MarketUrun, admin: dict = Depends(get_admin_u
         "gorsel": urun.gorsel,
         "indirim": urun.indirim if urun.indirim else 0,
         "detayli_bilgi": urun.detayli_bilgi,
+        "satin_alim_komutu": urun.satin_alim_komutu,
         "olusturulma_tarihi": datetime.now(timezone.utc).isoformat()
     }
     await db.market_items.insert_one(urun_doc)
     return {"message": "Ürün oluşturuldu", "id": urun_id}
+
+@api_router.post("/admin/rcon/send")
+async def admin_send_rcon(rcon_data: RconCommand, admin: dict = Depends(get_admin_user)):
+    response = await send_rcon_command(rcon_data.command)
+    return {"message": "Komut gönderildi", "response": response}
 
 @api_router.put("/admin/market/urun/{urun_id}")
 async def update_market_item(urun_id: str, urun: MarketUrun, admin: dict = Depends(get_admin_user)):

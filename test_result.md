@@ -100,4 +100,67 @@
 
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
-#====================================================================================================
+#====================================================================================================user_problem_statement: "Minecraft sunucum için oluşturuduğumuz bu sitede aynı zamanda yan iş olarak yaptığım plugin tasarımını da dahil etmek istiyorum. Bunun için bir wiki tarzı sayfaya ihtiyacım var sitenin herhangi bir yerinde tıklanmasına gerek yok sadece \"rexagon.com.tr/wiki/rexaprofile\" ve \"rexagon.com.tr/wiki/rexaeco\" uzantılarında birer wiki sayfası tasarlamanı istiyorum, bu tasarım sitenin tasarım diline uygun olsun. Admin paneli üzerinden bu wikiyi düzenlenebilir şekilde yapmanı istiyorum. \n\nAyrıca galeri bölümünde bir kaç sorun çekiyorum, resimleri yüklediğimde bazen resim yüklenmiyor geç geliyor gibi sorunlar oluyor. Veya bir resimi aynı isimde başka resim koymak istediğimde çakışmalar olabiliyor. Bu sorunların sebebi ön belleğe alma gibi bir şey olabilir bunu düzeltmeni istiyorum.\n\nAnasayfa da bulunan sıralamalar şu anda 2+2+2 şeklinde, bunu 3+3 şeklinde sığacak şekilde yeniden boyutlandırmanı istiyorum. Ayrıca En Çok Ada Seviyesi sıralamasındaki iç kutucuklar yazılar dolayısıyla diğerlerinden daha büyük gözüküyor bu kutucuklara max width verip hepsini eşit boyutta gözükmesini istiyorum.\n\nBir de forum kısmında verilen yanıtları beğenme ve yanıtı tekrar cevaplama ve alıntılama gelmesini istiyorum. Ve forumda konu açarken resim eklenebilir olmasını istiyorum. Bu resimleri ayrı bir dosyada sıkıştırılmış şekilde tutulmasını istiyorum, ve yüklenen resimler 3mb'dan büyük olamaz."
+backend:
+  - task: "Galeri yükleme resim uuid atama"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+  - task: "Wiki endpointleri (GET/POST/DELETE)"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+  - task: "Forum konu/cevap upload image"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+  - task: "Forum cevap begenme / alintilama backend state"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+frontend:
+  - task: "Admin sayfası wiki yönetimi tab'i"
+    implemented: true
+    working: true
+    file: "frontend/src/pages/AdminPage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+  - task: "Wiki page görüntüleme"
+    implemented: true
+    working: true
+    file: "frontend/src/pages/WikiPage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+  - task: "Ana sayfa leaderboard 3 column grid"
+    implemented: true
+    working: true
+    file: "frontend/src/pages/HomePage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+  - task: "Forum konu/cevaplarda resim butonu (max 3mb) ve begen/alintila butonlari"
+    implemented: true
+    working: true
+    file: "frontend/src/pages/ForumKategoriPage.js, frontend/src/pages/ForumKonuPage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: false
