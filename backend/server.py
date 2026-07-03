@@ -16,8 +16,12 @@ from passlib.context import CryptContext
 import uuid
 import sqlite3
 import shutil
+import hmac
+import hashlib
+import base64
+import json
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import UploadFile, File
+from fastapi import UploadFile, File, Request, Form
 from PIL import Image
 import io
 
@@ -169,8 +173,6 @@ class WikiPageCreate(BaseModel):
     icerik: str
 
 # ============ AUTH HELPERS ============
-
-import hashlib
 
 def verify_password(plain_password, hashed_password):
     # 1. Minecraft AuthMe Formatı Kontrolü ($SHA$salt$hash)
@@ -800,8 +802,8 @@ async def get_wallet_history(current_user: dict = Depends(get_current_user)):
 
 @api_router.post("/cuzdan/yukle")
 async def load_wallet(tutar: float, current_user: dict = Depends(get_current_user)):
-    # This will integrate with PayTR/Shopier
-    # For now, just create a pending transaction
+    # DEPRECATED: use /shopier/odeme-baslat endpoint instead
+    # For now, just create a pending transaction (kept for backward compatibility)
     transaction_id = str(uuid.uuid4())
     transaction = {
         "id": transaction_id,
@@ -813,6 +815,269 @@ async def load_wallet(tutar: float, current_user: dict = Depends(get_current_use
     }
     await db.credit_transactions.insert_one(transaction)
     return {"message": "Ödeme başlatıldı", "transaction_id": transaction_id}
+
+# ============ SHOPIER OSB ROUTES ============
+
+# Shopier ödeme paketleri - Bakiye miktarı ve Shopier direct-link eşleştirmesi
+SHOPIER_PAKETLER = {
+    25: {
+        "tutar": 25,
+        "link": "https://www.shopier.com/rexagon/48373478",
+        "aktif": True,
+    },
+    50: {
+        "tutar": 50,
+        "link": "https://www.shopier.com/rexagon/48373534",
+        "aktif": True,
+    },
+    100: {
+        "tutar": 100,
+        "link": None,  # Henüz eklenmedi
+        "aktif": False,
+    },
+    200: {
+        "tutar": 200,
+        "link": None,
+        "aktif": False,
+    },
+    500: {
+        "tutar": 500,
+        "link": None,
+        "aktif": False,
+    },
+}
+
+
+@api_router.get("/shopier/paketler")
+async def get_shopier_paketler():
+    """Frontend için kullanılabilir bakiye yükleme paketlerini döner."""
+    return [
+        {"tutar": p["tutar"], "aktif": p["aktif"]}
+        for p in SHOPIER_PAKETLER.values()
+    ]
+
+
+@api_router.post("/shopier/odeme-baslat")
+async def shopier_start_payment(
+    tutar: int,
+    current_user: dict = Depends(get_current_user),
+):
+    """
+    Kullanıcı bir bakiye paketi seçtiğinde çağrılır.
+    - Pending bir credit_transaction oluşturur.
+    - Shopier direct-link'e platform_order_id parametresini ekleyerek yönlendirilecek URL döner.
+    """
+    paket = SHOPIER_PAKETLER.get(tutar)
+    if not paket:
+        raise HTTPException(status_code=400, detail="Geçersiz tutar")
+    if not paket["aktif"] or not paket["link"]:
+        raise HTTPException(status_code=400, detail="Bu paket henüz aktif değil")
+
+    transaction_id = str(uuid.uuid4())
+    transaction = {
+        "id": transaction_id,
+        "kullanici_id": current_user["id"],
+        "kullanici_adi": current_user.get("kullanici_adi"),
+        "tutar": float(paket["tutar"]),
+        "tip": "yukleme",
+        "durum": "beklemede",
+        "odeme_saglayici": "shopier",
+        "tarih": datetime.now(timezone.utc).isoformat()
+    }
+    await db.credit_transactions.insert_one(transaction)
+
+    # Shopier direct payment link'e platform_order_id parametresini ekliyoruz.
+    # Bu değer OSB callback'inde geri döndürülür.
+    payment_url = f"{paket['link']}?platform_order_id={transaction_id}"
+
+    return {
+        "transaction_id": transaction_id,
+        "payment_url": payment_url,
+        "kullanici_adi": current_user.get("kullanici_adi"),
+        "tutar": paket["tutar"],
+    }
+
+
+@api_router.post("/shopier/osb-callback")
+async def shopier_osb_callback(request: Request):
+    """
+    Shopier OSB (Otomatik Sipariş Bildirimi) callback endpoint.
+    - HMAC-SHA256 imza doğrulaması yapar.
+    - Base64 encode edilmiş sipariş verisini parse eder.
+    - platform_order_id üzerinden pending transaction'ı bulup onaylar.
+    - Ek güvenlik: customernote/chatdetails kısmındaki kullanıcı adını da kontrol eder.
+    - Kullanıcının bakiyesini günceller.
+    """
+    osb_username = os.environ.get("SHOPIER_OSB_USERNAME", "").strip()
+    osb_password = os.environ.get("SHOPIER_OSB_PASSWORD", "").strip()
+
+    if not osb_username or not osb_password:
+        logger.error("Shopier OSB credentials not configured")
+        raise HTTPException(status_code=500, detail="OSB credentials not configured")
+
+    # Shopier OSB verisi form-encoded olarak gelir. body[0] = base64 encoded JSON, body[1] = signature hash
+    try:
+        form = await request.form()
+        form_dict = dict(form)
+    except Exception as e:
+        logger.error(f"Shopier OSB: form parse failed: {e}")
+        raise HTTPException(status_code=400, detail="Invalid request format")
+
+    # Shopier tarafından iki farklı formatta veri gelebilir:
+    # 1) form fields as "0" and "1" (indexed array)
+    # 2) named fields "res" and "hash" veya benzeri
+    # Bu yüzden hem indexed hem named parametreleri deniyoruz.
+    encoded_data = form_dict.get("0") or form_dict.get("res") or form_dict.get("data")
+    provided_hash = form_dict.get("1") or form_dict.get("hash") or form_dict.get("signature")
+
+    if not encoded_data or not provided_hash:
+        # Bazı durumlarda JSON body de gelebilir
+        try:
+            body_json = await request.json()
+            if isinstance(body_json, list) and len(body_json) >= 2:
+                encoded_data = body_json[0].get("value") if isinstance(body_json[0], dict) else body_json[0]
+                provided_hash = body_json[1].get("value") if isinstance(body_json[1], dict) else body_json[1]
+        except Exception:
+            pass
+
+    if not encoded_data or not provided_hash:
+        logger.error(f"Shopier OSB: Missing params. form={form_dict}")
+        raise HTTPException(status_code=401, detail="Missing parameter")
+
+    # HMAC-SHA256 doğrulama
+    computed_hash = hmac.new(
+        osb_password.encode("utf-8"),
+        (str(encoded_data) + osb_username).encode("utf-8"),
+        hashlib.sha256,
+    ).hexdigest()
+
+    if not hmac.compare_digest(computed_hash, str(provided_hash)):
+        logger.error(f"Shopier OSB: hash mismatch. expected={computed_hash} got={provided_hash}")
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    # Verileri decode et
+    try:
+        decoded_bytes = base64.b64decode(encoded_data)
+        order_data = json.loads(decoded_bytes.decode("utf-8"))
+    except Exception as e:
+        logger.error(f"Shopier OSB: decode failed: {e}")
+        raise HTTPException(status_code=400, detail="Decode failed")
+
+    logger.info(f"Shopier OSB order received: {order_data}")
+
+    # Sipariş bilgileri
+    email = order_data.get("email", "")
+    order_id = str(order_data.get("orderid", ""))
+    price = float(order_data.get("price", 0) or 0)
+    customer_note = (order_data.get("customernote") or order_data.get("chatdetails") or "").strip()
+    platform_order_id = (
+        order_data.get("platform_order_id")
+        or order_data.get("platformOrderId")
+        or order_data.get("platformorderid")
+        or ""
+    )
+    is_test = order_data.get("istest", 0)
+
+    # 1) Öncelikle platform_order_id ile pending transaction'ı bulmaya çalış
+    transaction = None
+    if platform_order_id:
+        transaction = await db.credit_transactions.find_one({
+            "id": platform_order_id,
+            "durum": "beklemede",
+            "tip": "yukleme",
+        })
+
+    # 2) Bulunamazsa customer_note (kullanıcı adı) üzerinden en son pending yükleme'yi bul
+    if not transaction and customer_note:
+        transaction = await db.credit_transactions.find_one(
+            {
+                "kullanici_adi": {"$regex": f"^{customer_note}$", "$options": "i"},
+                "durum": "beklemede",
+                "tip": "yukleme",
+                "tutar": price,
+            },
+            sort=[("tarih", -1)],
+        )
+
+    if not transaction:
+        logger.warning(
+            f"Shopier OSB: No matching transaction found. "
+            f"platform_order_id={platform_order_id} note={customer_note} price={price} email={email}"
+        )
+        # Yine de success dönüyoruz çünkü Shopier tarafında retry olmasın istiyoruz;
+        # işlemi manuel takip için özel bir koleksiyonda saklıyoruz.
+        await db.shopier_unmatched.insert_one({
+            "id": str(uuid.uuid4()),
+            "order_data": order_data,
+            "tarih": datetime.now(timezone.utc).isoformat(),
+        })
+        return "success"
+
+    # Kullanıcıyı güncelle: transaction'ı onayla + bakiyeyi arttır
+    kullanici_id = transaction["kullanici_id"]
+    kullanici = await db.users.find_one({"id": kullanici_id})
+    if not kullanici:
+        logger.error(f"Shopier OSB: user not found. id={kullanici_id}")
+        return "success"
+
+    # Ek güvenlik: sipariş notundaki kullanıcı adı ile transaction sahibi eşleşmeli
+    if customer_note:
+        if customer_note.strip().lower() != (kullanici.get("kullanici_adi") or "").strip().lower():
+            logger.warning(
+                f"Shopier OSB: username mismatch. note={customer_note} "
+                f"transaction_user={kullanici.get('kullanici_adi')} "
+                f"transaction_id={transaction['id']}"
+            )
+            # Uyumsuzsa transaction'ı 'incelemede' olarak işaretle
+            await db.credit_transactions.update_one(
+                {"id": transaction["id"]},
+                {"$set": {
+                    "durum": "incelemede",
+                    "shopier_order_id": order_id,
+                    "shopier_email": email,
+                    "shopier_note": customer_note,
+                    "onay_tarihi": datetime.now(timezone.utc).isoformat(),
+                }}
+            )
+            return "success"
+
+    # Onayla + bakiye ekle
+    await db.credit_transactions.update_one(
+        {"id": transaction["id"]},
+        {"$set": {
+            "durum": "onaylandi",
+            "shopier_order_id": order_id,
+            "shopier_email": email,
+            "shopier_note": customer_note,
+            "shopier_istest": is_test,
+            "onay_tarihi": datetime.now(timezone.utc).isoformat(),
+        }}
+    )
+    await db.users.update_one(
+        {"id": kullanici_id},
+        {"$inc": {"kredi": float(transaction["tutar"])}}
+    )
+    logger.info(
+        f"Shopier OSB: balance added. user={kullanici.get('kullanici_adi')} "
+        f"amount={transaction['tutar']} transaction={transaction['id']}"
+    )
+
+    return "success"
+
+
+@api_router.get("/shopier/transaction/{transaction_id}")
+async def get_shopier_transaction_status(
+    transaction_id: str,
+    current_user: dict = Depends(get_current_user),
+):
+    """Kullanıcının bekleyen ödeme durumunu sorgulaması için."""
+    transaction = await db.credit_transactions.find_one(
+        {"id": transaction_id, "kullanici_id": current_user["id"]},
+        {"_id": 0}
+    )
+    if not transaction:
+        raise HTTPException(status_code=404, detail="İşlem bulunamadı")
+    return transaction
 
 # ============ MARKET ROUTES ============
 

@@ -205,6 +205,20 @@ function App() {
     setUser(null);
   };
 
+  const refreshUser = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+    try {
+      const response = await axios.get(`${API}/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setUser(response.data);
+      return response.data;
+    } catch (e) {
+      return null;
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#222222] flex items-center justify-center">
@@ -214,7 +228,7 @@ function App() {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, API, BACKEND_URL }}>
+    <AuthContext.Provider value={{ user, login, logout, API, BACKEND_URL, refreshUser }}>
       <BrowserRouter>
         <GlobalAmbiance siteAmbiance={siteAmbiance} />
         <Toaster position="bottom-right" />

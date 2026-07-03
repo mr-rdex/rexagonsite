@@ -159,8 +159,35 @@ frontend:
     stuck_count: 0
     priority: "high"
     needs_retesting: false
+  - task: "Shopier bakiye paketleri ve OSB callback ile bakiye yükleme"
+    implemented: true
+    working: true
+    file: "backend/server.py, frontend/src/pages/CuzdanPage.js, frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Shopier direct payment link integration with OSB webhook. Backend endpoints: GET /api/shopier/paketler, POST /api/shopier/odeme-baslat (creates pending tx, returns payment URL with platform_order_id), POST /api/shopier/osb-callback (verifies HMAC-SHA256, matches by platform_order_id + customernote username, adds balance), GET /api/shopier/transaction/{id} (status polling). Frontend: package cards (25/50 aktif, 100/200/500 aktif=false), username display for order note, auto-polling after payment. Manual simulated OSB tests passed: correct hash adds balance, wrong hash returns 401, missing params returns 401, username mismatch marks tx as 'incelemede'."
+        -working: true
+        -agent: "testing"
+        -comment: "Comprehensive backend testing completed. All 10 test scenarios passed: (1) GET /api/shopier/paketler returns 5 packages with correct aktif status [25=true, 50=true, 100/200/500=false]. (2) POST /api/shopier/odeme-baslat?tutar=25 returns correct payment URL with 48373478 link. (3) POST /api/shopier/odeme-baslat?tutar=50 returns correct payment URL with 48373534 link. (4) POST /api/shopier/odeme-baslat?tutar=100 correctly rejects inactive package with 400 error. (5) POST /api/shopier/odeme-baslat?tutar=99 correctly rejects invalid amount with 400 error. (6a) Valid OSB callback with correct HMAC-SHA256 signature successfully adds 25 TL to balance and marks transaction as 'onaylandi'. (6b) OSB callback with wrong signature correctly returns 401 Unauthorized. (6c) OSB callback with missing parameters correctly returns 401 Missing parameter. (6d) OSB callback with username mismatch correctly marks transaction as 'incelemede' without increasing balance. (7) GET /api/shopier/transaction/{id} correctly returns 404 for non-existent transactions. All authentication, payment flow, webhook validation, and security checks working correctly."
 metadata:
   created_by: "main_agent"
   version: "1.0"
-  test_sequence: 1
+  test_sequence: 2
   run_ui: false
+
+test_plan:
+  current_focus:
+    - "Shopier bakiye paketleri ve OSB callback ile bakiye yükleme"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+    -agent: "main"
+    -message: "Shopier OSB integration implemented. All backend endpoints ready for testing: paketler listing, odeme-baslat, osb-callback webhook, and transaction status polling."
+    -agent: "testing"
+    -message: "Shopier OSB integration testing completed successfully. All 10 test scenarios passed including: package listing, payment initiation (25/50 TL active, 100/200/500 inactive), invalid amount rejection, OSB webhook with HMAC-SHA256 validation, balance updates, username mismatch detection, and transaction status queries. Backend implementation is fully functional and secure. No issues found."
